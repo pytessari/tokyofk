@@ -1,6 +1,7 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import appCss from "../styles.css?url";
 import { Navbar } from "@/components/Navbar";
+import { AuthProvider } from "@/lib/auth";
 
 function NotFoundComponent() {
   return (
@@ -54,6 +55,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   return (
+    <AuthProvider>
     <div className="grain relative min-h-screen bg-black">
       {/* Ambient ruby glow background */}
       <div
@@ -71,5 +73,6 @@ function RootComponent() {
         <p className="font-display">© TOKYO · TUDO O QUE BRILHA, CORTA.</p>
       </footer>
     </div>
+    </AuthProvider>
   );
 }

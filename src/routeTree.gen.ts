@@ -9,12 +9,30 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RegistroRouteImport } from './routes/registro'
+import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as BancaRouteImport } from './routes/banca'
 import { Route as AlbumRouteImport } from './routes/album'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SantuarioIndexRouteImport } from './routes/santuario.index'
 import { Route as SantuarioSlugRouteImport } from './routes/santuario.$slug'
 
+const RegistroRoute = RegistroRouteImport.update({
+  id: '/registro',
+  path: '/registro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilRoute = PerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BancaRoute = BancaRouteImport.update({
   id: '/banca',
   path: '/banca',
@@ -45,6 +63,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/album': typeof AlbumRoute
   '/banca': typeof BancaRoute
+  '/login': typeof LoginRoute
+  '/perfil': typeof PerfilRoute
+  '/registro': typeof RegistroRoute
   '/santuario/$slug': typeof SantuarioSlugRoute
   '/santuario/': typeof SantuarioIndexRoute
 }
@@ -52,6 +73,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/album': typeof AlbumRoute
   '/banca': typeof BancaRoute
+  '/login': typeof LoginRoute
+  '/perfil': typeof PerfilRoute
+  '/registro': typeof RegistroRoute
   '/santuario/$slug': typeof SantuarioSlugRoute
   '/santuario': typeof SantuarioIndexRoute
 }
@@ -60,19 +84,41 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/album': typeof AlbumRoute
   '/banca': typeof BancaRoute
+  '/login': typeof LoginRoute
+  '/perfil': typeof PerfilRoute
+  '/registro': typeof RegistroRoute
   '/santuario/$slug': typeof SantuarioSlugRoute
   '/santuario/': typeof SantuarioIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/album' | '/banca' | '/santuario/$slug' | '/santuario/'
+  fullPaths:
+    | '/'
+    | '/album'
+    | '/banca'
+    | '/login'
+    | '/perfil'
+    | '/registro'
+    | '/santuario/$slug'
+    | '/santuario/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/album' | '/banca' | '/santuario/$slug' | '/santuario'
+  to:
+    | '/'
+    | '/album'
+    | '/banca'
+    | '/login'
+    | '/perfil'
+    | '/registro'
+    | '/santuario/$slug'
+    | '/santuario'
   id:
     | '__root__'
     | '/'
     | '/album'
     | '/banca'
+    | '/login'
+    | '/perfil'
+    | '/registro'
     | '/santuario/$slug'
     | '/santuario/'
   fileRoutesById: FileRoutesById
@@ -81,12 +127,36 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlbumRoute: typeof AlbumRoute
   BancaRoute: typeof BancaRoute
+  LoginRoute: typeof LoginRoute
+  PerfilRoute: typeof PerfilRoute
+  RegistroRoute: typeof RegistroRoute
   SantuarioSlugRoute: typeof SantuarioSlugRoute
   SantuarioIndexRoute: typeof SantuarioIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/registro': {
+      id: '/registro'
+      path: '/registro'
+      fullPath: '/registro'
+      preLoaderRoute: typeof RegistroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil': {
+      id: '/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/banca': {
       id: '/banca'
       path: '/banca'
@@ -129,6 +199,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlbumRoute: AlbumRoute,
   BancaRoute: BancaRoute,
+  LoginRoute: LoginRoute,
+  PerfilRoute: PerfilRoute,
+  RegistroRoute: RegistroRoute,
   SantuarioSlugRoute: SantuarioSlugRoute,
   SantuarioIndexRoute: SantuarioIndexRoute,
 }
