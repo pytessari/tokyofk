@@ -9,38 +9,98 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as BancaRouteImport } from './routes/banca'
+import { Route as AlbumRouteImport } from './routes/album'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SantuarioIndexRouteImport } from './routes/santuario.index'
+import { Route as SantuarioSlugRouteImport } from './routes/santuario.$slug'
 
+const BancaRoute = BancaRouteImport.update({
+  id: '/banca',
+  path: '/banca',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlbumRoute = AlbumRouteImport.update({
+  id: '/album',
+  path: '/album',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SantuarioIndexRoute = SantuarioIndexRouteImport.update({
+  id: '/santuario/',
+  path: '/santuario/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SantuarioSlugRoute = SantuarioSlugRouteImport.update({
+  id: '/santuario/$slug',
+  path: '/santuario/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/album': typeof AlbumRoute
+  '/banca': typeof BancaRoute
+  '/santuario/$slug': typeof SantuarioSlugRoute
+  '/santuario/': typeof SantuarioIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/album': typeof AlbumRoute
+  '/banca': typeof BancaRoute
+  '/santuario/$slug': typeof SantuarioSlugRoute
+  '/santuario': typeof SantuarioIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/album': typeof AlbumRoute
+  '/banca': typeof BancaRoute
+  '/santuario/$slug': typeof SantuarioSlugRoute
+  '/santuario/': typeof SantuarioIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/album' | '/banca' | '/santuario/$slug' | '/santuario/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/album' | '/banca' | '/santuario/$slug' | '/santuario'
+  id:
+    | '__root__'
+    | '/'
+    | '/album'
+    | '/banca'
+    | '/santuario/$slug'
+    | '/santuario/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AlbumRoute: typeof AlbumRoute
+  BancaRoute: typeof BancaRoute
+  SantuarioSlugRoute: typeof SantuarioSlugRoute
+  SantuarioIndexRoute: typeof SantuarioIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/banca': {
+      id: '/banca'
+      path: '/banca'
+      fullPath: '/banca'
+      preLoaderRoute: typeof BancaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/album': {
+      id: '/album'
+      path: '/album'
+      fullPath: '/album'
+      preLoaderRoute: typeof AlbumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +108,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/santuario/': {
+      id: '/santuario/'
+      path: '/santuario'
+      fullPath: '/santuario/'
+      preLoaderRoute: typeof SantuarioIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/santuario/$slug': {
+      id: '/santuario/$slug'
+      path: '/santuario/$slug'
+      fullPath: '/santuario/$slug'
+      preLoaderRoute: typeof SantuarioSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AlbumRoute: AlbumRoute,
+  BancaRoute: BancaRoute,
+  SantuarioSlugRoute: SantuarioSlugRoute,
+  SantuarioIndexRoute: SantuarioIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

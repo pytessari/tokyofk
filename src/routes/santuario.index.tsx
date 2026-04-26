@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { MEMBERS } from "@/lib/members";
 import { ThornHeart } from "@/components/Sticker";
 
-export const Route = createFileRoute("/santuario")({
+export const Route = createFileRoute("/santuario/")({
   head: () => ({
     meta: [
       { title: "TOKYO · O Santuário" },
