@@ -14,16 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      family_links: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          name: string
+          owner_id: string
+          slug: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          name: string
+          owner_id: string
+          slug?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          name?: string
+          owner_id?: string
+          slug?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_links_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           banner_url: string | null
           bio: string | null
           created_at: string
+          discord_id: string | null
           display_name: string
+          hue: number
           id: string
+          partner_name: string | null
+          partner_slug: string | null
+          relationship_status: string | null
           role: string | null
           sign: string | null
+          slug: string | null
           updated_at: string
         }
         Insert: {
@@ -31,10 +72,16 @@ export type Database = {
           banner_url?: string | null
           bio?: string | null
           created_at?: string
+          discord_id?: string | null
           display_name: string
+          hue?: number
           id: string
+          partner_name?: string | null
+          partner_slug?: string | null
+          relationship_status?: string | null
           role?: string | null
           sign?: string | null
+          slug?: string | null
           updated_at?: string
         }
         Update: {
@@ -42,10 +89,16 @@ export type Database = {
           banner_url?: string | null
           bio?: string | null
           created_at?: string
+          discord_id?: string | null
           display_name?: string
+          hue?: number
           id?: string
+          partner_name?: string | null
+          partner_slug?: string | null
+          relationship_status?: string | null
           role?: string | null
           sign?: string | null
+          slug?: string | null
           updated_at?: string
         }
         Relationships: []
