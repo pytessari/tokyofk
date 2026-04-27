@@ -14,9 +14,11 @@
  * Exemplo de link válido: "https://i.imgur.com/oB0JfFW.jpeg"
  */
 
+import logoLocal from "@/assets/tokyo-logo.png";
+
 export const IMAGES = {
   // ─── Branding ─────────────────────────────────────────────────────────
-  logo: "https://i.imgur.com/oB0JfFW.jpeg",
+  logo: logoLocal,
 
   // ─── Capas de revistas ────────────────────────────────────────────────
   coverSeason1: "", // ← cole URL da capa Edição Especial Temporada 1

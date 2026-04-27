@@ -16,7 +16,7 @@ export function Navbar() {
     <header className="sticky top-0 z-40 glass-dark border-b border-[color:var(--ruby)]/30">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3">
         <Link to="/" className="flex items-center gap-3">
-          <img src={IMAGES.logo} alt="TOKYO" className="h-12 w-auto drop-shadow-[0_0_18px_#d90036]" />
+          <img src={IMAGES.logo} alt="TOKYO" className="h-14 w-auto drop-shadow-[0_0_22px_#d90036]" />
           <span className="hidden font-display text-xs tracking-[0.4em] text-[color:var(--chrome)] sm:inline">
             COMUNIDADE OFICIAL · 東京
           </span>
