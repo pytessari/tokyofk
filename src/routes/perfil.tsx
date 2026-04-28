@@ -1,7 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { useAuth } from "@/lib/auth";
+import { useRole } from "@/lib/useRole";
 import { supabase } from "@/integrations/supabase/client";
+import { ImageUpload } from "@/components/ImageUpload";
 import { IMAGES, img } from "@/lib/images";
 
 export const Route = createFileRoute("/perfil")({
@@ -14,7 +16,6 @@ type Profile = {
   display_name: string;
   slug: string | null;
   discord_id: string | null;
-  hue: number;
   bio: string | null;
   sign: string | null;
   role: string | null;
@@ -32,6 +33,11 @@ type FamilyLink = {
   name: string;
   slug: string | null;
 };
+
+const SIGNS = [
+  "♈ Áries","♉ Touro","♊ Gêmeos","♋ Câncer","♌ Leão","♍ Virgem",
+  "♎ Libra","♏ Escorpião","♐ Sagitário","♑ Capricórnio","♒ Aquário","♓ Peixes",
+];
 
 const RELATIONSHIP_OPTIONS = [
   "", "Solteiro(a)", "Namorando", "Casado(a) com",
@@ -54,6 +60,7 @@ const KIND_OPTIONS = [
 
 function ProfilePage() {
   const { user, loading, signOut } = useAuth();
+  const { isAdmin } = useRole();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [family, setFamily] = useState<FamilyLink[]>([]);
@@ -61,7 +68,6 @@ function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
-  // new family form
   const [newKind, setNewKind] = useState("pai");
   const [newName, setNewName] = useState("");
   const [newSlug, setNewSlug] = useState("");
@@ -74,7 +80,7 @@ function ProfilePage() {
         supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
         supabase.from("family_links").select("*").eq("owner_id", user.id).order("created_at"),
       ]);
-      if (p) setProfile(p as Profile);
+      if (p) setProfile(p as unknown as Profile);
       if (f) setFamily(f as FamilyLink[]);
       setFetching(false);
     })();
@@ -90,7 +96,6 @@ function ProfilePage() {
       display_name: profile.display_name,
       slug: slugClean || null,
       discord_id: (profile.discord_id ?? "").trim() || null,
-      hue: profile.hue,
       bio: profile.bio,
       sign: profile.sign,
       role: profile.role,
@@ -127,37 +132,34 @@ function ProfilePage() {
   if (loading || fetching) {
     return <div className="px-5 py-20 text-center font-display tracking-widest text-white/60">CARREGANDO…</div>;
   }
-  if (!profile) return null;
+  if (!profile || !user) return null;
 
-  const avatar = img(profile.avatar_url ?? "", IMAGES.fallback.avatar);
-  const banner = img(profile.banner_url ?? "", IMAGES.fallback.banner);
-  const hueStyle = { ["--user-hue" as string]: profile.hue } as React.CSSProperties;
+  const avatarPreview = img(profile.avatar_url ?? "", IMAGES.fallback.avatar);
+  const bannerPreview = img(profile.banner_url ?? "", IMAGES.fallback.banner);
 
   return (
-    <div className="mx-auto max-w-3xl px-5 py-10" style={hueStyle}>
-      {/* Live preview header */}
-      <div className="relative overflow-hidden rounded-xl border" style={{ borderColor: `hsl(${profile.hue} 90% 50% / 0.5)` }}>
-        <img src={banner} alt="" className="h-44 w-full object-cover sm:h-56" />
-        <div
-          className="absolute inset-0"
-          style={{ background: `linear-gradient(180deg, transparent 0%, hsl(${profile.hue} 90% 8%) 100%)` }}
-        />
+    <div className="mx-auto max-w-4xl px-5 py-10">
+      {/* Preview */}
+      <div className="relative overflow-hidden rounded-xl ruby-border">
+        <img src={bannerPreview} alt="" className="h-44 w-full object-cover sm:h-56" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black" />
       </div>
       <div className="-mt-12 flex items-end gap-4 px-2">
-        <img
-          src={avatar}
-          alt={profile.display_name}
-          className="h-24 w-24 rounded-full border-4 bg-black object-cover"
-          style={{ borderColor: `hsl(${profile.hue} 90% 50%)`, boxShadow: `0 0 24px hsl(${profile.hue} 90% 50% / 0.6)` }}
-        />
+        <img src={avatarPreview} alt={profile.display_name}
+          className="h-24 w-24 rounded-full border-4 border-[color:var(--ruby)] bg-black object-cover shadow-[0_0_24px_#d9003680]" />
         <div className="pb-2">
           <h1 className="font-display text-3xl tracking-widest text-white">{profile.display_name}</h1>
-          <p className="text-xs uppercase tracking-widest text-white/50">{user?.email}</p>
           {profile.slug && (
             <Link to="/santuario/$slug" params={{ slug: profile.slug }}
-              className="mt-1 inline-block font-display text-[11px] tracking-widest"
-              style={{ color: `hsl(${profile.hue} 90% 65%)` }}>
+              className="mt-1 inline-block font-display text-[11px] tracking-widest text-[color:var(--ruby)]">
               /santuario/{profile.slug} ↗
+            </Link>
+          )}
+        </div>
+        <div className="ml-auto flex gap-2 pb-2">
+          {isAdmin && (
+            <Link to="/admin" className="rounded-md border border-yellow-400/60 px-3 py-1.5 font-display text-xs tracking-widest text-yellow-300 hover:bg-yellow-400/10">
+              ADMIN
             </Link>
           )}
         </div>
@@ -177,31 +179,32 @@ function ProfilePage() {
             placeholder="123456789012345678" />
           <Field label="Papel (ex: O Espinho)" value={profile.role ?? ""}
             onChange={(v) => setProfile({ ...profile, role: v })} />
-          <Field label="Signo (ex: ♏ Escorpião)" value={profile.sign ?? ""}
-            onChange={(v) => setProfile({ ...profile, sign: v })} />
 
           <label className="block">
-            <span className="mb-1 block font-display text-xs tracking-widest text-white/70">
-              Cor (Hue {profile.hue}°)
-            </span>
-            <input type="range" min="0" max="360" value={profile.hue}
-              onChange={(e) => setProfile({ ...profile, hue: Number(e.target.value) })}
-              className="w-full"
-              style={{ accentColor: `hsl(${profile.hue} 90% 55%)` }} />
-            <div className="mt-1 h-3 rounded-full" style={{
-              background: "linear-gradient(90deg, hsl(0 90% 55%), hsl(60 90% 55%), hsl(120 90% 55%), hsl(180 90% 55%), hsl(240 90% 55%), hsl(300 90% 55%), hsl(360 90% 55%))"
-            }} />
+            <span className="mb-1 block font-display text-xs tracking-widest text-white/70">Signo</span>
+            <select value={profile.sign ?? ""}
+              onChange={(e) => setProfile({ ...profile, sign: e.target.value || null })}
+              className="w-full rounded-md border border-white/15 bg-black/50 px-3 py-2 text-white outline-none focus:border-[color:var(--ruby)]">
+              <option value="">—</option>
+              {SIGNS.map((s) => <option key={s} value={s}>{s}</option>)}
+            </select>
           </label>
         </div>
 
         <h2 className="pt-2 font-display text-xl tracking-widest text-[color:var(--chrome)]">▎IMAGENS</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="URL do avatar" value={profile.avatar_url ?? ""}
-            onChange={(v) => setProfile({ ...profile, avatar_url: v })}
-            placeholder="https://i.imgur.com/xxxxx.jpg" />
-          <Field label="URL da capa (banner)" value={profile.banner_url ?? ""}
-            onChange={(v) => setProfile({ ...profile, banner_url: v })}
-            placeholder="https://i.imgur.com/xxxxx.jpg" />
+        <div className="grid gap-6 sm:grid-cols-2">
+          <div>
+            <p className="mb-2 font-display text-xs tracking-widest text-white/70">AVATAR</p>
+            <ImageUpload bucket="avatars" userId={user.id}
+              currentUrl={profile.avatar_url} aspect="square"
+              onUploaded={(url) => setProfile({ ...profile, avatar_url: url })} />
+          </div>
+          <div>
+            <p className="mb-2 font-display text-xs tracking-widest text-white/70">CAPA (BANNER)</p>
+            <ImageUpload bucket="banners" userId={user.id}
+              currentUrl={profile.banner_url} aspect="banner"
+              onUploaded={(url) => setProfile({ ...profile, banner_url: url })} />
+          </div>
         </div>
 
         <label className="block">
@@ -238,9 +241,12 @@ function ProfilePage() {
             className="rounded-md bg-ruby-gradient px-5 py-2.5 font-display tracking-widest text-white shadow-[0_0_20px_#d9003680] hover:brightness-110 disabled:opacity-50">
             {saving ? "SALVANDO…" : "SALVAR"}
           </button>
-          <Link to="/santuario" className="rounded-md border border-white/20 px-4 py-2 text-sm text-white/80 hover:bg-white/5">
-            Ver Santuário
-          </Link>
+          {profile.slug && (
+            <Link to="/santuario/$slug" params={{ slug: profile.slug }}
+              className="rounded-md border border-white/20 px-4 py-2 text-sm text-white/80 hover:bg-white/5">
+              Ver meu santuário
+            </Link>
+          )}
           <button type="button"
             onClick={async () => { await signOut(); navigate({ to: "/" }); }}
             className="ml-auto rounded-md border border-white/20 px-4 py-2 text-sm text-white/80 hover:bg-white/5">
@@ -249,16 +255,16 @@ function ProfilePage() {
         </div>
       </form>
 
-      {/* Family tree */}
+      {/* Family */}
       <section className="mt-8 glass-dark rounded-xl p-6">
         <h2 className="font-display text-xl tracking-widest text-[color:var(--chrome)]">▎ÁRVORE GENEALÓGICA</h2>
-        <p className="mt-1 text-xs text-white/50">Adicione familiares ilimitados. O slug vira link clicável no santuário.</p>
+        <p className="mt-1 text-xs text-white/50">Adicione familiares ilimitados. O slug vira link no santuário.</p>
 
         <ul className="mt-4 divide-y divide-white/10">
           {family.length === 0 && <li className="py-3 text-sm text-white/40">Nenhum familiar cadastrado ainda.</li>}
           {family.map((f) => (
             <li key={f.id} className="flex items-center gap-3 py-2">
-              <span className="font-display text-xs tracking-widest text-[color:var(--ruby)] uppercase w-24">
+              <span className="w-24 font-display text-xs uppercase tracking-widest text-[color:var(--ruby)]">
                 {KIND_OPTIONS.find((k) => k.value === f.kind)?.label ?? f.kind}
               </span>
               <span className="flex-1 text-white">{f.name}</span>
