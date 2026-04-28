@@ -14,9 +14,12 @@ import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as BancaRouteImport } from './routes/banca'
 import { Route as AlbumRouteImport } from './routes/album'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SantuarioIndexRouteImport } from './routes/santuario.index'
+import { Route as RevistaIndexRouteImport } from './routes/revista.index'
 import { Route as SantuarioSlugRouteImport } from './routes/santuario.$slug'
+import { Route as RevistaIdRouteImport } from './routes/revista.$id'
 
 const RegistroRoute = RegistroRouteImport.update({
   id: '/registro',
@@ -43,6 +46,11 @@ const AlbumRoute = AlbumRouteImport.update({
   path: '/album',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -53,84 +61,115 @@ const SantuarioIndexRoute = SantuarioIndexRouteImport.update({
   path: '/santuario/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RevistaIndexRoute = RevistaIndexRouteImport.update({
+  id: '/revista/',
+  path: '/revista/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SantuarioSlugRoute = SantuarioSlugRouteImport.update({
   id: '/santuario/$slug',
   path: '/santuario/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RevistaIdRoute = RevistaIdRouteImport.update({
+  id: '/revista/$id',
+  path: '/revista/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/album': typeof AlbumRoute
   '/banca': typeof BancaRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
   '/registro': typeof RegistroRoute
+  '/revista/$id': typeof RevistaIdRoute
   '/santuario/$slug': typeof SantuarioSlugRoute
+  '/revista/': typeof RevistaIndexRoute
   '/santuario/': typeof SantuarioIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/album': typeof AlbumRoute
   '/banca': typeof BancaRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
   '/registro': typeof RegistroRoute
+  '/revista/$id': typeof RevistaIdRoute
   '/santuario/$slug': typeof SantuarioSlugRoute
+  '/revista': typeof RevistaIndexRoute
   '/santuario': typeof SantuarioIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/album': typeof AlbumRoute
   '/banca': typeof BancaRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
   '/registro': typeof RegistroRoute
+  '/revista/$id': typeof RevistaIdRoute
   '/santuario/$slug': typeof SantuarioSlugRoute
+  '/revista/': typeof RevistaIndexRoute
   '/santuario/': typeof SantuarioIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/album'
     | '/banca'
     | '/login'
     | '/perfil'
     | '/registro'
+    | '/revista/$id'
     | '/santuario/$slug'
+    | '/revista/'
     | '/santuario/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/album'
     | '/banca'
     | '/login'
     | '/perfil'
     | '/registro'
+    | '/revista/$id'
     | '/santuario/$slug'
+    | '/revista'
     | '/santuario'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/album'
     | '/banca'
     | '/login'
     | '/perfil'
     | '/registro'
+    | '/revista/$id'
     | '/santuario/$slug'
+    | '/revista/'
     | '/santuario/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   AlbumRoute: typeof AlbumRoute
   BancaRoute: typeof BancaRoute
   LoginRoute: typeof LoginRoute
   PerfilRoute: typeof PerfilRoute
   RegistroRoute: typeof RegistroRoute
+  RevistaIdRoute: typeof RevistaIdRoute
   SantuarioSlugRoute: typeof SantuarioSlugRoute
+  RevistaIndexRoute: typeof RevistaIndexRoute
   SantuarioIndexRoute: typeof SantuarioIndexRoute
 }
 
@@ -171,6 +210,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AlbumRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -185,6 +231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SantuarioIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/revista/': {
+      id: '/revista/'
+      path: '/revista'
+      fullPath: '/revista/'
+      preLoaderRoute: typeof RevistaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/santuario/$slug': {
       id: '/santuario/$slug'
       path: '/santuario/$slug'
@@ -192,17 +245,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SantuarioSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/revista/$id': {
+      id: '/revista/$id'
+      path: '/revista/$id'
+      fullPath: '/revista/$id'
+      preLoaderRoute: typeof RevistaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   AlbumRoute: AlbumRoute,
   BancaRoute: BancaRoute,
   LoginRoute: LoginRoute,
   PerfilRoute: PerfilRoute,
   RegistroRoute: RegistroRoute,
+  RevistaIdRoute: RevistaIdRoute,
   SantuarioSlugRoute: SantuarioSlugRoute,
+  RevistaIndexRoute: RevistaIndexRoute,
   SantuarioIndexRoute: SantuarioIndexRoute,
 }
 export const routeTree = rootRouteImport
