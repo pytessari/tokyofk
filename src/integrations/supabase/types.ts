@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      cards: {
+        Row: {
+          card_number: string
+          character_key: string
+          character_name: string
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+          rarity: string
+          season: string | null
+          updated_at: string
+        }
+        Insert: {
+          card_number: string
+          character_key: string
+          character_name: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          rarity?: string
+          season?: string | null
+          updated_at?: string
+        }
+        Update: {
+          card_number?: string
+          character_key?: string
+          character_name?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          rarity?: string
+          season?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       family_links: {
         Row: {
           created_at: string
@@ -49,6 +91,112 @@ export type Database = {
           },
         ]
       }
+      guestbook: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: string
+          profile_id: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          id?: string
+          profile_id: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guestbook_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      magazine_pages: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          magazine_id: string
+          page_number: number
+          title: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          magazine_id: string
+          page_number: number
+          title?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          magazine_id?: string
+          page_number?: number
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "magazine_pages_magazine_id_fkey"
+            columns: ["magazine_id"]
+            isOneToOne: false
+            referencedRelation: "magazines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      magazines: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          id: string
+          issue_number: number | null
+          published: boolean
+          published_at: string | null
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          issue_number?: number | null
+          published?: boolean
+          published_at?: string | null
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          issue_number?: number | null
+          published?: boolean
+          published_at?: string | null
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -57,7 +205,6 @@ export type Database = {
           created_at: string
           discord_id: string | null
           display_name: string
-          hue: number
           id: string
           partner_name: string | null
           partner_slug: string | null
@@ -74,7 +221,6 @@ export type Database = {
           created_at?: string
           discord_id?: string | null
           display_name: string
-          hue?: number
           id: string
           partner_name?: string | null
           partner_slug?: string | null
@@ -91,7 +237,6 @@ export type Database = {
           created_at?: string
           discord_id?: string | null
           display_name?: string
-          hue?: number
           id?: string
           partner_name?: string | null
           partner_slug?: string | null
@@ -103,15 +248,74 @@ export type Database = {
         }
         Relationships: []
       }
+      user_cards: {
+        Row: {
+          acquired_at: string
+          card_id: string
+          id: string
+          quantity: number
+          user_id: string
+        }
+        Insert: {
+          acquired_at?: string
+          card_id: string
+          id?: string
+          quantity?: number
+          user_id: string
+        }
+        Update: {
+          acquired_at?: string
+          card_id?: string
+          id?: string
+          quantity?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_cards_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "member"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -238,6 +442,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "member"],
+    },
   },
 } as const
