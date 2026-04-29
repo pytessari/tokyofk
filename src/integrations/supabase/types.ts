@@ -56,6 +56,39 @@ export type Database = {
         }
         Relationships: []
       }
+      discord_links: {
+        Row: {
+          created_at: string
+          discord_id: string | null
+          expires_at: string | null
+          id: string
+          updated_at: string
+          user_id: string
+          verified_at: string | null
+          verify_code: string | null
+        }
+        Insert: {
+          created_at?: string
+          discord_id?: string | null
+          expires_at?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+          verified_at?: string | null
+          verify_code?: string | null
+        }
+        Update: {
+          created_at?: string
+          discord_id?: string | null
+          expires_at?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+          verified_at?: string | null
+          verify_code?: string | null
+        }
+        Relationships: []
+      }
       family_links: {
         Row: {
           created_at: string
@@ -90,6 +123,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+        }
+        Relationships: []
       }
       guestbook: {
         Row: {
@@ -193,6 +244,105 @@ export type Database = {
           published_at?: string | null
           subtitle?: string | null
           title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          id: string
+          kind: string
+          payload: Json
+          read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          payload?: Json
+          read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          payload?: Json
+          read_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      post_comments: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: string
+          post_id: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          id?: string
+          post_id: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+        }
+        Relationships: []
+      }
+      post_likes: {
+        Row: {
+          created_at: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      posts: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: string
+          image_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
           updated_at?: string
         }
         Relationships: []
