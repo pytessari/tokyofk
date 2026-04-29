@@ -20,6 +20,9 @@ import { Route as SantuarioIndexRouteImport } from './routes/santuario.index'
 import { Route as RevistaIndexRouteImport } from './routes/revista.index'
 import { Route as SantuarioSlugRouteImport } from './routes/santuario.$slug'
 import { Route as RevistaIdRouteImport } from './routes/revista.$id'
+import { Route as ApiPublicBotProfileRouteImport } from './routes/api/public/bot.profile'
+import { Route as ApiPublicBotDiscordLinkRouteImport } from './routes/api/public/bot.discord-link'
+import { Route as ApiPublicBotCardsGrantRouteImport } from './routes/api/public/bot.cards-grant'
 
 const RegistroRoute = RegistroRouteImport.update({
   id: '/registro',
@@ -76,6 +79,21 @@ const RevistaIdRoute = RevistaIdRouteImport.update({
   path: '/revista/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicBotProfileRoute = ApiPublicBotProfileRouteImport.update({
+  id: '/api/public/bot/profile',
+  path: '/api/public/bot/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicBotDiscordLinkRoute = ApiPublicBotDiscordLinkRouteImport.update({
+  id: '/api/public/bot/discord-link',
+  path: '/api/public/bot/discord-link',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicBotCardsGrantRoute = ApiPublicBotCardsGrantRouteImport.update({
+  id: '/api/public/bot/cards-grant',
+  path: '/api/public/bot/cards-grant',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,6 +107,9 @@ export interface FileRoutesByFullPath {
   '/santuario/$slug': typeof SantuarioSlugRoute
   '/revista/': typeof RevistaIndexRoute
   '/santuario/': typeof SantuarioIndexRoute
+  '/api/public/bot/cards-grant': typeof ApiPublicBotCardsGrantRoute
+  '/api/public/bot/discord-link': typeof ApiPublicBotDiscordLinkRoute
+  '/api/public/bot/profile': typeof ApiPublicBotProfileRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -102,6 +123,9 @@ export interface FileRoutesByTo {
   '/santuario/$slug': typeof SantuarioSlugRoute
   '/revista': typeof RevistaIndexRoute
   '/santuario': typeof SantuarioIndexRoute
+  '/api/public/bot/cards-grant': typeof ApiPublicBotCardsGrantRoute
+  '/api/public/bot/discord-link': typeof ApiPublicBotDiscordLinkRoute
+  '/api/public/bot/profile': typeof ApiPublicBotProfileRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,6 +140,9 @@ export interface FileRoutesById {
   '/santuario/$slug': typeof SantuarioSlugRoute
   '/revista/': typeof RevistaIndexRoute
   '/santuario/': typeof SantuarioIndexRoute
+  '/api/public/bot/cards-grant': typeof ApiPublicBotCardsGrantRoute
+  '/api/public/bot/discord-link': typeof ApiPublicBotDiscordLinkRoute
+  '/api/public/bot/profile': typeof ApiPublicBotProfileRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,6 +158,9 @@ export interface FileRouteTypes {
     | '/santuario/$slug'
     | '/revista/'
     | '/santuario/'
+    | '/api/public/bot/cards-grant'
+    | '/api/public/bot/discord-link'
+    | '/api/public/bot/profile'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,6 +174,9 @@ export interface FileRouteTypes {
     | '/santuario/$slug'
     | '/revista'
     | '/santuario'
+    | '/api/public/bot/cards-grant'
+    | '/api/public/bot/discord-link'
+    | '/api/public/bot/profile'
   id:
     | '__root__'
     | '/'
@@ -157,6 +190,9 @@ export interface FileRouteTypes {
     | '/santuario/$slug'
     | '/revista/'
     | '/santuario/'
+    | '/api/public/bot/cards-grant'
+    | '/api/public/bot/discord-link'
+    | '/api/public/bot/profile'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,6 +207,9 @@ export interface RootRouteChildren {
   SantuarioSlugRoute: typeof SantuarioSlugRoute
   RevistaIndexRoute: typeof RevistaIndexRoute
   SantuarioIndexRoute: typeof SantuarioIndexRoute
+  ApiPublicBotCardsGrantRoute: typeof ApiPublicBotCardsGrantRoute
+  ApiPublicBotDiscordLinkRoute: typeof ApiPublicBotDiscordLinkRoute
+  ApiPublicBotProfileRoute: typeof ApiPublicBotProfileRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -252,6 +291,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RevistaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/bot/profile': {
+      id: '/api/public/bot/profile'
+      path: '/api/public/bot/profile'
+      fullPath: '/api/public/bot/profile'
+      preLoaderRoute: typeof ApiPublicBotProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/bot/discord-link': {
+      id: '/api/public/bot/discord-link'
+      path: '/api/public/bot/discord-link'
+      fullPath: '/api/public/bot/discord-link'
+      preLoaderRoute: typeof ApiPublicBotDiscordLinkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/bot/cards-grant': {
+      id: '/api/public/bot/cards-grant'
+      path: '/api/public/bot/cards-grant'
+      fullPath: '/api/public/bot/cards-grant'
+      preLoaderRoute: typeof ApiPublicBotCardsGrantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -267,6 +327,9 @@ const rootRouteChildren: RootRouteChildren = {
   SantuarioSlugRoute: SantuarioSlugRoute,
   RevistaIndexRoute: RevistaIndexRoute,
   SantuarioIndexRoute: SantuarioIndexRoute,
+  ApiPublicBotCardsGrantRoute: ApiPublicBotCardsGrantRoute,
+  ApiPublicBotDiscordLinkRoute: ApiPublicBotDiscordLinkRoute,
+  ApiPublicBotProfileRoute: ApiPublicBotProfileRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

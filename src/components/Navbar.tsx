@@ -1,12 +1,14 @@
 import { Link } from "@tanstack/react-router";
 import { IMAGES } from "@/lib/images";
 import { useAuth } from "@/lib/auth";
+import { NotificationsBell } from "@/components/NotificationsBell";
 
 const links = [
   { to: "/", label: "Início" },
-  { to: "/revista", label: "A Revista" },
-  { to: "/santuario", label: "O Santuário" },
-  { to: "/album", label: "Meu Álbum" },
+  { to: "/feed", label: "Feed" },
+  { to: "/revista", label: "Revista" },
+  { to: "/santuario", label: "Santuário" },
+  { to: "/album", label: "Álbum" },
 ] as const;
 
 export function Navbar() {
@@ -44,12 +46,15 @@ export function Navbar() {
           ))}
 
           {!loading && (user ? (
-            <Link
-              to="/perfil"
-              className="ml-3 rounded-md border border-[color:var(--ruby)]/60 bg-black/40 px-4 py-2 font-display text-sm tracking-widest text-white transition hover:bg-[color:var(--ruby)]/10"
-            >
-              MEU PERFIL
-            </Link>
+            <>
+              <NotificationsBell />
+              <Link
+                to="/perfil"
+                className="ml-1 rounded-md border border-[color:var(--ruby)]/60 bg-black/40 px-4 py-2 font-display text-sm tracking-widest text-white transition hover:bg-[color:var(--ruby)]/10"
+              >
+                PERFIL
+              </Link>
+            </>
           ) : (
             <Link
               to="/login"
