@@ -5,6 +5,8 @@ import { Guestbook } from "@/components/Guestbook";
 import { CardGrid, type CardRow } from "@/components/CardGrid";
 import { IMAGES, img } from "@/lib/images";
 import { ThornHeart, StarSpike } from "@/components/Sticker";
+import { FollowButton, FollowStats } from "@/components/FollowButton";
+import { PostCard, type PostRow, type PostAuthor } from "@/components/PostCard";
 
 export const Route = createFileRoute("/santuario/$slug")({
   head: ({ params }) => ({
@@ -43,6 +45,7 @@ function MemberPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [family, setFamily] = useState<FamilyLink[]>([]);
   const [cards, setCards] = useState<CardRow[]>([]);
+  const [posts, setPosts] = useState<PostRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFoundState, setNotFound] = useState(false);
 
@@ -52,12 +55,17 @@ function MemberPage() {
       if (!p) { setNotFound(true); setLoading(false); return; }
       setProfile(p as unknown as Profile);
 
-      const [{ data: f }, { data: c }] = await Promise.all([
+      const [{ data: f }, { data: c }, { data: ps }] = await Promise.all([
         supabase.from("family_links").select("id, kind, name, slug").eq("owner_id", p.id).order("created_at"),
         supabase.from("cards").select("*").eq("character_key", slug).order("card_number"),
+        supabase.from("posts").select("*").eq("author_id", p.id).order("created_at", { ascending: false }).limit(10),
       ]);
       setFamily((f as FamilyLink[]) ?? []);
       setCards((c as CardRow[]) ?? []);
+      const author: PostAuthor = {
+        id: p.id, display_name: p.display_name, slug: p.slug, avatar_url: p.avatar_url,
+      };
+      setPosts(((ps as PostRow[]) ?? []).map((x) => ({ ...x, author })));
       setLoading(false);
     })();
   }, [slug]);
@@ -108,6 +116,10 @@ function MemberPage() {
                 {profile.role.toUpperCase()}
               </p>
             )}
+            <div className="mt-3"><FollowStats targetId={profile.id} /></div>
+          </div>
+          <div className="pb-2">
+            <FollowButton targetId={profile.id} />
           </div>
         </div>
 
@@ -169,13 +181,29 @@ function MemberPage() {
           </section>
         )}
 
+        {/* Posts */}
+        {posts.length > 0 && (
+          <section className="mt-14">
+            <div className="mb-4 flex items-end justify-between">
+              <div>
+                <p className="font-display text-xs tracking-[0.5em] text-[color:var(--chrome)]">A LINHA DO TEMPO</p>
+                <h2 className="font-display text-3xl text-ruby-gradient">ÚLTIMOS POSTS</h2>
+              </div>
+              <Link to="/feed" className="font-display text-xs tracking-widest text-white/70 hover:text-white">
+                ABRIR FEED →
+              </Link>
+            </div>
+            <div className="space-y-4">
+              {posts.map((p) => <PostCard key={p.id} post={p} />)}
+            </div>
+          </section>
+        )}
+
         {/* Cartas do personagem */}
         <section className="mt-14">
           <div className="mb-6 flex items-end justify-between">
             <div>
-              <p className="font-display text-xs tracking-[0.5em] text-[color:var(--chrome)]">
-                A COLEÇÃO
-              </p>
+              <p className="font-display text-xs tracking-[0.5em] text-[color:var(--chrome)]">A COLEÇÃO</p>
               <h2 className="font-display text-4xl text-ruby-gradient">CARTAS DE {profile.display_name.split(" ")[0].toUpperCase()}</h2>
             </div>
             <Link to="/album" className="font-display text-xs tracking-widest text-white/70 hover:text-white">
@@ -205,5 +233,4 @@ function BioRow({ k, v }: { k: string; v: React.ReactNode }) {
   );
 }
 
-// unused but kept for typescript referential reference
 void notFound;

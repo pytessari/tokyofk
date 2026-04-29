@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as FeedRouteImport } from './routes/feed'
 import { Route as BancaRouteImport } from './routes/banca'
 import { Route as AlbumRouteImport } from './routes/album'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -20,6 +21,9 @@ import { Route as SantuarioIndexRouteImport } from './routes/santuario.index'
 import { Route as RevistaIndexRouteImport } from './routes/revista.index'
 import { Route as SantuarioSlugRouteImport } from './routes/santuario.$slug'
 import { Route as RevistaIdRouteImport } from './routes/revista.$id'
+import { Route as ApiPublicBotProfileRouteImport } from './routes/api/public/bot.profile'
+import { Route as ApiPublicBotDiscordLinkRouteImport } from './routes/api/public/bot.discord-link'
+import { Route as ApiPublicBotCardsGrantRouteImport } from './routes/api/public/bot.cards-grant'
 
 const RegistroRoute = RegistroRouteImport.update({
   id: '/registro',
@@ -34,6 +38,11 @@ const PerfilRoute = PerfilRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedRoute = FeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BancaRoute = BancaRouteImport.update({
@@ -76,12 +85,28 @@ const RevistaIdRoute = RevistaIdRouteImport.update({
   path: '/revista/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicBotProfileRoute = ApiPublicBotProfileRouteImport.update({
+  id: '/api/public/bot/profile',
+  path: '/api/public/bot/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicBotDiscordLinkRoute = ApiPublicBotDiscordLinkRouteImport.update({
+  id: '/api/public/bot/discord-link',
+  path: '/api/public/bot/discord-link',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicBotCardsGrantRoute = ApiPublicBotCardsGrantRouteImport.update({
+  id: '/api/public/bot/cards-grant',
+  path: '/api/public/bot/cards-grant',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/album': typeof AlbumRoute
   '/banca': typeof BancaRoute
+  '/feed': typeof FeedRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
   '/registro': typeof RegistroRoute
@@ -89,12 +114,16 @@ export interface FileRoutesByFullPath {
   '/santuario/$slug': typeof SantuarioSlugRoute
   '/revista/': typeof RevistaIndexRoute
   '/santuario/': typeof SantuarioIndexRoute
+  '/api/public/bot/cards-grant': typeof ApiPublicBotCardsGrantRoute
+  '/api/public/bot/discord-link': typeof ApiPublicBotDiscordLinkRoute
+  '/api/public/bot/profile': typeof ApiPublicBotProfileRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/album': typeof AlbumRoute
   '/banca': typeof BancaRoute
+  '/feed': typeof FeedRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
   '/registro': typeof RegistroRoute
@@ -102,6 +131,9 @@ export interface FileRoutesByTo {
   '/santuario/$slug': typeof SantuarioSlugRoute
   '/revista': typeof RevistaIndexRoute
   '/santuario': typeof SantuarioIndexRoute
+  '/api/public/bot/cards-grant': typeof ApiPublicBotCardsGrantRoute
+  '/api/public/bot/discord-link': typeof ApiPublicBotDiscordLinkRoute
+  '/api/public/bot/profile': typeof ApiPublicBotProfileRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -109,6 +141,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/album': typeof AlbumRoute
   '/banca': typeof BancaRoute
+  '/feed': typeof FeedRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
   '/registro': typeof RegistroRoute
@@ -116,6 +149,9 @@ export interface FileRoutesById {
   '/santuario/$slug': typeof SantuarioSlugRoute
   '/revista/': typeof RevistaIndexRoute
   '/santuario/': typeof SantuarioIndexRoute
+  '/api/public/bot/cards-grant': typeof ApiPublicBotCardsGrantRoute
+  '/api/public/bot/discord-link': typeof ApiPublicBotDiscordLinkRoute
+  '/api/public/bot/profile': typeof ApiPublicBotProfileRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -124,6 +160,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/album'
     | '/banca'
+    | '/feed'
     | '/login'
     | '/perfil'
     | '/registro'
@@ -131,12 +168,16 @@ export interface FileRouteTypes {
     | '/santuario/$slug'
     | '/revista/'
     | '/santuario/'
+    | '/api/public/bot/cards-grant'
+    | '/api/public/bot/discord-link'
+    | '/api/public/bot/profile'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
     | '/album'
     | '/banca'
+    | '/feed'
     | '/login'
     | '/perfil'
     | '/registro'
@@ -144,12 +185,16 @@ export interface FileRouteTypes {
     | '/santuario/$slug'
     | '/revista'
     | '/santuario'
+    | '/api/public/bot/cards-grant'
+    | '/api/public/bot/discord-link'
+    | '/api/public/bot/profile'
   id:
     | '__root__'
     | '/'
     | '/admin'
     | '/album'
     | '/banca'
+    | '/feed'
     | '/login'
     | '/perfil'
     | '/registro'
@@ -157,6 +202,9 @@ export interface FileRouteTypes {
     | '/santuario/$slug'
     | '/revista/'
     | '/santuario/'
+    | '/api/public/bot/cards-grant'
+    | '/api/public/bot/discord-link'
+    | '/api/public/bot/profile'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -164,6 +212,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AlbumRoute: typeof AlbumRoute
   BancaRoute: typeof BancaRoute
+  FeedRoute: typeof FeedRoute
   LoginRoute: typeof LoginRoute
   PerfilRoute: typeof PerfilRoute
   RegistroRoute: typeof RegistroRoute
@@ -171,6 +220,9 @@ export interface RootRouteChildren {
   SantuarioSlugRoute: typeof SantuarioSlugRoute
   RevistaIndexRoute: typeof RevistaIndexRoute
   SantuarioIndexRoute: typeof SantuarioIndexRoute
+  ApiPublicBotCardsGrantRoute: typeof ApiPublicBotCardsGrantRoute
+  ApiPublicBotDiscordLinkRoute: typeof ApiPublicBotDiscordLinkRoute
+  ApiPublicBotProfileRoute: typeof ApiPublicBotProfileRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -194,6 +246,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feed': {
+      id: '/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof FeedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/banca': {
@@ -252,6 +311,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RevistaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/bot/profile': {
+      id: '/api/public/bot/profile'
+      path: '/api/public/bot/profile'
+      fullPath: '/api/public/bot/profile'
+      preLoaderRoute: typeof ApiPublicBotProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/bot/discord-link': {
+      id: '/api/public/bot/discord-link'
+      path: '/api/public/bot/discord-link'
+      fullPath: '/api/public/bot/discord-link'
+      preLoaderRoute: typeof ApiPublicBotDiscordLinkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/bot/cards-grant': {
+      id: '/api/public/bot/cards-grant'
+      path: '/api/public/bot/cards-grant'
+      fullPath: '/api/public/bot/cards-grant'
+      preLoaderRoute: typeof ApiPublicBotCardsGrantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -260,6 +340,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AlbumRoute: AlbumRoute,
   BancaRoute: BancaRoute,
+  FeedRoute: FeedRoute,
   LoginRoute: LoginRoute,
   PerfilRoute: PerfilRoute,
   RegistroRoute: RegistroRoute,
@@ -267,16 +348,10 @@ const rootRouteChildren: RootRouteChildren = {
   SantuarioSlugRoute: SantuarioSlugRoute,
   RevistaIndexRoute: RevistaIndexRoute,
   SantuarioIndexRoute: SantuarioIndexRoute,
+  ApiPublicBotCardsGrantRoute: ApiPublicBotCardsGrantRoute,
+  ApiPublicBotDiscordLinkRoute: ApiPublicBotDiscordLinkRoute,
+  ApiPublicBotProfileRoute: ApiPublicBotProfileRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

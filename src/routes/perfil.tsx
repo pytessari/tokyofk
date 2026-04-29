@@ -34,6 +34,15 @@ type FamilyLink = {
   slug: string | null;
 };
 
+type DiscordLink = {
+  id: string;
+  user_id: string;
+  discord_id: string | null;
+  verify_code: string | null;
+  expires_at: string | null;
+  verified_at: string | null;
+};
+
 const SIGNS = [
   "♈ Áries","♉ Touro","♊ Gêmeos","♋ Câncer","♌ Leão","♍ Virgem",
   "♎ Libra","♏ Escorpião","♐ Sagitário","♑ Capricórnio","♒ Aquário","♓ Peixes",
@@ -64,6 +73,7 @@ function ProfilePage() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [family, setFamily] = useState<FamilyLink[]>([]);
+  const [discord, setDiscord] = useState<DiscordLink | null>(null);
   const [fetching, setFetching] = useState(true);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -76,12 +86,14 @@ function ProfilePage() {
     if (loading) return;
     if (!user) { navigate({ to: "/login" }); return; }
     (async () => {
-      const [{ data: p }, { data: f }] = await Promise.all([
+      const [{ data: p }, { data: f }, { data: d }] = await Promise.all([
         supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
         supabase.from("family_links").select("*").eq("owner_id", user.id).order("created_at"),
+        supabase.from("discord_links").select("*").eq("user_id", user.id).maybeSingle(),
       ]);
       if (p) setProfile(p as unknown as Profile);
       if (f) setFamily(f as FamilyLink[]);
+      setDiscord((d as DiscordLink) ?? null);
       setFetching(false);
     })();
   }, [user, loading, navigate]);
@@ -95,7 +107,6 @@ function ProfilePage() {
     const { error } = await supabase.from("profiles").update({
       display_name: profile.display_name,
       slug: slugClean || null,
-      discord_id: (profile.discord_id ?? "").trim() || null,
       bio: profile.bio,
       sign: profile.sign,
       role: profile.role,
@@ -129,6 +140,33 @@ function ProfilePage() {
     if (!error) setFamily(family.filter((f) => f.id !== id));
   }
 
+  function genCode() {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let s = "TKY-";
+    for (let i = 0; i < 5; i++) s += chars[Math.floor(Math.random() * chars.length)];
+    return s;
+  }
+
+  async function startDiscordLink() {
+    if (!user) return;
+    const code = genCode();
+    const expires_at = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+    const payload = { user_id: user.id, verify_code: code, expires_at, verified_at: null, discord_id: null };
+    const { data, error } = await supabase.from("discord_links")
+      .upsert(payload, { onConflict: "user_id" }).select().single();
+    if (error) { setMsg(`Erro: ${error.message}`); return; }
+    setDiscord(data as DiscordLink);
+  }
+
+  async function unlinkDiscord() {
+    if (!user) return;
+    if (!confirm("Desvincular conta do Discord?")) return;
+    await supabase.from("discord_links").delete().eq("user_id", user.id);
+    await supabase.from("profiles").update({ discord_id: null }).eq("id", user.id);
+    setDiscord(null);
+    if (profile) setProfile({ ...profile, discord_id: null });
+  }
+
   if (loading || fetching) {
     return <div className="px-5 py-20 text-center font-display tracking-widest text-white/60">CARREGANDO…</div>;
   }
@@ -139,29 +177,34 @@ function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-4xl px-5 py-10">
-      {/* Preview */}
-      <div className="relative overflow-hidden rounded-xl ruby-border">
-        <img src={bannerPreview} alt="" className="h-44 w-full object-cover sm:h-56" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black" />
-      </div>
-      <div className="-mt-12 flex items-end gap-4 px-2">
-        <img src={avatarPreview} alt={profile.display_name}
-          className="h-24 w-24 rounded-full border-4 border-[color:var(--ruby)] bg-black object-cover shadow-[0_0_24px_#d9003680]" />
-        <div className="pb-2">
-          <h1 className="font-display text-3xl tracking-widest text-white">{profile.display_name}</h1>
-          {profile.slug && (
-            <Link to="/santuario/$slug" params={{ slug: profile.slug }}
-              className="mt-1 inline-block font-display text-[11px] tracking-widest text-[color:var(--ruby)]">
-              /santuario/{profile.slug} ↗
-            </Link>
-          )}
+      {/* Preview header — banner above, avatar overlapping, side-by-side text */}
+      <div className="relative">
+        <div className="relative h-44 w-full overflow-hidden rounded-xl ruby-border sm:h-56">
+          <img src={bannerPreview} alt="" className="absolute inset-0 h-full w-full object-cover" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-black/90" />
         </div>
-        <div className="ml-auto flex gap-2 pb-2">
-          {isAdmin && (
-            <Link to="/admin" className="rounded-md border border-yellow-400/60 px-3 py-1.5 font-display text-xs tracking-widest text-yellow-300 hover:bg-yellow-400/10">
-              ADMIN
+        <div className="relative z-10 -mt-14 flex flex-col items-center gap-3 px-4 sm:-mt-16 sm:flex-row sm:items-end sm:gap-5">
+          <img src={avatarPreview} alt={profile.display_name}
+            className="h-24 w-24 shrink-0 rounded-full border-4 border-[color:var(--ruby)] bg-black object-cover shadow-[0_0_24px_#d9003680] sm:h-28 sm:w-28" />
+          <div className="flex-1 text-center sm:pb-2 sm:text-left">
+            <h1 className="font-display text-3xl tracking-widest text-white">{profile.display_name}</h1>
+            {profile.slug && (
+              <Link to="/santuario/$slug" params={{ slug: profile.slug }}
+                className="mt-1 inline-block font-display text-[11px] tracking-widest text-[color:var(--ruby)]">
+                /santuario/{profile.slug} ↗
+              </Link>
+            )}
+          </div>
+          <div className="flex gap-2 sm:pb-2">
+            {isAdmin && (
+              <Link to="/admin" className="rounded-md border border-yellow-400/60 px-3 py-1.5 font-display text-xs tracking-widest text-yellow-300 hover:bg-yellow-400/10">
+                ADMIN
+              </Link>
+            )}
+            <Link to="/feed" className="rounded-md border border-white/20 px-3 py-1.5 font-display text-xs tracking-widest text-white/80 hover:bg-white/5">
+              FEED
             </Link>
-          )}
+          </div>
         </div>
       </div>
 
@@ -174,9 +217,6 @@ function ProfilePage() {
           <Field label="Slug (URL do santuário)" value={profile.slug ?? ""}
             onChange={(v) => setProfile({ ...profile, slug: v })}
             placeholder="jerk-leblanc" />
-          <Field label="Discord ID (numérico)" value={profile.discord_id ?? ""}
-            onChange={(v) => setProfile({ ...profile, discord_id: v })}
-            placeholder="123456789012345678" />
           <Field label="Papel (ex: O Espinho)" value={profile.role ?? ""}
             onChange={(v) => setProfile({ ...profile, role: v })} />
 
@@ -254,6 +294,39 @@ function ProfilePage() {
           </button>
         </div>
       </form>
+
+      {/* Discord link */}
+      <section className="mt-8 glass-dark rounded-xl p-6">
+        <h2 className="font-display text-xl tracking-widest text-[color:var(--chrome)]">▎VINCULAR DISCORD</h2>
+        {discord?.verified_at && discord.discord_id ? (
+          <div className="mt-3 flex items-center justify-between">
+            <div>
+              <p className="text-sm text-white/85">Vinculado a <span className="font-display tracking-widest text-[color:var(--ruby)]">{discord.discord_id}</span></p>
+              <p className="text-[11px] text-white/40">Suas cartas ganhas no bot caem aqui automaticamente.</p>
+            </div>
+            <button onClick={unlinkDiscord} className="rounded border border-red-400/50 px-3 py-1 text-xs text-red-300 hover:bg-red-500/10">
+              Desvincular
+            </button>
+          </div>
+        ) : discord?.verify_code && discord.expires_at && new Date(discord.expires_at) > new Date() ? (
+          <div className="mt-3 space-y-2">
+            <p className="text-sm text-white/80">No Discord, rode o comando do bot e use este código:</p>
+            <p className="font-display text-3xl tracking-[0.4em] text-ruby-gradient">{discord.verify_code}</p>
+            <p className="text-[11px] text-white/40">Expira em {new Date(discord.expires_at).toLocaleTimeString("pt-BR")}.</p>
+            <button onClick={startDiscordLink} className="text-[11px] tracking-widest text-white/60 hover:text-white">
+              gerar outro código →
+            </button>
+          </div>
+        ) : (
+          <div className="mt-3">
+            <p className="text-sm text-white/70">Gere um código e use no bot pra vincular sua conta.</p>
+            <button onClick={startDiscordLink}
+              className="mt-3 rounded-md bg-ruby-gradient px-4 py-2 font-display text-xs tracking-widest text-white">
+              GERAR CÓDIGO
+            </button>
+          </div>
+        )}
+      </section>
 
       {/* Family */}
       <section className="mt-8 glass-dark rounded-xl p-6">
