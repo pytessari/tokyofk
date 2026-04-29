@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { IMAGES, img } from "@/lib/images";
 import cover from "@/assets/cover-s1.jpg";
 import { ThornHeart, StarSpike } from "@/components/Sticker";
+import { PostCard, type PostRow, type PostAuthor } from "@/components/PostCard";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -20,18 +21,31 @@ type Mag = { id: string; title: string; subtitle: string | null; cover_url: stri
 function HomePage() {
   const [featured, setFeatured] = useState<Mag | null>(null);
   const [latest, setLatest] = useState<Mag[]>([]);
+  const [recentPosts, setRecentPosts] = useState<PostRow[]>([]);
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from("magazines")
-        .select("id, title, subtitle, cover_url, issue_number")
-        .eq("published", true)
-        .order("issue_number", { ascending: false, nullsFirst: false })
-        .order("created_at", { ascending: false })
-        .limit(5);
+      const [{ data }, { data: posts }] = await Promise.all([
+        supabase.from("magazines")
+          .select("id, title, subtitle, cover_url, issue_number")
+          .eq("published", true)
+          .order("issue_number", { ascending: false, nullsFirst: false })
+          .order("created_at", { ascending: false })
+          .limit(5),
+        supabase.from("posts").select("*").order("created_at", { ascending: false }).limit(3),
+      ]);
       const list = (data ?? []) as Mag[];
       setFeatured(list[0] ?? null);
       setLatest(list);
+
+      const ps = (posts ?? []) as PostRow[];
+      if (ps.length > 0) {
+        const ids = Array.from(new Set(ps.map((p) => p.author_id)));
+        const { data: profs } = await supabase.from("profiles")
+          .select("id, display_name, slug, avatar_url").in("id", ids);
+        const map = new Map((profs ?? []).map((p) => [p.id, p as PostAuthor]));
+        setRecentPosts(ps.map((p) => ({ ...p, author: map.get(p.author_id) ?? null })));
+      }
     })();
   }, []);
 
@@ -104,13 +118,31 @@ function HomePage() {
         </div>
       </section>
 
+      {/* Últimas do feed */}
+      {recentPosts.length > 0 && (
+        <section className="mt-14">
+          <div className="mb-4 flex items-end justify-between">
+            <div>
+              <p className="font-display text-xs tracking-[0.5em] text-[color:var(--chrome)]">DA COMUNIDADE</p>
+              <h2 className="font-display text-3xl text-ruby-gradient">ÚLTIMAS DO FEED</h2>
+            </div>
+            <Link to="/feed" className="font-display text-xs tracking-widest text-white/70 hover:text-white">
+              ABRIR FEED →
+            </Link>
+          </div>
+          <div className="grid gap-4 lg:grid-cols-3">
+            {recentPosts.map((p) => <PostCard key={p.id} post={p} />)}
+          </div>
+        </section>
+      )}
+
       {/* Navegação rápida */}
       <section className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { to: "/revista", title: "A REVISTA", desc: "Todas as edições em modo flip" },
+          { to: "/feed", title: "O FEED", desc: "Posts da comunidade" },
+          { to: "/revista", title: "A REVISTA", desc: "Todas as edições" },
           { to: "/santuario", title: "O SANTUÁRIO", desc: "Fichas dos membros" },
           { to: "/album", title: "MEU ÁLBUM", desc: "Suas cartas coletadas" },
-          { to: "/perfil", title: "MEU PERFIL", desc: "Editar avatar, bio e família" },
         ].map((l) => (
           <Link key={l.to} to={l.to} className="glass-dark group rounded-xl p-5 transition hover:border-[color:var(--ruby)]">
             <p className="font-display text-xs tracking-[0.4em] text-[color:var(--ruby)]">✦</p>
