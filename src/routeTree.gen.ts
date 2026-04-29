@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as FeedRouteImport } from './routes/feed'
 import { Route as BancaRouteImport } from './routes/banca'
 import { Route as AlbumRouteImport } from './routes/album'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -37,6 +38,11 @@ const PerfilRoute = PerfilRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedRoute = FeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BancaRoute = BancaRouteImport.update({
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/album': typeof AlbumRoute
   '/banca': typeof BancaRoute
+  '/feed': typeof FeedRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
   '/registro': typeof RegistroRoute
@@ -116,6 +123,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/album': typeof AlbumRoute
   '/banca': typeof BancaRoute
+  '/feed': typeof FeedRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
   '/registro': typeof RegistroRoute
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/album': typeof AlbumRoute
   '/banca': typeof BancaRoute
+  '/feed': typeof FeedRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
   '/registro': typeof RegistroRoute
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/album'
     | '/banca'
+    | '/feed'
     | '/login'
     | '/perfil'
     | '/registro'
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/album'
     | '/banca'
+    | '/feed'
     | '/login'
     | '/perfil'
     | '/registro'
@@ -183,6 +194,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/album'
     | '/banca'
+    | '/feed'
     | '/login'
     | '/perfil'
     | '/registro'
@@ -200,6 +212,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AlbumRoute: typeof AlbumRoute
   BancaRoute: typeof BancaRoute
+  FeedRoute: typeof FeedRoute
   LoginRoute: typeof LoginRoute
   PerfilRoute: typeof PerfilRoute
   RegistroRoute: typeof RegistroRoute
@@ -233,6 +246,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feed': {
+      id: '/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof FeedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/banca': {
@@ -320,6 +340,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AlbumRoute: AlbumRoute,
   BancaRoute: BancaRoute,
+  FeedRoute: FeedRoute,
   LoginRoute: LoginRoute,
   PerfilRoute: PerfilRoute,
   RegistroRoute: RegistroRoute,

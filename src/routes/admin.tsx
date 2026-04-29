@@ -1,10 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useAuth } from "@/lib/auth";
 import { useRole } from "@/lib/useRole";
 import { supabase } from "@/integrations/supabase/client";
 import { ImageUpload } from "@/components/ImageUpload";
 import { IMAGES, img } from "@/lib/images";
+import { CardEditDialog, type CardRow } from "@/components/CardEditDialog";
+import { CsvCardsImport } from "@/components/CsvCardsImport";
+import { SortableList } from "@/components/SortablePages";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin · TOKYO" }] }),
@@ -64,7 +67,7 @@ function AdminPage() {
   );
 }
 
-/* ==================== MEMBERS (profiles) ==================== */
+/* ==================== MEMBERS ==================== */
 type ProfileRow = {
   id: string; display_name: string; slug: string | null; role: string | null;
   sign: string | null; bio: string | null; avatar_url: string | null; banner_url: string | null;
@@ -94,7 +97,6 @@ function MembersAdmin() {
     <div className="space-y-3">
       <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="buscar por nome/slug…"
         className="w-full max-w-sm rounded-md border border-white/15 bg-black/50 px-3 py-2 text-white" />
-      <p className="text-xs text-white/50">Edite aqui qualquer membro. Imagens você pode pedir pro dono trocar no perfil dele.</p>
       <ul className="space-y-2">
         {filtered.map((r) => (
           <li key={r.id} className="glass-dark rounded-lg p-4">
@@ -129,17 +131,16 @@ function TextCell({ label, value, onSave }: { label: string; value: string; onSa
 }
 
 /* ==================== CARDS ==================== */
-type CardRow = {
-  id: string; character_key: string; character_name: string; card_number: string;
-  name: string; rarity: string; season: string | null; image_url: string | null;
-};
-
 function CardsAdmin({ userId }: { userId: string }) {
   const [rows, setRows] = useState<CardRow[]>([]);
+  const [q, setQ] = useState("");
+  const [filterChar, setFilterChar] = useState("");
+  const [editing, setEditing] = useState<CardRow | null>(null);
   const [form, setForm] = useState<Partial<CardRow>>({ rarity: "C" });
 
   async function load() {
-    const { data } = await supabase.from("cards").select("*").order("character_key").order("card_number");
+    const { data } = await supabase.from("cards").select("*")
+      .order("character_key").order("card_number");
     setRows((data ?? []) as CardRow[]);
   }
   useEffect(() => { load(); }, []);
@@ -157,6 +158,7 @@ function CardsAdmin({ userId }: { userId: string }) {
       image_url: form.image_url || null,
     });
     if (!error) { setForm({ rarity: "C" }); load(); }
+    else alert(error.message);
   }
 
   async function remove(id: string) {
@@ -165,56 +167,83 @@ function CardsAdmin({ userId }: { userId: string }) {
     load();
   }
 
+  const characters = useMemo(() => Array.from(new Set(rows.map((c) => c.character_key))).sort(), [rows]);
+  const filtered = rows.filter((c) => {
+    if (filterChar && c.character_key !== filterChar) return false;
+    if (q && !`${c.card_number} ${c.name} ${c.character_name}`.toLowerCase().includes(q.toLowerCase())) return false;
+    return true;
+  });
+
   return (
     <div className="grid gap-6 lg:grid-cols-[420px_1fr]">
-      <form onSubmit={create} className="glass-dark space-y-3 rounded-xl p-5">
-        <h3 className="font-display text-sm tracking-widest text-[color:var(--chrome)]">▎NOVA CARTA</h3>
-        <Input label="Nome do personagem no bot (character_key)" value={form.character_key ?? ""}
-          onChange={(v) => setForm({ ...form, character_key: v })} placeholder="jerk" required />
-        <Input label="Nome exibido do personagem" value={form.character_name ?? ""}
-          onChange={(v) => setForm({ ...form, character_name: v })} placeholder="Jerk Leblanc" required />
-        <div className="grid grid-cols-2 gap-3">
-          <Input label="Nº da carta" value={form.card_number ?? ""}
-            onChange={(v) => setForm({ ...form, card_number: v })} placeholder="001" required />
-          <label className="block">
-            <span className="mb-1 block font-display text-[10px] tracking-widest text-white/60">RARIDADE</span>
-            <select value={form.rarity ?? "C"} onChange={(e) => setForm({ ...form, rarity: e.target.value })}
-              className="w-full rounded border border-white/15 bg-black/60 px-2 py-1.5 text-sm text-white">
-              {["R","S","A","B","C","Holo","Foil","Promo"].map((r) => <option key={r}>{r}</option>)}
-            </select>
-          </label>
-        </div>
-        <Input label="Nome da carta" value={form.name ?? ""}
-          onChange={(v) => setForm({ ...form, name: v })} placeholder="Jerk · Espinho" required />
-        <Input label="Temporada" value={form.season ?? ""}
-          onChange={(v) => setForm({ ...form, season: v })} placeholder="T1" />
-        <div>
-          <p className="mb-1 font-display text-[10px] tracking-widest text-white/60">IMAGEM DA CARTA</p>
-          <ImageUpload bucket="cards" userId={userId} currentUrl={form.image_url} aspect="card"
-            onUploaded={(url) => setForm({ ...form, image_url: url })} />
-        </div>
-        <button className="w-full rounded-md bg-ruby-gradient px-4 py-2 font-display text-sm tracking-widest text-white">
-          CRIAR CARTA
-        </button>
-      </form>
+      <div className="space-y-4">
+        <CsvCardsImport onDone={load} />
 
-      <div className="space-y-2">
-        <p className="text-xs text-white/50">{rows.length} cartas no catálogo</p>
+        <form onSubmit={create} className="glass-dark space-y-3 rounded-xl p-5">
+          <h3 className="font-display text-sm tracking-widest text-[color:var(--chrome)]">▎NOVA CARTA</h3>
+          <Input label="character_key (nome no bot)" value={form.character_key ?? ""}
+            onChange={(v) => setForm({ ...form, character_key: v })} placeholder="jerk" required />
+          <Input label="Nome do personagem" value={form.character_name ?? ""}
+            onChange={(v) => setForm({ ...form, character_name: v })} placeholder="Jerk Leblanc" required />
+          <div className="grid grid-cols-2 gap-3">
+            <Input label="Nº" value={form.card_number ?? ""}
+              onChange={(v) => setForm({ ...form, card_number: v })} placeholder="001" required />
+            <label className="block">
+              <span className="mb-1 block font-display text-[10px] tracking-widest text-white/60">RARIDADE</span>
+              <select value={form.rarity ?? "C"} onChange={(e) => setForm({ ...form, rarity: e.target.value })}
+                className="w-full rounded border border-white/15 bg-black/60 px-2 py-1.5 text-sm text-white">
+                {["R","S","A","B","C","Holo","Foil","Promo"].map((r) => <option key={r}>{r}</option>)}
+              </select>
+            </label>
+          </div>
+          <Input label="Nome da carta" value={form.name ?? ""}
+            onChange={(v) => setForm({ ...form, name: v })} required />
+          <Input label="Temporada" value={form.season ?? ""}
+            onChange={(v) => setForm({ ...form, season: v })} placeholder="T1" />
+          <div>
+            <p className="mb-1 font-display text-[10px] tracking-widest text-white/60">IMAGEM</p>
+            <ImageUpload bucket="cards" userId={userId} currentUrl={form.image_url} aspect="card"
+              onUploaded={(url) => setForm({ ...form, image_url: url })} />
+          </div>
+          <button className="w-full rounded-md bg-ruby-gradient px-4 py-2 font-display text-sm tracking-widest text-white">
+            CRIAR CARTA
+          </button>
+        </form>
+      </div>
+
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="buscar nome/número…"
+            className="flex-1 min-w-[200px] rounded-md border border-white/15 bg-black/50 px-3 py-2 text-sm text-white" />
+          <select value={filterChar} onChange={(e) => setFilterChar(e.target.value)}
+            className="rounded-md border border-white/15 bg-black/50 px-3 py-2 text-sm text-white">
+            <option value="">todos personagens</option>
+            {characters.map((c) => <option key={c}>{c}</option>)}
+          </select>
+          <span className="text-xs text-white/50">{filtered.length}/{rows.length}</span>
+        </div>
+        <p className="text-[11px] text-white/40">Clique numa carta pra editar.</p>
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-          {rows.map((c) => (
-            <li key={c.id} className="relative overflow-hidden rounded-lg ruby-border">
+          {filtered.map((c) => (
+            <li key={c.id} className="relative overflow-hidden rounded-lg ruby-border cursor-pointer transition hover:scale-[1.02]"
+              onClick={() => setEditing(c)}>
               <img src={img(c.image_url ?? "", IMAGES.fallback.card)} alt={c.name}
                 className="aspect-[3/4] w-full object-cover" />
               <div className="bg-black/85 p-2">
                 <p className="font-display text-[10px] tracking-widest text-white">#{c.card_number} {c.name}</p>
                 <p className="text-[9px] tracking-widest text-[color:var(--ruby)]">{c.character_key} · {c.rarity}</p>
               </div>
-              <button onClick={() => remove(c.id)}
+              <button onClick={(e) => { e.stopPropagation(); remove(c.id); }}
                 className="absolute right-1 top-1 rounded bg-black/70 px-2 py-0.5 text-[10px] text-red-300 hover:bg-red-500/40">×</button>
             </li>
           ))}
         </ul>
       </div>
+
+      {editing && (
+        <CardEditDialog card={editing} userId={userId} onClose={() => setEditing(null)}
+          onSaved={(c) => setRows((prev) => prev.map((r) => r.id === c.id ? c : r))} />
+      )}
     </div>
   );
 }
@@ -273,10 +302,20 @@ function MagazinesAdmin({ userId }: { userId: string }) {
   async function addPage() {
     if (!selected) return;
     const nextNum = (pages.at(-1)?.page_number ?? 0) + 1;
-    await supabase.from("magazine_pages").insert({
+    const { data } = await supabase.from("magazine_pages").insert({
       magazine_id: selected.id, page_number: nextNum,
-    });
-    loadPages(selected.id);
+    }).select().single();
+    if (data) setPages([...pages, data as MagPage]);
+  }
+
+  async function duplicatePage(p: MagPage) {
+    if (!selected) return;
+    const nextNum = (pages.at(-1)?.page_number ?? 0) + 1;
+    const { data } = await supabase.from("magazine_pages").insert({
+      magazine_id: selected.id, page_number: nextNum,
+      title: p.title, body: p.body, image_url: p.image_url,
+    }).select().single();
+    if (data) setPages([...pages, data as MagPage]);
   }
 
   async function updatePage(id: string, patch: Partial<MagPage>) {
@@ -287,7 +326,24 @@ function MagazinesAdmin({ userId }: { userId: string }) {
   async function deletePage(id: string) {
     if (!confirm("Excluir página?")) return;
     await supabase.from("magazine_pages").delete().eq("id", id);
-    if (selected) loadPages(selected.id);
+    setPages(pages.filter((p) => p.id !== id));
+  }
+
+  async function reorder(next: MagPage[]) {
+    const renum = next.map((p, i) => ({ ...p, page_number: i + 1 }));
+    setPages(renum);
+    // persist new page numbers via parallel updates
+    await Promise.all(renum.map((p) =>
+      supabase.from("magazine_pages").update({ page_number: p.page_number }).eq("id", p.id),
+    ));
+  }
+
+  function move(idx: number, dir: -1 | 1) {
+    const j = idx + dir;
+    if (j < 0 || j >= pages.length) return;
+    const next = [...pages];
+    [next[idx], next[j]] = [next[j], next[idx]];
+    reorder(next);
   }
 
   return (
@@ -350,31 +406,47 @@ function MagazinesAdmin({ userId }: { userId: string }) {
               <button onClick={addPage}
                 className="rounded bg-ruby-gradient px-3 py-1 font-display text-xs tracking-widest text-white">+ PÁGINA</button>
             </div>
-            <div className="mt-4 space-y-4">
-              {pages.length === 0 && <p className="text-sm text-white/50">Nenhuma página. Clique em + PÁGINA.</p>}
-              {pages.map((p) => (
-                <div key={p.id} className="grid gap-3 rounded-lg border border-white/10 bg-black/40 p-4 sm:grid-cols-[160px_1fr]">
-                  <div>
-                    <p className="mb-1 font-display text-[10px] tracking-widest text-white/60">PÁGINA {p.page_number}</p>
-                    <ImageUpload bucket="magazines" userId={userId} currentUrl={p.image_url} aspect="card"
-                      onUploaded={(url) => updatePage(p.id, { image_url: url })} />
-                  </div>
-                  <div className="space-y-2">
-                    <Input label="Título (opcional)" value={p.title ?? ""}
-                      onChange={(v) => updatePage(p.id, { title: v || null })} />
-                    <label className="block">
-                      <span className="mb-1 block font-display text-[10px] tracking-widest text-white/60">TEXTO</span>
-                      <textarea value={p.body ?? ""} rows={4}
-                        onChange={(e) => updatePage(p.id, { body: e.target.value || null })}
-                        className="w-full rounded border border-white/10 bg-black/60 px-2 py-1 text-sm text-white" />
-                    </label>
-                    <div className="flex justify-end">
-                      <button onClick={() => deletePage(p.id)}
-                        className="text-[11px] text-white/50 hover:text-red-300">excluir página</button>
+            <p className="mt-1 text-[11px] text-white/40">Arraste pra reordenar, ou use ↑ ↓.</p>
+            <div className="mt-4 space-y-3">
+              {pages.length === 0 && <p className="text-sm text-white/50">Nenhuma página.</p>}
+              <SortableList
+                items={pages}
+                onReorder={reorder}
+                render={(p, h) => {
+                  const idx = pages.findIndex((x) => x.id === p.id);
+                  return (
+                    <div className="grid gap-3 rounded-lg border border-white/10 bg-black/40 p-4 sm:grid-cols-[40px_160px_1fr]">
+                      <div className="flex flex-col items-center gap-1 pt-1">
+                        <button {...h.listeners} {...h.attributes}
+                          className="cursor-grab text-white/40 hover:text-white" title="arrastar">⋮⋮</button>
+                        <button onClick={() => move(idx, -1)} className="text-xs text-white/50 hover:text-white">↑</button>
+                        <button onClick={() => move(idx, 1)} className="text-xs text-white/50 hover:text-white">↓</button>
+                      </div>
+                      <div>
+                        <p className="mb-1 font-display text-[10px] tracking-widest text-white/60">PÁG. {p.page_number}</p>
+                        <ImageUpload bucket="magazines" userId={userId} currentUrl={p.image_url} aspect="card"
+                          onUploaded={(url) => updatePage(p.id, { image_url: url })} />
+                      </div>
+                      <div className="space-y-2">
+                        <Input label="Título (opcional)" value={p.title ?? ""}
+                          onChange={(v) => updatePage(p.id, { title: v || null })} />
+                        <label className="block">
+                          <span className="mb-1 block font-display text-[10px] tracking-widest text-white/60">TEXTO</span>
+                          <textarea value={p.body ?? ""} rows={4}
+                            onChange={(e) => updatePage(p.id, { body: e.target.value || null })}
+                            className="w-full rounded border border-white/10 bg-black/60 px-2 py-1 text-sm text-white" />
+                        </label>
+                        <div className="flex justify-end gap-3">
+                          <button onClick={() => duplicatePage(p)}
+                            className="text-[11px] text-white/50 hover:text-white">duplicar</button>
+                          <button onClick={() => deletePage(p.id)}
+                            className="text-[11px] text-white/50 hover:text-red-300">excluir</button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ))}
+                  );
+                }}
+              />
             </div>
           </section>
         </div>
@@ -387,7 +459,7 @@ function MagazinesAdmin({ userId }: { userId: string }) {
   );
 }
 
-/* ==================== GUESTBOOK MOD ==================== */
+/* ==================== GUESTBOOK ==================== */
 type GbRow = { id: string; profile_id: string; author_id: string; content: string; created_at: string };
 
 function GuestbookAdmin() {
