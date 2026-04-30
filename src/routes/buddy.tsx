@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { useRole } from "@/lib/useRole";
 import { PageHeader } from "@/components/kit/PageHeader";
 import { SectionCard } from "@/components/kit/SectionCard";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ type ReceivedPoke = {
 
 function BuddyPage() {
   const { user } = useAuth();
+  const { isAdmin, loading: roleLoading } = useRole();
   const { config, setConfig, loading, savedAt } = useBuddy(user?.id ?? null);
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState<PokeAction | "idle">("idle");
@@ -76,6 +78,25 @@ function BuddyPage() {
           description="Crie seu boneco 3D, customize do seu jeito e mande pokes pros amigos."
         />
         <LoggedOutGate />
+      </div>
+    );
+  }
+
+  if (!roleLoading && !isAdmin) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-12">
+        <PageHeader
+          eyebrow="EM DESENVOLVIMENTO"
+          title="Tokyo Buddy"
+          description="Esse mini-game ainda tá em testes internos. Volta em breve!"
+        />
+        <div className="panel mt-6 p-8 text-center text-[color:var(--text-2)]">
+          <p className="font-display tracking-widest text-sm text-[color:var(--ruby)]">ACESSO RESTRITO</p>
+          <p className="mt-2 text-sm">Essa área está disponível apenas para a equipe enquanto a gente termina os ajustes.</p>
+          <div className="mt-5">
+            <Link to="/feed" className="underline text-[color:var(--text-1)]">Voltar pro feed</Link>
+          </div>
+        </div>
       </div>
     );
   }
