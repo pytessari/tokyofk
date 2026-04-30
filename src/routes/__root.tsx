@@ -1,8 +1,12 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import appCss from "../styles.css?url";
+import ogCover from "@/assets/og-cover.jpg";
 import { Navbar } from "@/components/Navbar";
 import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
+
+const SITE_URL = "https://tokyofk.lovable.app";
+const OG_IMAGE = `${SITE_URL}${ogCover}`;
 
 function NotFoundComponent() {
   return (
