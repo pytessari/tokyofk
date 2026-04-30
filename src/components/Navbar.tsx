@@ -5,6 +5,7 @@ import {
   PersonIcon,
   ArchiveIcon,
   ChatBubbleIcon,
+  GroupIcon,
   EnterIcon,
   ExitIcon,
   Pencil2Icon,
