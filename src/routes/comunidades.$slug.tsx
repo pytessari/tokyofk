@@ -5,11 +5,12 @@ import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { SectionCard } from "@/components/kit/SectionCard";
 import { EmptyState } from "@/components/kit/EmptyState";
-import { GroupIcon, ChatBubbleIcon, PersonIcon, ExitIcon, EnterIcon, PlusIcon } from "@radix-ui/react-icons";
+import { GroupIcon, ChatBubbleIcon, PersonIcon, ExitIcon, EnterIcon, PlusIcon, Pencil1Icon } from "@radix-ui/react-icons";
 import { toast } from "sonner";
 import { timeAgo } from "@/lib/timeAgo";
 import { RichBio } from "@/components/RichBio";
 import { RichCommentEditor } from "@/components/RichCommentEditor";
+import { CommunityEditDialog } from "@/components/CommunityEditDialog";
 
 type Community = {
   id: string;
@@ -66,6 +67,10 @@ function CommunityDetail() {
   const [loading, setLoading] = useState(true);
   const [draft, setDraft] = useState({ title: "", content: "" });
   const [posting, setPosting] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [showAllMembers, setShowAllMembers] = useState(false);
+
+  const isOwner = !!user && !!community && community.owner_id === user.id;
 
   async function load() {
     setLoading(true);
@@ -92,7 +97,7 @@ function CommunityDetail() {
         .select("user_id,role")
         .eq("community_id", c.id)
         .order("joined_at", { ascending: false })
-        .limit(50),
+        .limit(500),
     ]);
 
     const ids = Array.from(
@@ -228,7 +233,12 @@ function CommunityDetail() {
               {community.members_count} membros
             </p>
           </div>
-          <div className="hidden sm:block">
+          <div className="hidden sm:flex sm:flex-col sm:items-end sm:gap-2">
+            {isOwner && (
+              <Button variant="outline" onClick={() => setEditing(true)}>
+                <Pencil1Icon className="mr-1 h-4 w-4" /> Editar
+              </Button>
+            )}
             {user ? (
               isMember ? (
                 <Button variant="outline" onClick={leave}>
@@ -248,7 +258,12 @@ function CommunityDetail() {
         </div>
       </div>
 
-      <div className="mb-4 flex items-center justify-between sm:hidden">
+      <div className="mb-4 flex items-center justify-between gap-2 sm:hidden">
+        {isOwner && (
+          <Button variant="outline" onClick={() => setEditing(true)}>
+            <Pencil1Icon className="mr-1 h-4 w-4" /> Editar
+          </Button>
+        )}
         {user ? (
           isMember ? (
             <Button variant="outline" onClick={leave}>
@@ -324,9 +339,9 @@ function CommunityDetail() {
               <p className="whitespace-pre-wrap text-sm text-[color:var(--text-2)]">{community.rules}</p>
             </SectionCard>
           )}
-          <SectionCard title={`Membros (${members.length})`}>
+          <SectionCard title={`Membros (${community.members_count})`}>
             <ul className="space-y-2">
-              {members.slice(0, 12).map((m) => (
+              {(showAllMembers ? members : members.slice(0, 12)).map((m) => (
                 <li key={m.user_id} className="flex items-center gap-2 text-sm">
                   {m.profile?.avatar_url ? (
                     <img src={m.profile.avatar_url} alt="" className="h-7 w-7 rounded-full object-cover" />
@@ -348,9 +363,25 @@ function CommunityDetail() {
                 </li>
               ))}
             </ul>
+            {members.length > 12 && (
+              <button
+                onClick={() => setShowAllMembers((s) => !s)}
+                className="mt-3 w-full rounded border border-white/10 py-1.5 text-[10px] uppercase tracking-widest text-[color:var(--text-3)] hover:bg-white/5 hover:text-white"
+              >
+                {showAllMembers ? "Ver menos" : `Ver todos (${members.length})`}
+              </button>
+            )}
           </SectionCard>
         </aside>
       </div>
+
+      {editing && community && (
+        <CommunityEditDialog
+          community={community}
+          onClose={() => setEditing(false)}
+          onSaved={load}
+        />
+      )}
     </div>
   );
 }
