@@ -24,6 +24,7 @@ import { Route as RevistaIndexRouteImport } from './routes/revista.index'
 import { Route as ComunidadesIndexRouteImport } from './routes/comunidades.index'
 import { Route as SantuarioSlugRouteImport } from './routes/santuario.$slug'
 import { Route as RevistaIdRouteImport } from './routes/revista.$id'
+import { Route as ComunidadesSlugRouteImport } from './routes/comunidades.$slug'
 import { Route as ApiPublicBotProfileRouteImport } from './routes/api/public/bot.profile'
 import { Route as ApiPublicBotDiscordLinkRouteImport } from './routes/api/public/bot.discord-link'
 import { Route as ApiPublicBotCardsGrantRouteImport } from './routes/api/public/bot.cards-grant'
@@ -103,6 +104,11 @@ const RevistaIdRoute = RevistaIdRouteImport.update({
   path: '/revista/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ComunidadesSlugRoute = ComunidadesSlugRouteImport.update({
+  id: '/comunidades/$slug',
+  path: '/comunidades/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicBotProfileRoute = ApiPublicBotProfileRouteImport.update({
   id: '/api/public/bot/profile',
   path: '/api/public/bot/profile',
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof PerfilRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
+  '/comunidades/$slug': typeof ComunidadesSlugRoute
   '/revista/$id': typeof RevistaIdRoute
   '/santuario/$slug': typeof SantuarioSlugRoute
   '/comunidades/': typeof ComunidadesIndexRoute
@@ -150,6 +157,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof PerfilRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
+  '/comunidades/$slug': typeof ComunidadesSlugRoute
   '/revista/$id': typeof RevistaIdRoute
   '/santuario/$slug': typeof SantuarioSlugRoute
   '/comunidades': typeof ComunidadesIndexRoute
@@ -171,6 +179,7 @@ export interface FileRoutesById {
   '/perfil': typeof PerfilRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
+  '/comunidades/$slug': typeof ComunidadesSlugRoute
   '/revista/$id': typeof RevistaIdRoute
   '/santuario/$slug': typeof SantuarioSlugRoute
   '/comunidades/': typeof ComunidadesIndexRoute
@@ -193,6 +202,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/redefinir-senha'
     | '/registro'
+    | '/comunidades/$slug'
     | '/revista/$id'
     | '/santuario/$slug'
     | '/comunidades/'
@@ -213,6 +223,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/redefinir-senha'
     | '/registro'
+    | '/comunidades/$slug'
     | '/revista/$id'
     | '/santuario/$slug'
     | '/comunidades'
@@ -233,6 +244,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/redefinir-senha'
     | '/registro'
+    | '/comunidades/$slug'
     | '/revista/$id'
     | '/santuario/$slug'
     | '/comunidades/'
@@ -254,6 +266,7 @@ export interface RootRouteChildren {
   PerfilRoute: typeof PerfilRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   RegistroRoute: typeof RegistroRoute
+  ComunidadesSlugRoute: typeof ComunidadesSlugRoute
   RevistaIdRoute: typeof RevistaIdRoute
   SantuarioSlugRoute: typeof SantuarioSlugRoute
   ComunidadesIndexRoute: typeof ComunidadesIndexRoute
@@ -371,6 +384,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RevistaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/comunidades/$slug': {
+      id: '/comunidades/$slug'
+      path: '/comunidades/$slug'
+      fullPath: '/comunidades/$slug'
+      preLoaderRoute: typeof ComunidadesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/bot/profile': {
       id: '/api/public/bot/profile'
       path: '/api/public/bot/profile'
@@ -406,6 +426,7 @@ const rootRouteChildren: RootRouteChildren = {
   PerfilRoute: PerfilRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   RegistroRoute: RegistroRoute,
+  ComunidadesSlugRoute: ComunidadesSlugRoute,
   RevistaIdRoute: RevistaIdRoute,
   SantuarioSlugRoute: SantuarioSlugRoute,
   ComunidadesIndexRoute: ComunidadesIndexRoute,
@@ -418,3 +439,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
