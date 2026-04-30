@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { IMAGES, img } from "@/lib/images";
+import { RichBio } from "@/components/RichBio";
+import { RichCommentEditor } from "@/components/RichCommentEditor";
 
 export type PostAuthor = {
   id: string;
@@ -79,7 +81,7 @@ export function PostCard({ post, onDeleted }: { post: PostRow; onDeleted?: (id: 
 
   async function postComment() {
     if (!user || !draft.trim()) return;
-    const content = draft.trim().slice(0, 500);
+    const content = draft.trim().slice(0, 2000);
     setDraft("");
     await supabase.from("post_comments").insert({ post_id: post.id, author_id: user.id, content });
     loadComments();
@@ -146,28 +148,26 @@ export function PostCard({ post, onDeleted }: { post: PostRow; onDeleted?: (id: 
       </div>
 
       {showComments && (
-        <div className="mt-3 space-y-2 border-t border-white/10 pt-3">
+        <div className="mt-3 space-y-3 border-t border-white/10 pt-3">
           {comments.map((c) => (
             <div key={c.id} className="flex gap-2 text-sm">
               <img src={img(c.author?.avatar_url ?? "", IMAGES.fallback.avatar)} alt="" className="h-7 w-7 rounded-full border border-white/15 object-cover" />
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <p className="text-[11px] tracking-widest text-white/50">
                   {c.author?.slug ? <Link to="/santuario/$slug" params={{ slug: c.author.slug }} className="hover:underline">{c.author.display_name}</Link> : c.author?.display_name}
                 </p>
-                <p className="text-white/85">{c.content}</p>
+                <RichBio html={c.content} fallback="" />
               </div>
             </div>
           ))}
           {user && (
-            <div className="flex gap-2">
-              <input value={draft} onChange={(e) => setDraft(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && postComment()}
-                placeholder="responder…" maxLength={500}
-                className="flex-1 rounded border border-white/15 bg-black/60 px-3 py-1.5 text-sm text-white outline-none focus:border-[color:var(--ruby)]" />
-              <button onClick={postComment} className="rounded bg-ruby-gradient px-3 py-1.5 font-display text-xs tracking-widest text-white">
-                ENVIAR
-              </button>
-            </div>
+            <RichCommentEditor
+              value={draft}
+              onChange={setDraft}
+              onSubmit={postComment}
+              placeholder="responder com texto, imagem ou GIF…"
+              compact
+            />
           )}
         </div>
       )}
