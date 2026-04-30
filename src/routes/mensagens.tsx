@@ -221,161 +221,174 @@ function MessagesPage() {
   const activeConv = convs.find((c) => c.id === activeId);
 
   return (
-    <div className="mx-auto max-w-6xl px-5 py-8">
-      <PageHeader
-        eyebrow="DM · 文"
-        title="Mensagens"
-        description="Conversas privadas, 1:1 ou em grupinho. Em tempo real."
-        actions={
-          <Button variant="primary" onClick={() => setShowNew((v) => !v)}>
-            <PlusIcon className="mr-1 h-4 w-4" /> Nova conversa
-          </Button>
-        }
-      />
-
-      {showNew && (
-        <div className="panel mb-6 p-5">
-          <p className="mb-3 font-display text-sm tracking-widest">NOVA CONVERSA</p>
-          <div className="mb-3 flex items-center gap-2 rounded-md border border-white/10 bg-black/30 px-3 py-2">
-            <MagnifyingGlassIcon className="h-4 w-4 text-[color:var(--text-3)]" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar por nome ou @"
-              className="w-full bg-transparent text-sm outline-none"
-              aria-label="Buscar usuários"
-            />
-          </div>
-          {picked.length > 0 && (
-            <div className="mb-3 flex flex-wrap gap-2">
-              {picked.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => setPicked((prev) => prev.filter((x) => x.id !== p.id))}
-                  className="inline-flex items-center gap-1 rounded-full bg-[color:var(--ruby)]/20 px-2 py-1 text-xs text-[color:var(--ruby)] hover:bg-[color:var(--ruby)]/30"
-                >
-                  {p.display_name} ✕
-                </button>
-              ))}
-            </div>
-          )}
-          {results.length > 0 && (
-            <ul className="mb-3 divide-y divide-white/5 rounded-md border border-white/10 bg-black/30">
-              {results.map((p) => {
-                const isPicked = picked.some((x) => x.id === p.id);
-                return (
-                  <li key={p.id}>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setPicked((prev) =>
-                          isPicked ? prev.filter((x) => x.id !== p.id) : [...prev, p].slice(0, 8),
-                        )
-                      }
-                      className="flex w-full items-center gap-3 px-3 py-2 text-left text-sm hover:bg-white/5"
-                    >
-                      {p.avatar_url ? (
-                        <img src={p.avatar_url} alt="" className="h-7 w-7 rounded-full object-cover" />
-                      ) : (
-                        <div className="h-7 w-7 rounded-full bg-[color:var(--surface-3)]" />
-                      )}
-                      <span className="flex-1">{p.display_name}</span>
-                      {isPicked && <span className="text-[color:var(--ruby)]">✓</span>}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-          {picked.length > 1 && (
-            <input
-              value={groupTitle}
-              onChange={(e) => setGroupTitle(e.target.value)}
-              placeholder="Nome do grupo (opcional)"
-              className="mb-3 w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--ruby)]"
-            />
-          )}
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setShowNew(false);
-                setPicked([]);
-                setSearch("");
-              }}
-            >
-              Cancelar
-            </Button>
-            <Button variant="primary" onClick={startConversation} loading={creating} disabled={picked.length === 0}>
-              Começar
-            </Button>
-          </div>
+    <>
+      {/* Mobile fullscreen quando uma conversa está aberta */}
+      {activeConv && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-[color:var(--surface-1)] lg:hidden">
+          <ConversationView
+            conversationId={activeConv.id}
+            title={convTitle(activeConv)}
+            onBack={() => setActiveId(null)}
+          />
         </div>
       )}
 
-      <div className="grid gap-0 overflow-hidden rounded-lg border border-white/10 bg-black/20 lg:grid-cols-[300px_1fr]" style={{ minHeight: 560 }}>
-        <aside className={`border-b border-white/10 lg:border-b-0 lg:border-r ${activeId ? "hidden lg:block" : "block"}`}>
-          {convs.length === 0 ? (
-            <div className="p-6 text-center text-xs text-[color:var(--text-3)]">
-              <EnvelopeClosedIcon className="mx-auto mb-2 h-6 w-6" />
-              Nenhuma conversa ainda.
-            </div>
-          ) : (
-            <ul className="divide-y divide-white/5">
-              {convs.map((c) => {
-                const me = myParticipant(c.id);
-                const unread = me ? new Date(c.last_message_at) > new Date(me.last_read_at) : false;
-                const av = convAvatar(c);
-                const active = activeId === c.id;
-                return (
-                  <li key={c.id}>
-                    <button
-                      type="button"
-                      onClick={() => setActiveId(c.id)}
-                      className={`flex w-full items-center gap-3 px-3 py-3 text-left transition hover:bg-white/5 ${
-                        active ? "bg-[color:var(--ruby)]/10" : ""
-                      }`}
-                    >
-                      <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-[color:var(--surface-3)]">
-                        {av ? (
-                          <img src={av} alt="" className="h-full w-full object-cover" />
-                        ) : (
-                          <PersonIcon className="m-2.5 h-4 w-4 text-[color:var(--text-3)]" />
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm text-white">{convTitle(c)}</p>
-                        <p className="truncate text-[10px] tracking-widest text-[color:var(--text-3)]">
-                          {timeAgo(c.last_message_at)}
-                          {c.is_group && " · grupo"}
-                        </p>
-                      </div>
-                      {unread && (
-                        <span className="h-2 w-2 shrink-0 rounded-full bg-[color:var(--ruby)]" aria-label="Não lida" />
-                      )}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </aside>
+      <div className="mx-auto max-w-6xl px-3 py-5 sm:px-5 sm:py-8">
+        <PageHeader
+          eyebrow="DM · 文"
+          title="Mensagens"
+          description="Conversas privadas, 1:1 ou em grupinho. Em tempo real."
+          actions={
+            <Button variant="primary" onClick={() => setShowNew((v) => !v)}>
+              <PlusIcon className="mr-1 h-4 w-4" /> Nova conversa
+            </Button>
+          }
+        />
 
-        <section className={`min-h-[560px] ${activeId ? "block" : "hidden lg:block"}`}>
-          {activeConv ? (
-            <ConversationView
-              conversationId={activeConv.id}
-              title={convTitle(activeConv)}
-              onBack={() => setActiveId(null)}
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center p-8 text-center text-sm text-[color:var(--text-3)]">
-              Selecione uma conversa ou comece uma nova.
+        {showNew && (
+          <div className="panel mb-6 p-4 sm:p-5">
+            <p className="mb-3 font-display text-sm tracking-widest">NOVA CONVERSA</p>
+            <div className="mb-3 flex items-center gap-2 rounded-md border border-white/10 bg-black/30 px-3 py-2">
+              <MagnifyingGlassIcon className="h-4 w-4 text-[color:var(--text-3)]" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Buscar por nome ou @"
+                className="w-full bg-transparent text-sm outline-none"
+                aria-label="Buscar usuários"
+              />
             </div>
-          )}
-        </section>
+            {picked.length > 0 && (
+              <div className="mb-3 flex flex-wrap gap-2">
+                {picked.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setPicked((prev) => prev.filter((x) => x.id !== p.id))}
+                    className="inline-flex items-center gap-1 rounded-full bg-[color:var(--ruby)]/20 px-2 py-1 text-xs text-[color:var(--ruby)] hover:bg-[color:var(--ruby)]/30"
+                  >
+                    {p.display_name} ✕
+                  </button>
+                ))}
+              </div>
+            )}
+            {results.length > 0 && (
+              <ul className="mb-3 divide-y divide-white/5 rounded-md border border-white/10 bg-black/30">
+                {results.map((p) => {
+                  const isPicked = picked.some((x) => x.id === p.id);
+                  return (
+                    <li key={p.id}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPicked((prev) =>
+                            isPicked ? prev.filter((x) => x.id !== p.id) : [...prev, p].slice(0, 8),
+                          )
+                        }
+                        className="flex w-full items-center gap-3 px-3 py-2 text-left text-sm hover:bg-white/5"
+                      >
+                        {p.avatar_url ? (
+                          <img src={p.avatar_url} alt="" className="h-7 w-7 rounded-full object-cover" />
+                        ) : (
+                          <div className="h-7 w-7 rounded-full bg-[color:var(--surface-3)]" />
+                        )}
+                        <span className="flex-1">{p.display_name}</span>
+                        {isPicked && <span className="text-[color:var(--ruby)]">✓</span>}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            {picked.length > 1 && (
+              <input
+                value={groupTitle}
+                onChange={(e) => setGroupTitle(e.target.value)}
+                placeholder="Nome do grupo (opcional)"
+                className="mb-3 w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--ruby)]"
+              />
+            )}
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setShowNew(false);
+                  setPicked([]);
+                  setSearch("");
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button variant="primary" onClick={startConversation} loading={creating} disabled={picked.length === 0}>
+                Começar
+              </Button>
+            </div>
+          </div>
+        )}
+
+        <div className="grid gap-0 overflow-hidden rounded-lg border border-white/10 bg-black/20 lg:grid-cols-[300px_1fr]" style={{ minHeight: 560 }}>
+          <aside className="border-b border-white/10 lg:border-b-0 lg:border-r">
+            {convs.length === 0 ? (
+              <div className="p-6 text-center text-xs text-[color:var(--text-3)]">
+                <EnvelopeClosedIcon className="mx-auto mb-2 h-6 w-6" />
+                Nenhuma conversa ainda.
+              </div>
+            ) : (
+              <ul className="divide-y divide-white/5">
+                {convs.map((c) => {
+                  const me = myParticipant(c.id);
+                  const unread = me ? new Date(c.last_message_at) > new Date(me.last_read_at) : false;
+                  const av = convAvatar(c);
+                  const active = activeId === c.id;
+                  return (
+                    <li key={c.id}>
+                      <button
+                        type="button"
+                        onClick={() => setActiveId(c.id)}
+                        className={`flex w-full items-center gap-3 px-3 py-3 text-left transition hover:bg-white/5 ${
+                          active ? "bg-[color:var(--ruby)]/10" : ""
+                        }`}
+                      >
+                        <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-[color:var(--surface-3)]">
+                          {av ? (
+                            <img src={av} alt="" className="h-full w-full object-cover" />
+                          ) : (
+                            <PersonIcon className="m-2.5 h-4 w-4 text-[color:var(--text-3)]" />
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm text-white">{convTitle(c)}</p>
+                          <p className="truncate text-[10px] tracking-widest text-[color:var(--text-3)]">
+                            {timeAgo(c.last_message_at)}
+                            {c.is_group && " · grupo"}
+                          </p>
+                        </div>
+                        {unread && (
+                          <span className="h-2 w-2 shrink-0 rounded-full bg-[color:var(--ruby)]" aria-label="Não lida" />
+                        )}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </aside>
+
+          <section className="hidden min-h-[560px] lg:block">
+            {activeConv ? (
+              <ConversationView
+                conversationId={activeConv.id}
+                title={convTitle(activeConv)}
+                onBack={() => setActiveId(null)}
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center p-8 text-center text-sm text-[color:var(--text-3)]">
+                Selecione uma conversa ou comece uma nova.
+              </div>
+            )}
+          </section>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
