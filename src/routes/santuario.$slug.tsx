@@ -72,18 +72,20 @@ function MemberPage() {
   useEffect(() => {
     if (authLoading || !user) return;
     let profileId: string | null = null;
+    let characterKey: string | null = null;
     (async () => {
       const { data: p } = await supabase.from("profiles").select("*").eq("slug", slug).maybeSingle();
       if (!p) { setNotFound(true); setLoading(false); return; }
       setProfile(p as unknown as Profile);
       profileId = p.id;
+      characterKey = (p as { character_key: string | null }).character_key;
 
       const [{ data: f }, { data: ps }] = await Promise.all([
         supabase.from("family_links").select("id, kind, name, slug").eq("owner_id", p.id).order("created_at"),
         supabase.from("posts").select("*").eq("author_id", p.id).order("created_at", { ascending: false }).limit(10),
       ]);
       setFamily((f as FamilyLink[]) ?? []);
-      await loadMemberAlbum(p.id);
+      await loadMemberAlbum(p.id, characterKey);
       const author: PostAuthor = {
         id: p.id, display_name: p.display_name, slug: p.slug, avatar_url: p.avatar_url,
       };
@@ -98,7 +100,7 @@ function MemberPage() {
         { event: "*", schema: "public", table: "user_cards" },
         (payload) => {
           const row = (payload.new ?? payload.old) as { user_id?: string };
-          if (profileId && row.user_id === profileId) void loadMemberAlbum(profileId);
+          if (profileId && row.user_id === profileId) void loadMemberAlbum(profileId, characterKey);
         },
       )
       .subscribe();
