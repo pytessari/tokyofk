@@ -111,7 +111,7 @@ export function PostCard({ post, onDeleted }: { post: PostRow; onDeleted?: (id: 
             <img src={avatarUrl} alt="" className="h-11 w-11 rounded-full border border-[color:var(--ruby)]/40 object-cover" />
             <div>
               <p className="font-display text-sm tracking-widest text-white">{a.display_name}</p>
-              <p className="text-[10px] tracking-widest text-white/40">/{a.slug} · {date.toLocaleString("pt-BR")}</p>
+              <p className="text-[10px] tracking-widest text-white/40">{date.toLocaleString("pt-BR")}</p>
             </div>
           </Link>
         ) : (
