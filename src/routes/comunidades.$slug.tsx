@@ -258,7 +258,12 @@ function CommunityDetail() {
         </div>
       </div>
 
-      <div className="mb-4 flex items-center justify-between sm:hidden">
+      <div className="mb-4 flex items-center justify-between gap-2 sm:hidden">
+        {isOwner && (
+          <Button variant="outline" onClick={() => setEditing(true)}>
+            <Pencil1Icon className="mr-1 h-4 w-4" /> Editar
+          </Button>
+        )}
         {user ? (
           isMember ? (
             <Button variant="outline" onClick={leave}>
