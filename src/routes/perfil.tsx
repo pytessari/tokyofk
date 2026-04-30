@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { useAuth } from "@/lib/auth";
-import { useRole } from "@/lib/useRole";
 import { supabase } from "@/integrations/supabase/client";
 import { ImageUpload } from "@/components/ImageUpload";
+import { RichBioEditor } from "@/components/RichBioEditor";
 import { IMAGES, img } from "@/lib/images";
+import { Save, Trash2, Plus, Link2, ExternalLink, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/perfil")({
   head: () => ({ meta: [{ title: "Meu Perfil · TOKYO" }] }),
@@ -17,6 +18,8 @@ type Profile = {
   slug: string | null;
   discord_id: string | null;
   bio: string | null;
+  bio_html: string | null;
+  character_key: string | null;
   sign: string | null;
   role: string | null;
   avatar_url: string | null;
@@ -68,9 +71,9 @@ const KIND_OPTIONS = [
 ];
 
 function ProfilePage() {
-  const { user, loading, signOut } = useAuth();
-  const { isAdmin } = useRole();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [characterKeys, setCharacterKeys] = useState<string[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [family, setFamily] = useState<FamilyLink[]>([]);
   const [discord, setDiscord] = useState<DiscordLink | null>(null);
