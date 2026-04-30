@@ -55,9 +55,13 @@ const exploreGroups = [
     title: "Coleção & Diversão",
     items: [
       { to: "/album", label: "Álbum", icon: ArchiveIcon, exact: false },
-      { to: "/buddy", label: "Buddy", icon: FaceIcon, exact: false },
     ],
   },
+] as const;
+
+// Itens visíveis somente para admins
+const adminExploreItems = [
+  { to: "/buddy", label: "Buddy (beta)", icon: FaceIcon, exact: false },
 ] as const;
 
 // Para o menu mobile (logged-out)
