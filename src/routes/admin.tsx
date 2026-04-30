@@ -11,13 +11,14 @@ import { SortableList } from "@/components/SortablePages";
 import { PageHeader } from "@/components/kit/PageHeader";
 import { TabBar } from "@/components/kit/TabBar";
 import { DropsAdmin } from "@/components/admin/DropsAdmin";
+import { GrantCardsAdmin } from "@/components/admin/GrantCardsAdmin";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin · TOKYO" }] }),
   component: AdminPage,
 });
 
-type Tab = "members" | "cards" | "magazines" | "guestbook" | "drops";
+type Tab = "members" | "cards" | "magazines" | "guestbook" | "drops" | "grant";
 
 function AdminPage() {
   const { user, loading: authLoading } = useAuth();
@@ -60,6 +61,7 @@ function AdminPage() {
           items={[
             { value: "members", label: "Membros" },
             { value: "cards", label: "Cartas" },
+            { value: "grant", label: "Conceder" },
             { value: "drops", label: "Drops" },
             { value: "magazines", label: "Revistas" },
             { value: "guestbook", label: "Mural" },
@@ -69,6 +71,7 @@ function AdminPage() {
 
       {tab === "members" && <MembersAdmin />}
       {tab === "cards" && <CardsAdmin userId={user.id} />}
+      {tab === "grant" && <GrantCardsAdmin />}
       {tab === "drops" && <DropsAdmin />}
       {tab === "magazines" && <MagazinesAdmin userId={user.id} />}
       {tab === "guestbook" && <GuestbookAdmin />}

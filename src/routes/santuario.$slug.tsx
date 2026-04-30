@@ -74,6 +74,8 @@ function MemberPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [family, setFamily] = useState<FamilyLink[]>([]);
   const [allCards, setAllCards] = useState<CardRow[]>([]);
+  const [characterCatalog, setCharacterCatalog] = useState<CardRow[]>([]);
+  const [collectedKeys, setCollectedKeys] = useState<Set<string>>(new Set());
   const [posts, setPosts] = useState<PostRow[]>([]);
   const [t1Totals, setT1Totals] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -91,6 +93,16 @@ function MemberPage() {
       .map((r) => r.card)
       .filter((c): c is CardRow => !!c);
     setAllCards(rows);
+    setCollectedKeys(new Set(rows.map((c) => c.id)));
+  }, []);
+
+  const loadCharacterCatalog = useCallback(async (characterKey: string) => {
+    const { data } = await supabase
+      .from("cards")
+      .select("*")
+      .eq("character_key", characterKey)
+      .order("card_number");
+    setCharacterCatalog(((data ?? []) as CardRow[]));
   }, []);
 
   // Totais por personagem na Temporada 1
@@ -123,6 +135,8 @@ function MemberPage() {
       ]);
       setFamily((f as FamilyLink[]) ?? []);
       await loadMemberAlbum(p.id);
+      if (p.character_key) await loadCharacterCatalog(p.character_key);
+      else setCharacterCatalog([]);
       const author: PostAuthor = {
         id: p.id, display_name: p.display_name, slug: p.slug, avatar_url: p.avatar_url,
       };
@@ -144,7 +158,7 @@ function MemberPage() {
     return () => {
       supabase.removeChannel(ch);
     };
-  }, [slug, user, authLoading, loadMemberAlbum]);
+  }, [slug, user, authLoading, loadMemberAlbum, loadCharacterCatalog]);
 
   if (authLoading) {
     return <div className="px-5 py-20 text-center font-display tracking-widest text-[color:var(--text-3)]">CARREGANDO…</div>;
@@ -167,9 +181,8 @@ function MemberPage() {
 
   const avatar = img(profile.avatar_url ?? "", IMAGES.fallback.avatar);
   const banner = img(profile.banner_url ?? "", IMAGES.fallback.banner);
-  const characterCards = profile.character_key
-    ? allCards.filter((c) => c.character_key === profile.character_key)
-    : [];
+  // Cartas exibidas no perfil = catálogo do personagem dele(a), com flag de coletada
+  const characterCards = characterCatalog;
   const grouped = groupFamily(family);
 
   return (
@@ -303,8 +316,8 @@ function MemberPage() {
                 ÁLBUM DE {profile.display_name.split(" ")[0].toUpperCase()}
               </h2>
               <p className="mt-1 text-xs text-[color:var(--text-3)]">
-                {characterCards.length}{profile.character_key && t1Totals[profile.character_key] ? `/${t1Totals[profile.character_key]}` : ""}
-                {profile.character_key ? ` de ${profile.character_key}` : ""} · {allCards.length} no total
+                {characterCards.filter((c) => collectedKeys.has(c.id)).length}/{characterCards.length}
+                {profile.character_key ? ` cartas de ${profile.character_key}` : ""} · {allCards.length} coletadas no total
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -322,7 +335,8 @@ function MemberPage() {
           </div>
           <CardGrid
             cards={characterCards}
-            empty={profile.character_key ? "Esse personagem ainda não tem cartas coletadas." : "Esse membro ainda não escolheu um personagem."}
+            collectedIds={collectedKeys}
+            empty={profile.character_key ? "Esse personagem ainda não tem cartas no catálogo." : "Esse membro ainda não escolheu um personagem."}
             onCardClick={(c) => setOpenCard(c)}
           />
         </section>
