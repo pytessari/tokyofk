@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { CropDialog } from "@/components/CropDialog";
 
 type Props = {
   bucket: "avatars" | "banners" | "cards" | "magazines";
@@ -14,20 +15,50 @@ export function ImageUpload({ bucket, userId, currentUrl, onUploaded, label = "E
   const ref = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
 
-  async function handle(file: File) {
-    if (!file) return;
-    if (file.size > 15 * 1024 * 1024) { setError("Máx 15MB"); return; }
-    setUploading(true); setError(null);
-    const ext = file.name.split(".").pop() || "jpg";
+  // Crop apenas para avatar (1:1) e capa (3:1). Cartas e revistas vão direto.
+  const cropAspect = aspect === "square" ? 1 : aspect === "banner" ? 3 : null;
+  const cropShape: "rect" | "round" = aspect === "square" ? "round" : "rect";
+
+  async function uploadBlob(blob: Blob, ext: string, contentType: string) {
+    setUploading(true);
+    setError(null);
     const path = `${userId}/${crypto.randomUUID()}.${ext}`;
-    const { error: upErr } = await supabase.storage.from(bucket).upload(path, file, {
-      upsert: true, contentType: file.type,
+    const { error: upErr } = await supabase.storage.from(bucket).upload(path, blob, {
+      upsert: true,
+      contentType,
     });
-    if (upErr) { setError(upErr.message); setUploading(false); return; }
+    if (upErr) {
+      setError(upErr.message);
+      setUploading(false);
+      return;
+    }
     const { data } = supabase.storage.from(bucket).getPublicUrl(path);
     onUploaded(data.publicUrl);
     setUploading(false);
+    setCropSrc(null);
+  }
+
+  async function handleFile(file: File) {
+    if (!file) return;
+    if (file.size > 15 * 1024 * 1024) {
+      setError("Máx 15MB");
+      return;
+    }
+    setError(null);
+    if (cropAspect) {
+      // GIFs não dá pra cortar mantendo animação no canvas — sobe direto.
+      if (file.type === "image/gif") {
+        await uploadBlob(file, "gif", "image/gif");
+        return;
+      }
+      const url = URL.createObjectURL(file);
+      setCropSrc(url);
+    } else {
+      const ext = file.name.split(".").pop() || "jpg";
+      await uploadBlob(file, ext, file.type);
+    }
   }
 
   const aspectClass =
@@ -55,8 +86,30 @@ export function ImageUpload({ bucket, userId, currentUrl, onUploaded, label = "E
         )}
       </div>
       <input ref={ref} type="file" accept="image/*" className="hidden"
-        onChange={(e) => e.target.files?.[0] && handle(e.target.files[0])} />
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) void handleFile(f);
+          // permite re-selecionar o mesmo arquivo
+          e.target.value = "";
+        }} />
       {error && <p className="text-xs text-red-400">{error}</p>}
+
+      {cropSrc && cropAspect && (
+        <CropDialog
+          src={cropSrc}
+          aspect={cropAspect}
+          cropShape={cropShape}
+          saving={uploading}
+          onCancel={() => {
+            URL.revokeObjectURL(cropSrc);
+            setCropSrc(null);
+          }}
+          onConfirm={async (blob) => {
+            await uploadBlob(blob, "jpg", "image/jpeg");
+            URL.revokeObjectURL(cropSrc);
+          }}
+        />
+      )}
     </div>
   );
 }
