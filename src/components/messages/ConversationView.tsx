@@ -56,9 +56,11 @@ const MAX_FILE_MB = 25;
 export function ConversationView({
   conversationId,
   title,
+  onBack,
 }: {
   conversationId: string;
   title: string;
+  onBack?: () => void;
 }) {
   const { user } = useAuth();
   const { emojis } = useCustomEmojis();
