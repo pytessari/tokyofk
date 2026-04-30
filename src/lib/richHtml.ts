@@ -1,8 +1,19 @@
 import DOMPurify from "dompurify";
 
 const CONFIG = {
-  ADD_TAGS: ["iframe"],
-  ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling", "target", "rel"],
+  ADD_TAGS: ["iframe", "marquee"],
+  ADD_ATTR: [
+    "allow",
+    "allowfullscreen",
+    "frameborder",
+    "scrolling",
+    "target",
+    "rel",
+    "style",
+    "behavior",
+    "direction",
+    "scrollamount",
+  ],
   ALLOWED_URI_REGEXP: /^(https?:|mailto:|tel:|#|\/)/i,
 };
 

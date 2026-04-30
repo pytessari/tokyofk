@@ -1,76 +1,102 @@
-## 1. Esqueci a senha
+# Plano: Painel social, notificações ricas, editor expandido
 
-- Adicionar link **"Esqueci minha senha"** em `src/routes/login.tsx`.
-- Criar `src/routes/esqueci-senha.tsx`: form com email → `supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/redefinir-senha' })`.
-- Criar `src/routes/redefinir-senha.tsx` (rota pública): detecta sessão de recovery e chama `supabase.auth.updateUser({ password })`. Após sucesso, redireciona pra `/perfil`.
-- Sem necessidade de configurar templates customizados — usa o email padrão do Lovable Cloud.
+Foco em Nielsen (visibilidade de status, reconhecer > recordar, controle do usuário) e WCAG 2.1 (contraste AA, foco visível, alt, aria-labels, navegação por teclado).
 
-## 2. Área deslogada (gating)
+## 1. Notificações com autor (quem fez o quê)
 
-Hoje `/santuario`, `/feed`, `/album` aparecem pra qualquer um. Solução simples sem refatorar pra `_authenticated`:
+Hoje `NotificationsBell` mostra só `"curtiu seu post"` sem nome nem link. Vou enriquecer:
 
-- Em cada uma dessas 3 rotas (`santuario.index.tsx`, `santuario.$slug.tsx`, `feed.tsx`, `album.tsx`), no componente: se `useAuth().loading` → loading; se `!user` → mostrar tela "Entre pra acessar" com botão pra `/login` e `/registro`. Não renderiza conteúdo.
-- Atualizar **`Navbar`**: quando deslogado, esconder os links Feed / Santuário / Álbum (mostrar só Início + Revista + ENTRAR).
-- Atualizar **`src/routes/index.tsx`** (home): se deslogado, esconder qualquer CTA/preview que leve a essas áreas e em vez disso mostrar bloco "crie sua conta".
+- Em `useNotifications.ts`, depois do fetch das notifs, fazer um segundo `select` em `profiles` com os `actor_id` únicos (`id, display_name, slug, avatar_url`) e anexar `actor` em cada item. Mesmo merge para o realtime INSERT.
+- `NotificationsBell.tsx`:
+  - Mostra avatar (Radix `Avatar`), nome do autor como `<Link>` para `/santuario/$slug`, ação ("curtiu seu post", "começou a te seguir", "comentou: ...", "deixou um recado"), e "há 5 min" usando um helper `timeAgo` em `src/lib/timeAgo.ts`.
+  - Para `post_comment`, buscar `post_comments.content` (preview 60 chars).
+  - Sino vira `BellIcon` do `@radix-ui/react-icons` (não emoji).
+  - `aria-label="Notificações, X não lidas"`, `role="menu"`, focus ring visível, navegação por setas com `DropdownMenu`.
+  - Item não lido: ponto vermelho + `font-weight: 600` (não confiar só em cor — WCAG).
+  - Botão "Marcar todas como lidas" explícito (controle do usuário).
 
-## 3. Cartas do personagem aparecem no perfil
+## 2. Seguidores e Seguindo no perfil
 
-Problema confirmado no banco: profile.slug `jerkspfc` ≠ card.character_key `jerk`. Hoje `santuario/$slug` consulta `cards.character_key = slug`, então nunca casa.
+`FollowStats` hoje só mostra contagem. Adicionar listas clicáveis:
 
-Solução: adicionar coluna **`character_key`** em `profiles` (texto, nullable) — separada do slug da URL.
+- Novo componente `FollowersDialog.tsx` que abre Radix `Dialog` com duas tabs (Radix `Tabs`): **Seguidores** e **Seguindo**.
+  - Query: `follows` filtrando por `following_id` (seguidores) ou `follower_id` (seguindo) → join com `profiles` (id, display_name, slug, avatar_url, role).
+  - Cada linha: avatar + nome + papel + `FollowButton` inline + link para o santuário.
+- `FollowStats` vira clicável: "**128** seguidores · **42** seguindo" — cada número abre o dialog na aba certa.
+- Usar no `/santuario/$slug` (já tem `<FollowStats>`) e também na nova página de perfil público.
 
-- Migração: `ALTER TABLE profiles ADD COLUMN character_key text;`
-- No `/perfil` (editar): novo campo "Personagem (chave das cartas)" com lista dos `character_key` distintos vindos de `cards` (autocomplete via `<datalist>`), default = slug atual.
-- Em `santuario.$slug.tsx`: trocar `.eq("character_key", slug)` por `.eq("character_key", profile.character_key ?? profile.slug)`.
-- Backfill da migração: `UPDATE profiles SET character_key = 'jerk' WHERE slug = 'jerkspfc';` (e qualquer outro óbvio que eu confirmar com você antes — por enquanto só o jerk tá claro).
+## 3. Menu: separar "Meu perfil" de "Editar perfil"
 
-## 4. Ícones (Radix / Lucide)
+Novo item no `DropdownMenu` da Navbar:
 
-`lucide-react` já está instalado (usado pelos componentes shadcn). Vamos usar **lucide-react** consistente em todo o app:
+```
+[Avatar] usuario@email
+─────────────────
+👤 Meu perfil          → /santuario/{meuSlug}   (PersonIcon)
+✎  Editar perfil       → /perfil               (Pencil2Icon)
+🛡  Admin (se admin)   → /admin                (LockClosedIcon)
+─────────────────
+↪  Sair                                        (ExitIcon)
+```
 
-- `Navbar`: ícones nos links (Home, Newspaper, Users, Library, Rss), Bell já existe, adicionar `User` no botão Perfil e `LogIn` no Entrar.
-- `Perfil`: `Save`, `LogOut`, `Trash2`, `Plus`, `Link2` (discord), `ExternalLink`.
-- `Santuário`/`Feed`/`Album`: ícones em headers, botões follow (UserPlus/UserCheck), like (Heart), comment (MessageCircle).
+- Trigger ganha o avatar do usuário (Radix `Avatar` com fallback nas iniciais), não só ícone genérico.
+- Se o usuário não tem `slug` configurado, "Meu perfil" leva para `/perfil` com toast "Configure seu @ primeiro".
+- `aria-label`, `role="menu"`, atalho de teclado já vem do Radix.
 
-## 5. Mover botão "Sair"
+## 4. Ícones Radix em vez de emojis/lucide misturado
 
-Hoje fica embaixo do form de identidade no `/perfil`. Mudar pra:
+Padronizar em `@radix-ui/react-icons` (instalar com `bun add @radix-ui/react-icons`). Substituições:
 
-- **Navbar**: dropdown no botão "PERFIL" (usando `DropdownMenu` shadcn) com itens: Meu perfil, Meu santuário, Admin (se for), **Sair**.
-- Remover o botão "Sair" do form em `perfil.tsx`.
+- 🔔 → `BellIcon`
+- ▎/✦ decorativos no header → `StarFilledIcon` / `DotFilledIcon`
+- Família ❤️ → `HeartIcon` / `HeartFilledIcon`
+- Discord 🎮 → `DiscordLogoIcon`
+- Lápis editar → `Pencil2Icon`, sair → `ExitIcon`, perfil → `PersonIcon`, admin → `LockClosedIcon`
+- Notificações: tipos ganham ícone (curtida = `HeartFilledIcon`, comentário = `ChatBubbleIcon`, follow = `PersonIcon`, mural = `EnvelopeClosedIcon`)
+- Lucide fica só onde Radix não cobre (ex: `Library`, `Newspaper` na nav — ou troco por equivalentes Radix `ReaderIcon`, `ArchiveIcon`).
 
-## 6. Ficha editável rica + remover "ficha aberta"
+Todos com `aria-hidden="true"` quando decorativos; `role="img" aria-label="..."` quando carregam significado sozinhos.
 
-Em `santuario.$slug.tsx`:
+## 5. Mais opções de formatação no editor de ficha
 
-- **Remover** o bloco grande `"{Nome} — ficha aberta."`.
-- Substituir o card de bio por um render de **conteúdo rico** (HTML sanitizado) vindo de um novo campo `profiles.bio_html` (text), permitindo `<img>`, `<a>`, `<iframe>` (Tenor/YouTube), `<p>`, `<strong>`, `<em>`, listas. Manter `bio` (texto simples) como fallback.
-- Migração: `ALTER TABLE profiles ADD COLUMN bio_html text;`
-- Sanitização: instalar **dompurify** (`bun add dompurify`) e renderizar com `dangerouslySetInnerHTML` após `DOMPurify.sanitize(html, { ADD_TAGS:['iframe'], ADD_ATTR:['allow','allowfullscreen','frameborder','target'] })`.
-- Editor no `/perfil`: textarea grande com campo `bio_html` + barra simples de botões helpers (Inserir GIF por URL, Inserir imagem por URL, Inserir vídeo Tenor/YouTube por URL → injeta tag `<img>` ou `<iframe>`). Sem WYSIWYG complexo, fica leve.
-- Pre-visualização ao lado do textarea com mesma sanitização.
+Expandir `RichBioEditor.tsx` com toolbar maior (mantendo a saída sanitizada por `dompurify`):
 
-## Resumo dos arquivos
+- **Texto**: Negrito, Itálico, Sublinhado, Riscado, Código inline
+- **Estrutura**: Título grande (h2), Título médio (h3), Citação, Lista, Separador `<hr>`
+- **Mídia**: Imagem/GIF, Vídeo (YouTube/Tenor), Áudio (Spotify embed), Link
+- **Estilo Orkut**: cor do texto (paleta de 8 com botões coloridos, gera `<span style="color:#xxx">`), centralizar, texto piscando (`<marquee>` ou animação CSS leve — opt-in, com aviso de acessibilidade), GIF glitter
+- Substituir os `prompt()` por mini-dialogs Radix (acessíveis, com label/erro). Mantém modo `<textarea>` HTML cru pra quem quiser, mas adiciona aba **"Visual"** vs **"HTML"** com Radix `Tabs`.
+- Atualizar `richHtml.ts` (allowlist do DOMPurify) para permitir `h2,h3,blockquote,hr,ul,ol,li,u,s,code,span[style],marquee` com `style` limitado a `color`, `text-align`, `background-color`.
 
-**Novos**
-- `src/routes/esqueci-senha.tsx`
-- `src/routes/redefinir-senha.tsx`
+## 6. Ar de painel de rede social (UX)
 
-**Editados**
-- `src/routes/login.tsx` (link esqueci a senha)
-- `src/routes/perfil.tsx` (campo character_key, editor bio_html, remoção do botão Sair)
-- `src/routes/santuario.$slug.tsx` (usar character_key real, remover título "ficha aberta", render de bio_html sanitizada)
-- `src/routes/santuario.index.tsx`, `feed.tsx`, `album.tsx` (gate deslogado)
-- `src/routes/index.tsx` (home adaptada pra deslogado)
-- `src/components/Navbar.tsx` (esconder links pra deslogado, dropdown perfil com Sair, ícones lucide)
-- Componentes diversos recebem ícones lucide
+Pequenos ajustes globais que entregam o vibe Orkut/Discord:
 
-**Migração SQL**
-- `ALTER TABLE profiles ADD COLUMN character_key text, ADD COLUMN bio_html text;`
-- Backfill `character_key` (só `jerkspfc → jerk` por ora — confirmo outros mapeamentos depois).
+- **Card de "presença" no topo do `/feed`**: avatar + saudação + 3 atalhos rápidos (Postar, Ver mural, Editar ficha) — Nielsen "atalhos para experts".
+- **Badge global de notificações** persiste no sino mesmo navegando (já persiste via realtime, só garantir visibilidade).
+- **Breadcrumbs** sutis em rotas profundas (`Santuário › Jerk`).
+- **Estado vazio** em todas as listas com call-to-action (não só "nada aqui").
+- **Foco visível**: garantir `focus-visible:ring-2 ring-[color:var(--ruby)]` em todos os botões/links interativos (WCAG 2.4.7).
+- **Contraste**: `text-white/40` falha AA em fundos translúcidos — subir para `text-white/60` no mínimo em texto significativo.
 
-**Dependência nova**: `dompurify` + `@types/dompurify`.
+## Arquivos a tocar
 
-## Pergunta antes de começar
+```
+NEW src/lib/timeAgo.ts
+NEW src/components/FollowersDialog.tsx
+NEW src/components/notifications/NotificationItem.tsx
+EDIT src/lib/useNotifications.ts          (anexar actor + preview)
+EDIT src/components/NotificationsBell.tsx (rich items, Radix icons)
+EDIT src/components/FollowButton.tsx      (FollowStats clicável)
+EDIT src/components/Navbar.tsx            (menu Meu perfil + Editar + avatar trigger)
+EDIT src/components/RichBioEditor.tsx     (toolbar expandida + Tabs)
+EDIT src/lib/richHtml.ts                  (allowlist expandida)
+EDIT src/routes/santuario.$slug.tsx       (FollowStats clicável + ícones)
+EDIT src/routes/feed.tsx                  (card de presença)
+EDIT src/routes/perfil.tsx                (ícones Radix)
+NEW package: @radix-ui/react-icons
+```
 
-Os outros profiles têm `character_key` óbvio? Tipo `katriwiner → katrina`, `pierre-leblanc → pierre`? Posso fazer um backfill heurístico (primeira palavra do display_name minúscula) ou prefere deixar todos vazios pra cada usuário escolher manualmente no /perfil?
+## Sem mudanças no banco
+
+Tudo é só leitura adicional (`profiles`, `follows`, `post_comments`) — RLS já permite leitura pública dessas tabelas.

@@ -2,6 +2,7 @@ import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/r
 import appCss from "../styles.css?url";
 import { Navbar } from "@/components/Navbar";
 import { AuthProvider } from "@/lib/auth";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -75,9 +76,10 @@ function RootComponent() {
       <main className="relative z-10">
         <Outlet />
       </main>
-      <footer className="relative z-10 mt-20 border-t border-[color:var(--ruby)]/30 bg-black/60 py-8 text-center text-xs tracking-widest text-white/50">
+      <footer className="relative z-10 mt-20 border-t border-[color:var(--ruby)]/30 bg-black/60 py-8 text-center text-xs tracking-widest text-white/60">
         <p className="font-display">© TOKYO · TUDO O QUE BRILHA, CORTA.</p>
       </footer>
+      <Toaster richColors position="top-right" />
     </div>
     </AuthProvider>
   );
