@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Guestbook } from "@/components/Guestbook";
@@ -55,28 +55,55 @@ function MemberPage() {
   const [loading, setLoading] = useState(true);
   const [notFoundState, setNotFound] = useState(false);
 
+  const loadMemberAlbum = useCallback(async (profileId: string) => {
+    const { data } = await supabase
+      .from("user_cards")
+      .select("card:cards(*)")
+      .eq("user_id", profileId)
+      .order("acquired_at", { ascending: false });
+    const rows = ((data ?? []) as Array<{ card: CardRow | null }>)
+      .map((r) => r.card)
+      .filter((c): c is CardRow => !!c);
+    setCards(rows);
+  }, []);
+
   useEffect(() => {
     if (authLoading || !user) return;
+    let profileId: string | null = null;
     (async () => {
       const { data: p } = await supabase.from("profiles").select("*").eq("slug", slug).maybeSingle();
       if (!p) { setNotFound(true); setLoading(false); return; }
       setProfile(p as unknown as Profile);
+      profileId = p.id;
 
-      const charKey = (p as { character_key?: string | null }).character_key || slug;
-      const [{ data: f }, { data: c }, { data: ps }] = await Promise.all([
+      const [{ data: f }, { data: ps }] = await Promise.all([
         supabase.from("family_links").select("id, kind, name, slug").eq("owner_id", p.id).order("created_at"),
-        supabase.from("cards").select("*").eq("character_key", charKey).order("card_number"),
         supabase.from("posts").select("*").eq("author_id", p.id).order("created_at", { ascending: false }).limit(10),
       ]);
       setFamily((f as FamilyLink[]) ?? []);
-      setCards((c as CardRow[]) ?? []);
+      await loadMemberAlbum(p.id);
       const author: PostAuthor = {
         id: p.id, display_name: p.display_name, slug: p.slug, avatar_url: p.avatar_url,
       };
       setPosts(((ps as PostRow[]) ?? []).map((x) => ({ ...x, author })));
       setLoading(false);
     })();
-  }, [slug, user, authLoading]);
+
+    const ch = supabase
+      .channel(`member-album:${slug}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "user_cards" },
+        (payload) => {
+          const row = (payload.new ?? payload.old) as { user_id?: string };
+          if (profileId && row.user_id === profileId) void loadMemberAlbum(profileId);
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, [slug, user, authLoading, loadMemberAlbum]);
 
   if (authLoading) {
     return <div className="px-5 py-20 text-center font-display tracking-widest text-white/60">CARREGANDO…</div>;
@@ -157,7 +184,7 @@ function MemberPage() {
                   </span>
                 } />
               )}
-              <BioRow k="Cartas" v={`${cards.length} no catálogo`} />
+              <BioRow k="Cartas" v={`${cards.length} coletadas`} />
             </dl>
           </div>
 
@@ -206,18 +233,18 @@ function MemberPage() {
           </section>
         )}
 
-        {/* Cartas do personagem */}
+        {/* Cartas coletadas */}
         <section className="mt-14">
           <div className="mb-6 flex items-end justify-between">
             <div>
               <p className="font-display text-xs tracking-[0.5em] text-[color:var(--chrome)]">A COLEÇÃO</p>
-              <h2 className="font-display text-4xl text-ruby-gradient">CARTAS DE {profile.display_name.split(" ")[0].toUpperCase()}</h2>
+              <h2 className="font-display text-4xl text-ruby-gradient">ÁLBUM DE {profile.display_name.split(" ")[0].toUpperCase()}</h2>
             </div>
             <Link to="/album" className="font-display text-xs tracking-widest text-white/70 hover:text-white">
               VER MEU ÁLBUM →
             </Link>
           </div>
-          <CardGrid cards={cards} empty="Nenhuma carta cadastrada pra esse personagem ainda." />
+          <CardGrid cards={cards} empty="Esse membro ainda não coletou cartas." />
         </section>
 
         {/* Mural */}
