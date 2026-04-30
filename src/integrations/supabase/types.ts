@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      card_grant_logs: {
+        Row: {
+          card_id: string | null
+          card_number: string | null
+          character_key: string | null
+          created_at: string
+          discord_id: string | null
+          error: string | null
+          id: string
+          ip: string | null
+          qty: number | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          card_id?: string | null
+          card_number?: string | null
+          character_key?: string | null
+          created_at?: string
+          discord_id?: string | null
+          error?: string | null
+          id?: string
+          ip?: string | null
+          qty?: number | null
+          status: string
+          user_id?: string | null
+        }
+        Update: {
+          card_id?: string | null
+          card_number?: string | null
+          character_key?: string | null
+          created_at?: string
+          discord_id?: string | null
+          error?: string | null
+          id?: string
+          ip?: string | null
+          qty?: number | null
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       cards: {
         Row: {
           card_number: string
