@@ -314,12 +314,14 @@ function ProfilePage() {
                   <p className="mb-2 text-xs font-medium text-[color:var(--text-2)]">Avatar</p>
                   <ImageUpload bucket="avatars" userId={user.id}
                     currentUrl={profile.avatar_url} aspect="square"
+                    persistField="avatar_url"
                     onUploaded={(url) => setProfile({ ...profile, avatar_url: url })} />
                 </div>
                 <div>
                   <p className="mb-2 text-xs font-medium text-[color:var(--text-2)]">Capa (banner)</p>
                   <ImageUpload bucket="banners" userId={user.id}
                     currentUrl={profile.banner_url} aspect="banner"
+                    persistField="banner_url"
                     onUploaded={(url) => setProfile({ ...profile, banner_url: url })} />
                 </div>
               </div>
