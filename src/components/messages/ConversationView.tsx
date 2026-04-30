@@ -607,7 +607,7 @@ function MessageBubble({
         )}
       </div>
 
-      <div className={`flex max-w-[75%] flex-col ${isMe ? "items-end" : "items-start"}`}>
+      <div className={`flex max-w-[85%] flex-col sm:max-w-[75%] ${isMe ? "items-end" : "items-start"}`}>
         {!groupWithPrev && !isMe && (
           <span className="mb-0.5 text-[10px] tracking-wide text-[color:var(--text-3)]">
             {author?.display_name ?? "—"}
