@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
 import { IMAGES, img } from "@/lib/images";
 import { ThornHeart } from "@/components/Sticker";
+import { LoggedOutGate } from "@/components/LoggedOutGate";
 
 export const Route = createFileRoute("/santuario/")({
   head: () => ({
@@ -25,10 +27,12 @@ type Row = {
 };
 
 function SantuarioPage() {
+  const { user, loading: authLoading } = useAuth();
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (authLoading || !user) return;
     (async () => {
       const { data } = await supabase
         .from("profiles")
@@ -38,7 +42,12 @@ function SantuarioPage() {
       setRows((data ?? []) as Row[]);
       setLoading(false);
     })();
-  }, []);
+  }, [user, authLoading]);
+
+  if (authLoading) {
+    return <div className="px-5 py-20 text-center font-display tracking-widest text-white/60">CARREGANDO…</div>;
+  }
+  if (!user) return <LoggedOutGate title="SANTUÁRIO RESERVADO" message="Entre pra conhecer todos os membros." />;
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-10">
