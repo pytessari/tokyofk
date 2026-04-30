@@ -5,11 +5,12 @@ import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { SectionCard } from "@/components/kit/SectionCard";
 import { EmptyState } from "@/components/kit/EmptyState";
-import { GroupIcon, ChatBubbleIcon, PersonIcon, ExitIcon, EnterIcon, PlusIcon } from "@radix-ui/react-icons";
+import { GroupIcon, ChatBubbleIcon, PersonIcon, ExitIcon, EnterIcon, PlusIcon, Pencil1Icon } from "@radix-ui/react-icons";
 import { toast } from "sonner";
 import { timeAgo } from "@/lib/timeAgo";
 import { RichBio } from "@/components/RichBio";
 import { RichCommentEditor } from "@/components/RichCommentEditor";
+import { CommunityEditDialog } from "@/components/CommunityEditDialog";
 
 type Community = {
   id: string;
