@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { CropDialog } from "@/components/CropDialog";
+import { toast } from "sonner";
 
 type Props = {
   bucket: "avatars" | "banners" | "cards" | "magazines";
@@ -9,9 +10,19 @@ type Props = {
   onUploaded: (url: string) => void;
   label?: string;
   aspect?: "square" | "banner" | "card";
+  /** Se setado, persiste a URL imediatamente em profiles.<persistField> após o upload. */
+  persistField?: "avatar_url" | "banner_url";
 };
 
-export function ImageUpload({ bucket, userId, currentUrl, onUploaded, label = "Enviar imagem", aspect = "square" }: Props) {
+export function ImageUpload({
+  bucket,
+  userId,
+  currentUrl,
+  onUploaded,
+  label = "Enviar imagem",
+  aspect = "square",
+  persistField,
+}: Props) {
   const ref = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +31,8 @@ export function ImageUpload({ bucket, userId, currentUrl, onUploaded, label = "E
   // Crop apenas para avatar (1:1) e capa (3:1). Cartas e revistas vão direto.
   const cropAspect = aspect === "square" ? 1 : aspect === "banner" ? 3 : null;
   const cropShape: "rect" | "round" = aspect === "square" ? "round" : "rect";
+  // Avatar não precisa ser tão grande; capa pode ser maior.
+  const maxOutput = aspect === "banner" ? 1800 : aspect === "square" ? 800 : 1600;
 
   async function uploadBlob(blob: Blob, ext: string, contentType: string) {
     setUploading(true);
@@ -32,9 +45,30 @@ export function ImageUpload({ bucket, userId, currentUrl, onUploaded, label = "E
     if (upErr) {
       setError(upErr.message);
       setUploading(false);
+      toast.error(upErr.message);
       return;
     }
     const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+
+    // Persistência imediata (avatar/capa do perfil)
+    if (persistField) {
+      const update =
+        persistField === "avatar_url"
+          ? { avatar_url: data.publicUrl }
+          : { banner_url: data.publicUrl };
+      const { error: dbErr } = await supabase
+        .from("profiles")
+        .update(update)
+        .eq("id", userId);
+      if (dbErr) {
+        setError(dbErr.message);
+        setUploading(false);
+        toast.error(`Salvo no storage, mas falhou ao gravar no perfil: ${dbErr.message}`);
+        return;
+      }
+      toast.success(persistField === "avatar_url" ? "Avatar atualizado!" : "Capa atualizada!");
+    }
+
     onUploaded(data.publicUrl);
     setUploading(false);
     setCropSrc(null);
@@ -44,6 +78,7 @@ export function ImageUpload({ bucket, userId, currentUrl, onUploaded, label = "E
     if (!file) return;
     if (file.size > 15 * 1024 * 1024) {
       setError("Máx 15MB");
+      toast.error("Imagem muito grande (máx 15MB)");
       return;
     }
     setError(null);
@@ -85,13 +120,18 @@ export function ImageUpload({ bucket, userId, currentUrl, onUploaded, label = "E
           </div>
         )}
       </div>
-      <input ref={ref} type="file" accept="image/*" className="hidden"
+      <input
+        ref={ref}
+        type="file"
+        accept="image/*"
+        className="hidden"
         onChange={(e) => {
           const f = e.target.files?.[0];
           if (f) void handleFile(f);
           // permite re-selecionar o mesmo arquivo
           e.target.value = "";
-        }} />
+        }}
+      />
       {error && <p className="text-xs text-red-400">{error}</p>}
 
       {cropSrc && cropAspect && (
@@ -99,6 +139,7 @@ export function ImageUpload({ bucket, userId, currentUrl, onUploaded, label = "E
           src={cropSrc}
           aspect={cropAspect}
           cropShape={cropShape}
+          maxOutput={maxOutput}
           saving={uploading}
           onCancel={() => {
             URL.revokeObjectURL(cropSrc);
