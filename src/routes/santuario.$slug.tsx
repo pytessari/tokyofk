@@ -1,12 +1,15 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
 import { Guestbook } from "@/components/Guestbook";
 import { CardGrid, type CardRow } from "@/components/CardGrid";
 import { IMAGES, img } from "@/lib/images";
 import { ThornHeart, StarSpike } from "@/components/Sticker";
 import { FollowButton, FollowStats } from "@/components/FollowButton";
 import { PostCard, type PostRow, type PostAuthor } from "@/components/PostCard";
+import { LoggedOutGate } from "@/components/LoggedOutGate";
+import { RichBio } from "@/components/RichBio";
 
 export const Route = createFileRoute("/santuario/$slug")({
   head: ({ params }) => ({
@@ -23,6 +26,8 @@ type Profile = {
   display_name: string;
   slug: string;
   bio: string | null;
+  bio_html: string | null;
+  character_key: string | null;
   sign: string | null;
   role: string | null;
   avatar_url: string | null;
