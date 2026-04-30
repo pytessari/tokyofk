@@ -233,7 +233,12 @@ function CommunityDetail() {
               {community.members_count} membros
             </p>
           </div>
-          <div className="hidden sm:block">
+          <div className="hidden sm:flex sm:flex-col sm:items-end sm:gap-2">
+            {isOwner && (
+              <Button variant="outline" onClick={() => setEditing(true)}>
+                <Pencil1Icon className="mr-1 h-4 w-4" /> Editar
+              </Button>
+            )}
             {user ? (
               isMember ? (
                 <Button variant="outline" onClick={leave}>
