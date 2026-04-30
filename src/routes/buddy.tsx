@@ -35,7 +35,7 @@ type ReceivedPoke = {
 
 function BuddyPage() {
   const { user } = useAuth();
-  const { config, setConfig, loading } = useBuddy(user?.id ?? null);
+  const { config, setConfig, loading, savedAt } = useBuddy(user?.id ?? null);
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState<PokeAction | "idle">("idle");
   const [received, setReceived] = useState<ReceivedPoke[]>([]);
@@ -105,9 +105,14 @@ function BuddyPage() {
         title="Tokyo Buddy"
         description="Monte seu boneco 3D. Salva no seu perfil. Mande pokes pros amigos pelo Santuário."
         actions={
-          <Button onClick={onSave} loading={saving} variant="primary">
-            Salvar Buddy
-          </Button>
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] tracking-widest text-[color:var(--text-3)]">
+              {saving ? "SALVANDO…" : savedAt ? "✓ SALVO AUTOMATICAMENTE" : "AUTO-SAVE ATIVO"}
+            </span>
+            <Button onClick={onSave} loading={saving} variant="primary">
+              Salvar agora
+            </Button>
+          </div>
         }
       />
 
