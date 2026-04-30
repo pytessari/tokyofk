@@ -97,6 +97,11 @@ function MessagesPage() {
     }
   }
 
+  // Abre conversa vinda da URL (?conv=…) — usado por notificações
+  useEffect(() => {
+    if (routeSearch.conv) setActiveId(routeSearch.conv);
+  }, [routeSearch.conv]);
+
   useEffect(() => {
     loadConvs();
     if (!user) return;
