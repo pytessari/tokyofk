@@ -97,7 +97,7 @@ function CommunityDetail() {
         .select("user_id,role")
         .eq("community_id", c.id)
         .order("joined_at", { ascending: false })
-        .limit(50),
+        .limit(500),
     ]);
 
     const ids = Array.from(
