@@ -55,7 +55,8 @@ function MemberPage() {
   const [loading, setLoading] = useState(true);
   const [notFoundState, setNotFound] = useState(false);
 
-  const loadMemberAlbum = useCallback(async (profileId: string) => {
+  const loadMemberAlbum = useCallback(async (profileId: string, characterKey: string | null) => {
+    if (!characterKey) { setCards([]); return; }
     const { data } = await supabase
       .from("user_cards")
       .select("card:cards(*)")
@@ -63,7 +64,8 @@ function MemberPage() {
       .order("acquired_at", { ascending: false });
     const rows = ((data ?? []) as Array<{ card: CardRow | null }>)
       .map((r) => r.card)
-      .filter((c): c is CardRow => !!c);
+      .filter((c): c is CardRow => !!c)
+      .filter((c) => c.character_key === characterKey);
     setCards(rows);
   }, []);
 
