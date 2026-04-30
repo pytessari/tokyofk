@@ -20,21 +20,23 @@ export function BuddyCanvas({ config, animation = "idle", interactive = true, cl
         dpr={[1, 2]}
       >
         <color attach="background" args={["#0a0a12"]} />
-        <ambientLight intensity={0.5} />
+        {/* Iluminação cel-shaded estilo anime: chave + preenchimento + rim ruby */}
+        <ambientLight intensity={0.75} />
         <directionalLight
           position={[3, 5, 4]}
-          intensity={1.2}
+          intensity={1.4}
           castShadow
           shadow-mapSize={[1024, 1024]}
         />
-        <directionalLight position={[-3, 2, -2]} intensity={0.4} color="#d90036" />
+        <directionalLight position={[-4, 2, -1]} intensity={0.7} color="#d90036" />
+        <directionalLight position={[0, 4, -3]} intensity={0.5} color="#7c3aed" />
         <Suspense fallback={null}>
           <BuddyModel config={config} animation={animation} />
           <ContactShadows
-            position={[0, -1.6, 0]}
-            opacity={0.5}
+            position={[0, -1.55, 0]}
+            opacity={0.55}
             scale={6}
-            blur={2}
+            blur={2.4}
             far={2}
           />
           <Environment preset="city" />
