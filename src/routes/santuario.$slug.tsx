@@ -158,7 +158,7 @@ function MemberPage() {
     return () => {
       supabase.removeChannel(ch);
     };
-  }, [slug, user, authLoading, loadMemberAlbum]);
+  }, [slug, user, authLoading, loadMemberAlbum, loadCharacterCatalog]);
 
   if (authLoading) {
     return <div className="px-5 py-20 text-center font-display tracking-widest text-[color:var(--text-3)]">CARREGANDO…</div>;
