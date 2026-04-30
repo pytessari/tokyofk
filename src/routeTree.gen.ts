@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as MensagensRouteImport } from './routes/mensagens'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FeedRouteImport } from './routes/feed'
 import { Route as EsqueciSenhaRouteImport } from './routes/esqueci-senha'
@@ -42,6 +43,11 @@ const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
 const PerfilRoute = PerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MensagensRoute = MensagensRouteImport.update({
+  id: '/mensagens',
+  path: '/mensagens',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -133,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/feed': typeof FeedRoute
   '/login': typeof LoginRoute
+  '/mensagens': typeof MensagensRoute
   '/perfil': typeof PerfilRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
@@ -154,6 +161,7 @@ export interface FileRoutesByTo {
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/feed': typeof FeedRoute
   '/login': typeof LoginRoute
+  '/mensagens': typeof MensagensRoute
   '/perfil': typeof PerfilRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/feed': typeof FeedRoute
   '/login': typeof LoginRoute
+  '/mensagens': typeof MensagensRoute
   '/perfil': typeof PerfilRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
@@ -199,6 +208,7 @@ export interface FileRouteTypes {
     | '/esqueci-senha'
     | '/feed'
     | '/login'
+    | '/mensagens'
     | '/perfil'
     | '/redefinir-senha'
     | '/registro'
@@ -220,6 +230,7 @@ export interface FileRouteTypes {
     | '/esqueci-senha'
     | '/feed'
     | '/login'
+    | '/mensagens'
     | '/perfil'
     | '/redefinir-senha'
     | '/registro'
@@ -241,6 +252,7 @@ export interface FileRouteTypes {
     | '/esqueci-senha'
     | '/feed'
     | '/login'
+    | '/mensagens'
     | '/perfil'
     | '/redefinir-senha'
     | '/registro'
@@ -263,6 +275,7 @@ export interface RootRouteChildren {
   EsqueciSenhaRoute: typeof EsqueciSenhaRoute
   FeedRoute: typeof FeedRoute
   LoginRoute: typeof LoginRoute
+  MensagensRoute: typeof MensagensRoute
   PerfilRoute: typeof PerfilRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   RegistroRoute: typeof RegistroRoute
@@ -298,6 +311,13 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mensagens': {
+      id: '/mensagens'
+      path: '/mensagens'
+      fullPath: '/mensagens'
+      preLoaderRoute: typeof MensagensRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -423,6 +443,7 @@ const rootRouteChildren: RootRouteChildren = {
   EsqueciSenhaRoute: EsqueciSenhaRoute,
   FeedRoute: FeedRoute,
   LoginRoute: LoginRoute,
+  MensagensRoute: MensagensRoute,
   PerfilRoute: PerfilRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   RegistroRoute: RegistroRoute,

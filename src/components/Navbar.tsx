@@ -6,6 +6,7 @@ import {
   ArchiveIcon,
   ChatBubbleIcon,
   GroupIcon,
+  EnvelopeClosedIcon,
   EnterIcon,
   ExitIcon,
   Pencil2Icon,
