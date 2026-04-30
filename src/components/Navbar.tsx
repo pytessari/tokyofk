@@ -35,6 +35,7 @@ const publicLinks = [
 
 const memberLinks = [
   { to: "/feed", label: "Feed", icon: ChatBubbleIcon, exact: false },
+  { to: "/comunidades", label: "Comunidades", icon: GroupIcon, exact: false },
   { to: "/santuario", label: "Santuário", icon: PersonIcon, exact: false },
   { to: "/album", label: "Álbum", icon: ArchiveIcon, exact: false },
 ] as const;
