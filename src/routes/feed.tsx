@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Pencil2Icon, PersonIcon, ChatBubbleIcon } from "@radix-ui/react-icons";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { PostComposer } from "@/components/PostComposer";
@@ -64,6 +65,28 @@ function FeedPage() {
         <p className="font-display text-xs tracking-[0.5em] text-[color:var(--chrome)]">A COMUNIDADE</p>
         <h1 className="mt-1 font-display text-4xl text-ruby-gradient">FEED · TOKYO</h1>
       </div>
+
+      {/* Atalhos rápidos — sensação de painel */}
+      <nav
+        aria-label="Atalhos rápidos"
+        className="mb-4 flex flex-wrap gap-2 rounded-xl border border-white/10 bg-black/40 p-2"
+      >
+        <Link
+          to="/santuario"
+          className="inline-flex items-center gap-1.5 rounded-md border border-white/10 px-3 py-1.5 text-xs text-white/85 outline-none transition hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-[color:var(--ruby)]"
+        >
+          <PersonIcon className="h-3.5 w-3.5" aria-hidden="true" /> Santuário
+        </Link>
+        <Link
+          to="/perfil"
+          className="inline-flex items-center gap-1.5 rounded-md border border-white/10 px-3 py-1.5 text-xs text-white/85 outline-none transition hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-[color:var(--ruby)]"
+        >
+          <Pencil2Icon className="h-3.5 w-3.5" aria-hidden="true" /> Editar perfil
+        </Link>
+        <span className="ml-auto inline-flex items-center gap-1 self-center text-[10px] tracking-widest text-white/50">
+          <ChatBubbleIcon className="h-3 w-3" aria-hidden="true" /> POSTANDO COMO {user.email?.split("@")[0]}
+        </span>
+      </nav>
 
       <PostComposer onPosted={load} />
 
