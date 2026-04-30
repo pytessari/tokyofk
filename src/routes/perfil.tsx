@@ -89,14 +89,17 @@ function ProfilePage() {
     if (loading) return;
     if (!user) { navigate({ to: "/login" }); return; }
     (async () => {
-      const [{ data: p }, { data: f }, { data: d }] = await Promise.all([
+      const [{ data: p }, { data: f }, { data: d }, { data: ck }] = await Promise.all([
         supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
         supabase.from("family_links").select("*").eq("owner_id", user.id).order("created_at"),
         supabase.from("discord_links").select("*").eq("user_id", user.id).maybeSingle(),
+        supabase.from("cards").select("character_key").order("character_key"),
       ]);
       if (p) setProfile(p as unknown as Profile);
       if (f) setFamily(f as FamilyLink[]);
       setDiscord((d as DiscordLink) ?? null);
+      const keys = Array.from(new Set(((ck ?? []) as Array<{ character_key: string }>).map((r) => r.character_key))).filter(Boolean);
+      setCharacterKeys(keys);
       setFetching(false);
     })();
   }, [user, loading, navigate]);
@@ -107,10 +110,13 @@ function ProfilePage() {
     setSaving(true);
     setMsg(null);
     const slugClean = (profile.slug ?? "").trim().toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-");
+    const charKeyClean = (profile.character_key ?? "").trim().toLowerCase().replace(/[^a-z0-9-]/g, "");
     const { error } = await supabase.from("profiles").update({
       display_name: profile.display_name,
       slug: slugClean || null,
+      character_key: charKeyClean || null,
       bio: profile.bio,
+      bio_html: profile.bio_html,
       sign: profile.sign,
       role: profile.role,
       avatar_url: profile.avatar_url,
