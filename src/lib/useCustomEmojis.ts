@@ -28,7 +28,7 @@ export function useCustomEmojis() {
       setLoading(false);
     }
     const ch = supabase
-      .channel("custom-emojis")
+      .channel(`custom-emojis-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "custom_emojis" }, () => {
         void fetchAll();
       })
