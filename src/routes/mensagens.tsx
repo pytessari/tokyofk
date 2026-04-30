@@ -315,7 +315,7 @@ function MessagesPage() {
       )}
 
       <div className="grid gap-0 overflow-hidden rounded-lg border border-white/10 bg-black/20 lg:grid-cols-[300px_1fr]" style={{ minHeight: 560 }}>
-        <aside className="border-b border-white/10 lg:border-b-0 lg:border-r">
+        <aside className={`border-b border-white/10 lg:border-b-0 lg:border-r ${activeId ? "hidden lg:block" : "block"}`}>
           {convs.length === 0 ? (
             <div className="p-6 text-center text-xs text-[color:var(--text-3)]">
               <EnvelopeClosedIcon className="mx-auto mb-2 h-6 w-6" />
@@ -362,9 +362,13 @@ function MessagesPage() {
           )}
         </aside>
 
-        <section className="min-h-[560px]">
+        <section className={`min-h-[560px] ${activeId ? "block" : "hidden lg:block"}`}>
           {activeConv ? (
-            <ConversationView conversationId={activeConv.id} title={convTitle(activeConv)} />
+            <ConversationView
+              conversationId={activeConv.id}
+              title={convTitle(activeConv)}
+              onBack={() => setActiveId(null)}
+            />
           ) : (
             <div className="flex h-full items-center justify-center p-8 text-center text-sm text-[color:var(--text-3)]">
               Selecione uma conversa ou comece uma nova.

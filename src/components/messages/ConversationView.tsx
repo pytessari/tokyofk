@@ -56,9 +56,11 @@ const MAX_FILE_MB = 25;
 export function ConversationView({
   conversationId,
   title,
+  onBack,
 }: {
   conversationId: string;
   title: string;
+  onBack?: () => void;
 }) {
   const { user } = useAuth();
   const { emojis } = useCustomEmojis();
@@ -380,8 +382,18 @@ export function ConversationView({
 
   return (
     <div className="flex h-full flex-col">
-      <header className="border-b border-white/10 bg-black/30 px-4 py-3">
-        <p className="font-display text-sm tracking-widest text-white">{title.toUpperCase()}</p>
+      <header className="flex items-center gap-2 border-b border-white/10 bg-black/30 px-3 py-3 sm:px-4">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-white/80 hover:bg-white/10 lg:hidden"
+            aria-label="Voltar"
+          >
+            ←
+          </button>
+        )}
+        <p className="truncate font-display text-sm tracking-widest text-white">{title.toUpperCase()}</p>
       </header>
 
       <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto p-4">
