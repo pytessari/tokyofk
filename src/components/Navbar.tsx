@@ -12,6 +12,7 @@ import {
   Pencil2Icon,
   LockClosedIcon,
   ChevronDownIcon,
+  HamburgerMenuIcon,
 } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import { IMAGES } from "@/lib/images";
