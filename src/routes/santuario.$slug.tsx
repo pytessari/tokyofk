@@ -268,8 +268,6 @@ function MemberPage() {
             onClose={() => setShowFullAlbum(false)}
           />
         )}
-        </section>
-
         {/* Mural */}
         <div className="mt-14">
           <Guestbook profileId={profile.id} ownerId={profile.id} />
