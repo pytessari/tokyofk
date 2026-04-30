@@ -135,6 +135,8 @@ function MemberPage() {
       ]);
       setFamily((f as FamilyLink[]) ?? []);
       await loadMemberAlbum(p.id);
+      if (p.character_key) await loadCharacterCatalog(p.character_key);
+      else setCharacterCatalog([]);
       const author: PostAuthor = {
         id: p.id, display_name: p.display_name, slug: p.slug, avatar_url: p.avatar_url,
       };
