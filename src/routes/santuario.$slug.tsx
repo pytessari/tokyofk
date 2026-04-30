@@ -234,18 +234,40 @@ function MemberPage() {
           </section>
         )}
 
-        {/* Cartas coletadas */}
+        {/* Cartas */}
         <section className="mt-14">
-          <div className="mb-6 flex items-end justify-between">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="font-display text-xs tracking-[0.5em] text-[color:var(--chrome)]">CARTAS DO PERSONAGEM</p>
               <h2 className="font-display text-4xl text-ruby-gradient">ÁLBUM DE {profile.display_name.split(" ")[0].toUpperCase()}</h2>
+              <p className="mt-1 text-xs text-white/50">
+                {characterCards.length} {profile.character_key ? `de ${profile.character_key}` : ""} · {allCards.length} no total
+              </p>
             </div>
-            <Link to="/album" className="font-display text-xs tracking-widest text-white/70 hover:text-white">
-              VER MEU ÁLBUM →
-            </Link>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setShowFullAlbum(true)}
+                className="rounded border border-[color:var(--ruby)]/40 bg-[color:var(--ruby)]/10 px-3 py-1.5 font-display text-[11px] tracking-widest text-white hover:bg-[color:var(--ruby)]/20"
+              >
+                VER ÁLBUM COMPLETO ({allCards.length})
+              </button>
+              <Link to="/album" className="font-display text-[11px] tracking-widest text-white/70 hover:text-white">
+                MEU ÁLBUM →
+              </Link>
+            </div>
           </div>
-          <CardGrid cards={cards} empty={profile.character_key ? "Esse personagem ainda não tem cartas coletadas." : "Esse membro ainda não escolheu um personagem."} />
+          <CardGrid cards={characterCards} empty={profile.character_key ? "Esse personagem ainda não tem cartas coletadas." : "Esse membro ainda não escolheu um personagem."} />
+        </section>
+
+        {/* Modal: álbum completo */}
+        {showFullAlbum && (
+          <FullAlbumModal
+            displayName={profile.display_name}
+            cards={allCards}
+            onClose={() => setShowFullAlbum(false)}
+          />
+        )}
         </section>
 
         {/* Mural */}
