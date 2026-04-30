@@ -6,6 +6,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { PostComposer } from "@/components/PostComposer";
 import { PostCard, type PostRow, type PostAuthor } from "@/components/PostCard";
 import { LoggedOutGate } from "@/components/LoggedOutGate";
+import { PageHeader } from "@/components/kit/PageHeader";
+import { TabBar } from "@/components/kit/TabBar";
+import { EmptyState } from "@/components/kit/EmptyState";
 
 export const Route = createFileRoute("/feed")({
   head: () => ({ meta: [{ title: "Feed · TOKYO" }] }),
@@ -61,57 +64,71 @@ function FeedPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-5 py-8">
-      <div className="mb-5">
-        <p className="font-display text-xs tracking-[0.5em] text-[color:var(--chrome)]">A COMUNIDADE</p>
-        <h1 className="mt-1 font-display text-4xl text-ruby-gradient">FEED · TOKYO</h1>
-      </div>
+      <PageHeader
+        eyebrow="A COMUNIDADE"
+        title="Feed · Tokyo"
+        description="Veja o que está rolando e compartilhe com os outros membros."
+      />
 
       {/* Atalhos rápidos — sensação de painel */}
       <nav
         aria-label="Atalhos rápidos"
-        className="mb-4 flex flex-wrap gap-2 rounded-xl border border-white/10 bg-black/40 p-2"
+        className="panel mb-4 flex flex-wrap items-center gap-2 p-2"
       >
         <Link
           to="/santuario"
-          className="inline-flex items-center gap-1.5 rounded-md border border-white/10 px-3 py-1.5 text-xs text-white/85 outline-none transition hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-[color:var(--ruby)]"
+          className="inline-flex items-center gap-1.5 rounded-md border border-[color:var(--line)] px-3 py-1.5 text-xs text-[color:var(--text-2)] transition hover:bg-[color:var(--surface-3)] hover:text-[color:var(--text-1)]"
         >
           <PersonIcon className="h-3.5 w-3.5" aria-hidden="true" /> Santuário
         </Link>
         <Link
           to="/perfil"
-          className="inline-flex items-center gap-1.5 rounded-md border border-white/10 px-3 py-1.5 text-xs text-white/85 outline-none transition hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-[color:var(--ruby)]"
+          className="inline-flex items-center gap-1.5 rounded-md border border-[color:var(--line)] px-3 py-1.5 text-xs text-[color:var(--text-2)] transition hover:bg-[color:var(--surface-3)] hover:text-[color:var(--text-1)]"
         >
           <Pencil2Icon className="h-3.5 w-3.5" aria-hidden="true" /> Editar perfil
         </Link>
-        <span className="ml-auto inline-flex items-center gap-1 self-center text-[10px] tracking-widest text-white/50">
+        <span className="ml-auto inline-flex items-center gap-1 self-center text-[10px] tracking-widest text-[color:var(--text-3)]">
           <ChatBubbleIcon className="h-3 w-3" aria-hidden="true" /> POSTANDO COMO {user.email?.split("@")[0]}
         </span>
       </nav>
 
       <PostComposer onPosted={load} />
 
-      <div className="mt-6 mb-3 flex gap-2 border-b border-white/10">
-        {(["all", "following"] as Tab[]).map((t) => (
-          <button key={t} onClick={() => setTab(t)}
-            className={`px-4 py-2 font-display text-xs tracking-widest transition ${
-              tab === t ? "border-b-2 border-[color:var(--ruby)] text-white" : "text-white/50 hover:text-white"
-            }`}>
-            {t === "all" ? "TUDO" : "QUEM EU SIGO"}
-          </button>
-        ))}
+      <div className="mt-6 mb-4">
+        <TabBar
+          ariaLabel="Filtros do feed"
+          value={tab}
+          onChange={(v) => setTab(v as Tab)}
+          items={[
+            { value: "all", label: "Tudo" },
+            { value: "following", label: "Quem eu sigo" },
+          ]}
+        />
       </div>
 
       {loading ? (
-        <p className="py-10 text-center text-sm text-white/50">carregando…</p>
-      ) : posts.length === 0 ? (
-        <div className="py-12 text-center">
-          <p className="font-display text-sm tracking-widest text-white/60">SEM POSTS POR AQUI</p>
-          <p className="mt-2 text-xs text-white/40">
-            {tab === "following"
-              ? <>Você ainda não segue ninguém. <Link to="/santuario" className="text-[color:var(--ruby)] hover:underline">Conheça os membros →</Link></>
-              : "Seja o primeiro a postar!"}
-          </p>
+        <div className="space-y-3">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="skeleton h-28 w-full" />
+          ))}
         </div>
+      ) : posts.length === 0 ? (
+        <EmptyState
+          icon={<ChatBubbleIcon className="h-5 w-5" />}
+          title="Sem posts por aqui"
+          description={
+            tab === "following" ? (
+              <>
+                Você ainda não segue ninguém.{" "}
+                <Link to="/santuario" className="text-[color:var(--ruby)] hover:underline">
+                  Conheça os membros →
+                </Link>
+              </>
+            ) : (
+              "Seja o primeiro a postar!"
+            )
+          }
+        />
       ) : (
         <div className="space-y-4">
           {posts.map((p) => (
