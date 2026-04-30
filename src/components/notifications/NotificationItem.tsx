@@ -23,6 +23,7 @@ type LinkTarget =
   | { to: "/mensagens"; search?: { conv?: string } }
   | { to: "/santuario/$slug"; params: { slug: string }; search?: { guestbook?: string } }
   | { to: "/santuario/$slug"; params: { slug: string } }
+  | { to: "/buddy" }
   | null;
 
 function destination(n: NotificationRow): LinkTarget {
@@ -42,6 +43,8 @@ function destination(n: NotificationRow): LinkTarget {
       return p.conversation_id ? { to: "/mensagens", search: { conv: p.conversation_id } } : null;
     case "follow":
       return n.actor?.slug ? { to: "/santuario/$slug", params: { slug: n.actor.slug } } : null;
+    case "buddy_poke":
+      return { to: "/buddy" };
     default:
       return n.actor?.slug ? { to: "/santuario/$slug", params: { slug: n.actor.slug } } : null;
   }
