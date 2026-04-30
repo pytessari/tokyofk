@@ -87,9 +87,6 @@ function FeedPage() {
         >
           <Pencil2Icon className="h-3.5 w-3.5" aria-hidden="true" /> Editar perfil
         </Link>
-        <span className="ml-auto inline-flex items-center gap-1 self-center text-[10px] tracking-widest text-[color:var(--text-3)]">
-          <ChatBubbleIcon className="h-3 w-3" aria-hidden="true" /> POSTANDO COMO {user.email?.split("@")[0]}
-        </span>
       </nav>
 
       <PostComposer onPosted={load} />
