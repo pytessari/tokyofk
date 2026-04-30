@@ -15,6 +15,7 @@ const KIND: Record<string, { icon: React.ComponentType<{ className?: string }>; 
   follow: { icon: PersonIcon, verb: "começou a te seguir", color: "text-emerald-400" },
   guestbook: { icon: EnvelopeClosedIcon, verb: "deixou um recado no seu mural", color: "text-amber-400" },
   dm: { icon: EnvelopeClosedIcon, verb: "te mandou uma mensagem", color: "text-[color:var(--ruby)]" },
+  buddy_poke: { icon: BellIcon, verb: "te mandou um poke ✨", color: "text-fuchsia-400" },
 };
 
 type LinkTarget =

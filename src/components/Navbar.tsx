@@ -13,6 +13,7 @@ import {
   LockClosedIcon,
   ChevronDownIcon,
   HamburgerMenuIcon,
+  FaceIcon,
 } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import { IMAGES } from "@/lib/images";
@@ -41,6 +42,7 @@ const memberLinks = [
   { to: "/mensagens", label: "DM", icon: EnvelopeClosedIcon, exact: false },
   { to: "/santuario", label: "Santuário", icon: PersonIcon, exact: false },
   { to: "/album", label: "Álbum", icon: ArchiveIcon, exact: false },
+  { to: "/buddy", label: "Buddy", icon: FaceIcon, exact: false },
 ] as const;
 
 export function Navbar() {
