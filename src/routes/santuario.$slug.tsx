@@ -316,8 +316,8 @@ function MemberPage() {
                 ÁLBUM DE {profile.display_name.split(" ")[0].toUpperCase()}
               </h2>
               <p className="mt-1 text-xs text-[color:var(--text-3)]">
-                {characterCards.length}{profile.character_key && t1Totals[profile.character_key] ? `/${t1Totals[profile.character_key]}` : ""}
-                {profile.character_key ? ` de ${profile.character_key}` : ""} · {allCards.length} no total
+                {characterCards.filter((c) => collectedKeys.has(c.id)).length}/{characterCards.length}
+                {profile.character_key ? ` cartas de ${profile.character_key}` : ""} · {allCards.length} coletadas no total
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -335,7 +335,8 @@ function MemberPage() {
           </div>
           <CardGrid
             cards={characterCards}
-            empty={profile.character_key ? "Esse personagem ainda não tem cartas coletadas." : "Esse membro ainda não escolheu um personagem."}
+            collectedIds={collectedKeys}
+            empty={profile.character_key ? "Esse personagem ainda não tem cartas no catálogo." : "Esse membro ainda não escolheu um personagem."}
             onCardClick={(c) => setOpenCard(c)}
           />
         </section>
