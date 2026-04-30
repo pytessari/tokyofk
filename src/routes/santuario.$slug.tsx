@@ -291,4 +291,78 @@ function BioRow({ k, v }: { k: string; v: React.ReactNode }) {
   );
 }
 
+function FullAlbumModal({
+  displayName, cards, onClose,
+}: { displayName: string; cards: CardRow[]; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [onClose]);
+
+  // Agrupa por personagem
+  const groups = cards.reduce<Record<string, CardRow[]>>((acc, c) => {
+    const key = c.character_key || "outros";
+    (acc[key] ||= []).push(c);
+    return acc;
+  }, {});
+  const orderedKeys = Object.keys(groups).sort((a, b) => groups[b].length - groups[a].length);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/80 backdrop-blur-sm p-4 sm:p-8"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-6xl rounded-2xl border border-white/10 bg-[#0b0b10] p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-6 flex items-end justify-between gap-4">
+          <div>
+            <p className="font-display text-[11px] tracking-[0.4em] text-[color:var(--chrome)]">ÁLBUM COMPLETO</p>
+            <h2 className="font-display text-3xl text-ruby-gradient sm:text-4xl">
+              {displayName.toUpperCase()}
+            </h2>
+            <p className="mt-1 text-xs text-white/50">
+              {cards.length} {cards.length === 1 ? "carta coletada" : "cartas coletadas"} ·{" "}
+              {orderedKeys.length} {orderedKeys.length === 1 ? "personagem" : "personagens"}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded border border-white/15 px-3 py-1.5 font-display text-[11px] tracking-widest text-white/80 hover:border-white/40 hover:text-white"
+            aria-label="Fechar"
+          >
+            FECHAR ✕
+          </button>
+        </div>
+
+        {cards.length === 0 ? (
+          <p className="py-12 text-center text-sm text-white/50">
+            Esse membro ainda não coletou nenhuma carta.
+          </p>
+        ) : (
+          <div className="space-y-8">
+            {orderedKeys.map((key) => (
+              <div key={key}>
+                <div className="mb-3 flex items-baseline gap-3 border-b border-white/5 pb-2">
+                  <h3 className="font-display text-lg uppercase tracking-widest text-[color:var(--ruby)]">{key}</h3>
+                  <span className="text-xs text-white/40">{groups[key].length}</span>
+                </div>
+                <CardGrid cards={groups[key]} empty="" />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 void notFound;
