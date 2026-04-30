@@ -40,7 +40,7 @@ export function CommunityEditDialog({
   async function uploadImage(file: File, kind: "icon" | "banner") {
     if (!file) return;
     if (file.size > 15 * 1024 * 1024) {
-      toast.error("Imagem muito grande (máx 5MB)");
+      toast.error("Imagem muito grande (máx 15MB)");
       return;
     }
     setUploading(kind);
