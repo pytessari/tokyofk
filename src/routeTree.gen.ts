@@ -16,6 +16,7 @@ import { Route as MensagensRouteImport } from './routes/mensagens'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FeedRouteImport } from './routes/feed'
 import { Route as EsqueciSenhaRouteImport } from './routes/esqueci-senha'
+import { Route as BuddyRouteImport } from './routes/buddy'
 import { Route as BancaRouteImport } from './routes/banca'
 import { Route as AlbumRouteImport } from './routes/album'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -63,6 +64,11 @@ const FeedRoute = FeedRouteImport.update({
 const EsqueciSenhaRoute = EsqueciSenhaRouteImport.update({
   id: '/esqueci-senha',
   path: '/esqueci-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuddyRoute = BuddyRouteImport.update({
+  id: '/buddy',
+  path: '/buddy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BancaRoute = BancaRouteImport.update({
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/album': typeof AlbumRoute
   '/banca': typeof BancaRoute
+  '/buddy': typeof BuddyRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/feed': typeof FeedRoute
   '/login': typeof LoginRoute
@@ -158,6 +165,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/album': typeof AlbumRoute
   '/banca': typeof BancaRoute
+  '/buddy': typeof BuddyRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/feed': typeof FeedRoute
   '/login': typeof LoginRoute
@@ -181,6 +189,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/album': typeof AlbumRoute
   '/banca': typeof BancaRoute
+  '/buddy': typeof BuddyRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/feed': typeof FeedRoute
   '/login': typeof LoginRoute
@@ -205,6 +214,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/album'
     | '/banca'
+    | '/buddy'
     | '/esqueci-senha'
     | '/feed'
     | '/login'
@@ -227,6 +237,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/album'
     | '/banca'
+    | '/buddy'
     | '/esqueci-senha'
     | '/feed'
     | '/login'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/album'
     | '/banca'
+    | '/buddy'
     | '/esqueci-senha'
     | '/feed'
     | '/login'
@@ -272,6 +284,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AlbumRoute: typeof AlbumRoute
   BancaRoute: typeof BancaRoute
+  BuddyRoute: typeof BuddyRoute
   EsqueciSenhaRoute: typeof EsqueciSenhaRoute
   FeedRoute: typeof FeedRoute
   LoginRoute: typeof LoginRoute
@@ -339,6 +352,13 @@ declare module '@tanstack/react-router' {
       path: '/esqueci-senha'
       fullPath: '/esqueci-senha'
       preLoaderRoute: typeof EsqueciSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/buddy': {
+      id: '/buddy'
+      path: '/buddy'
+      fullPath: '/buddy'
+      preLoaderRoute: typeof BuddyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/banca': {
@@ -440,6 +460,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AlbumRoute: AlbumRoute,
   BancaRoute: BancaRoute,
+  BuddyRoute: BuddyRoute,
   EsqueciSenhaRoute: EsqueciSenhaRoute,
   FeedRoute: FeedRoute,
   LoginRoute: LoginRoute,

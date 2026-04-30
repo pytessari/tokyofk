@@ -14,6 +14,80 @@ export type Database = {
   }
   public: {
     Tables: {
+      buddy_avatars: {
+        Row: {
+          config: Json
+          created_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buddy_avatars_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      buddy_pokes: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          message: string | null
+          receiver_id: string
+          seen_at: string | null
+          sender_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          receiver_id: string
+          seen_at?: string | null
+          sender_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          receiver_id?: string
+          seen_at?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buddy_pokes_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "buddy_pokes_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       card_grant_logs: {
         Row: {
           card_id: string | null

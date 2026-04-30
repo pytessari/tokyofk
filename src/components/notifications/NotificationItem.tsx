@@ -15,6 +15,7 @@ const KIND: Record<string, { icon: React.ComponentType<{ className?: string }>; 
   follow: { icon: PersonIcon, verb: "começou a te seguir", color: "text-emerald-400" },
   guestbook: { icon: EnvelopeClosedIcon, verb: "deixou um recado no seu mural", color: "text-amber-400" },
   dm: { icon: EnvelopeClosedIcon, verb: "te mandou uma mensagem", color: "text-[color:var(--ruby)]" },
+  buddy_poke: { icon: BellIcon, verb: "te mandou um poke ✨", color: "text-fuchsia-400" },
 };
 
 type LinkTarget =
@@ -22,6 +23,7 @@ type LinkTarget =
   | { to: "/mensagens"; search?: { conv?: string } }
   | { to: "/santuario/$slug"; params: { slug: string }; search?: { guestbook?: string } }
   | { to: "/santuario/$slug"; params: { slug: string } }
+  | { to: "/buddy" }
   | null;
 
 function destination(n: NotificationRow): LinkTarget {
@@ -41,6 +43,8 @@ function destination(n: NotificationRow): LinkTarget {
       return p.conversation_id ? { to: "/mensagens", search: { conv: p.conversation_id } } : null;
     case "follow":
       return n.actor?.slug ? { to: "/santuario/$slug", params: { slug: n.actor.slug } } : null;
+    case "buddy_poke":
+      return { to: "/buddy" };
     default:
       return n.actor?.slug ? { to: "/santuario/$slug", params: { slug: n.actor.slug } } : null;
   }
