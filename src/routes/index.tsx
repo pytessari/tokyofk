@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
 import { IMAGES, img } from "@/lib/images";
 import cover from "@/assets/cover-s1.jpg";
 import { ThornHeart, StarSpike } from "@/components/Sticker";
 import { PostCard, type PostRow, type PostAuthor } from "@/components/PostCard";
+import { LogIn, UserPlus } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -19,6 +21,7 @@ export const Route = createFileRoute("/")({
 type Mag = { id: string; title: string; subtitle: string | null; cover_url: string | null; issue_number: number | null };
 
 function HomePage() {
+  const { user } = useAuth();
   const [featured, setFeatured] = useState<Mag | null>(null);
   const [latest, setLatest] = useState<Mag[]>([]);
   const [recentPosts, setRecentPosts] = useState<PostRow[]>([]);
@@ -72,9 +75,15 @@ function HomePage() {
             <Link to="/revista" className="rounded-md bg-ruby-gradient px-5 py-3 font-display tracking-widest text-white shadow-[0_0_24px_#d9003680] transition hover:brightness-110">
               ABRIR A REVISTA
             </Link>
-            <Link to="/santuario" className="rounded-md border border-[color:var(--ruby)] px-5 py-3 font-display tracking-widest text-white/90 transition hover:bg-[color:var(--ruby)]/15">
-              CONHECER OS MEMBROS
-            </Link>
+            {user ? (
+              <Link to="/santuario" className="rounded-md border border-[color:var(--ruby)] px-5 py-3 font-display tracking-widest text-white/90 transition hover:bg-[color:var(--ruby)]/15">
+                CONHECER OS MEMBROS
+              </Link>
+            ) : (
+              <Link to="/registro" className="inline-flex items-center gap-2 rounded-md border border-[color:var(--ruby)] px-5 py-3 font-display tracking-widest text-white/90 transition hover:bg-[color:var(--ruby)]/15">
+                <UserPlus className="h-4 w-4" /> CRIAR CONTA
+              </Link>
+            )}
           </div>
 
           {latest.length > 0 && (
@@ -118,8 +127,8 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Últimas do feed */}
-      {recentPosts.length > 0 && (
+      {/* Últimas do feed — só pra logado */}
+      {user && recentPosts.length > 0 && (
         <section className="mt-14">
           <div className="mb-4 flex items-end justify-between">
             <div>
@@ -137,21 +146,39 @@ function HomePage() {
       )}
 
       {/* Navegação rápida */}
-      <section className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          { to: "/feed", title: "O FEED", desc: "Posts da comunidade" },
-          { to: "/revista", title: "A REVISTA", desc: "Todas as edições" },
-          { to: "/santuario", title: "O SANTUÁRIO", desc: "Fichas dos membros" },
-          { to: "/album", title: "MEU ÁLBUM", desc: "Suas cartas coletadas" },
-        ].map((l) => (
-          <Link key={l.to} to={l.to} className="glass-dark group rounded-xl p-5 transition hover:border-[color:var(--ruby)]">
-            <p className="font-display text-xs tracking-[0.4em] text-[color:var(--ruby)]">✦</p>
-            <h3 className="mt-2 font-display text-xl tracking-widest text-white">{l.title}</h3>
-            <p className="mt-1 text-xs text-white/60">{l.desc}</p>
-            <p className="mt-3 font-display text-[10px] tracking-widest text-white/40 group-hover:text-[color:var(--ruby)]">ENTRAR →</p>
-          </Link>
-        ))}
-      </section>
+      {user ? (
+        <section className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { to: "/feed", title: "O FEED", desc: "Posts da comunidade" },
+            { to: "/revista", title: "A REVISTA", desc: "Todas as edições" },
+            { to: "/santuario", title: "O SANTUÁRIO", desc: "Fichas dos membros" },
+            { to: "/album", title: "MEU ÁLBUM", desc: "Suas cartas coletadas" },
+          ].map((l) => (
+            <Link key={l.to} to={l.to} className="glass-dark group rounded-xl p-5 transition hover:border-[color:var(--ruby)]">
+              <p className="font-display text-xs tracking-[0.4em] text-[color:var(--ruby)]">✦</p>
+              <h3 className="mt-2 font-display text-xl tracking-widest text-white">{l.title}</h3>
+              <p className="mt-1 text-xs text-white/60">{l.desc}</p>
+              <p className="mt-3 font-display text-[10px] tracking-widest text-white/40 group-hover:text-[color:var(--ruby)]">ENTRAR →</p>
+            </Link>
+          ))}
+        </section>
+      ) : (
+        <section className="mt-14 glass-dark rounded-2xl p-8 text-center">
+          <p className="font-display text-xs tracking-[0.5em] text-[color:var(--chrome)]">JUNTE-SE AO CLUBE</p>
+          <h2 className="mt-2 font-display text-3xl text-ruby-gradient sm:text-4xl">ENTRE PRA COMUNIDADE TOKYO</h2>
+          <p className="mx-auto mt-3 max-w-md text-sm text-white/70">
+            Crie sua conta pra acessar o feed, montar sua ficha no santuário e colecionar cartas.
+          </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Link to="/registro" className="inline-flex items-center gap-2 rounded-md bg-ruby-gradient px-5 py-2.5 font-display text-sm tracking-widest text-white shadow-[0_0_20px_#d9003680] hover:brightness-110">
+              <UserPlus className="h-4 w-4" /> CRIAR CONTA
+            </Link>
+            <Link to="/login" className="inline-flex items-center gap-2 rounded-md border border-[color:var(--ruby)]/60 px-5 py-2.5 font-display text-sm tracking-widest text-white hover:bg-[color:var(--ruby)]/10">
+              <LogIn className="h-4 w-4" /> JÁ TENHO CONTA
+            </Link>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

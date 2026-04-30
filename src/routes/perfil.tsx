@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { useAuth } from "@/lib/auth";
-import { useRole } from "@/lib/useRole";
 import { supabase } from "@/integrations/supabase/client";
 import { ImageUpload } from "@/components/ImageUpload";
+import { RichBioEditor } from "@/components/RichBioEditor";
 import { IMAGES, img } from "@/lib/images";
+import { Save, Trash2, Plus, Link2, ExternalLink, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/perfil")({
   head: () => ({ meta: [{ title: "Meu Perfil · TOKYO" }] }),
@@ -17,6 +18,8 @@ type Profile = {
   slug: string | null;
   discord_id: string | null;
   bio: string | null;
+  bio_html: string | null;
+  character_key: string | null;
   sign: string | null;
   role: string | null;
   avatar_url: string | null;
@@ -68,9 +71,9 @@ const KIND_OPTIONS = [
 ];
 
 function ProfilePage() {
-  const { user, loading, signOut } = useAuth();
-  const { isAdmin } = useRole();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [characterKeys, setCharacterKeys] = useState<string[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [family, setFamily] = useState<FamilyLink[]>([]);
   const [discord, setDiscord] = useState<DiscordLink | null>(null);
@@ -86,14 +89,17 @@ function ProfilePage() {
     if (loading) return;
     if (!user) { navigate({ to: "/login" }); return; }
     (async () => {
-      const [{ data: p }, { data: f }, { data: d }] = await Promise.all([
+      const [{ data: p }, { data: f }, { data: d }, { data: ck }] = await Promise.all([
         supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
         supabase.from("family_links").select("*").eq("owner_id", user.id).order("created_at"),
         supabase.from("discord_links").select("*").eq("user_id", user.id).maybeSingle(),
+        supabase.from("cards").select("character_key").order("character_key"),
       ]);
       if (p) setProfile(p as unknown as Profile);
       if (f) setFamily(f as FamilyLink[]);
       setDiscord((d as DiscordLink) ?? null);
+      const keys = Array.from(new Set(((ck ?? []) as Array<{ character_key: string }>).map((r) => r.character_key))).filter(Boolean);
+      setCharacterKeys(keys);
       setFetching(false);
     })();
   }, [user, loading, navigate]);
@@ -104,10 +110,13 @@ function ProfilePage() {
     setSaving(true);
     setMsg(null);
     const slugClean = (profile.slug ?? "").trim().toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-");
+    const charKeyClean = (profile.character_key ?? "").trim().toLowerCase().replace(/[^a-z0-9-]/g, "");
     const { error } = await supabase.from("profiles").update({
       display_name: profile.display_name,
       slug: slugClean || null,
+      character_key: charKeyClean || null,
       bio: profile.bio,
+      bio_html: profile.bio_html,
       sign: profile.sign,
       role: profile.role,
       avatar_url: profile.avatar_url,
@@ -196,11 +205,6 @@ function ProfilePage() {
             )}
           </div>
           <div className="flex gap-2 sm:pb-2">
-            {isAdmin && (
-              <Link to="/admin" className="rounded-md border border-yellow-400/60 px-3 py-1.5 font-display text-xs tracking-widest text-yellow-300 hover:bg-yellow-400/10">
-                ADMIN
-              </Link>
-            )}
             <Link to="/feed" className="rounded-md border border-white/20 px-3 py-1.5 font-display text-xs tracking-widest text-white/80 hover:bg-white/5">
               FEED
             </Link>
@@ -229,6 +233,27 @@ function ProfilePage() {
               {SIGNS.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
           </label>
+
+          <label className="block sm:col-span-2">
+            <span className="mb-1 block font-display text-xs tracking-widest text-white/70">
+              Personagem (chave das cartas)
+            </span>
+            <input
+              type="text"
+              list="character-keys"
+              value={profile.character_key ?? ""}
+              onChange={(e) => setProfile({ ...profile, character_key: e.target.value })}
+              placeholder="ex: jerk"
+              className="w-full rounded-md border border-white/15 bg-black/50 px-3 py-2 text-white outline-none focus:border-[color:var(--ruby)]"
+            />
+            <datalist id="character-keys">
+              {characterKeys.map((k) => <option key={k} value={k} />)}
+            </datalist>
+            <p className="mt-1 text-[11px] text-white/40">
+              Use a mesma chave usada no álbum de cartas (ex: <code className="text-[color:var(--ruby)]">jerk</code>).
+              Sem isso, suas cartas não aparecem na sua ficha.
+            </p>
+          </label>
         </div>
 
         <h2 className="pt-2 font-display text-xl tracking-widest text-[color:var(--chrome)]">▎IMAGENS</h2>
@@ -247,13 +272,27 @@ function ProfilePage() {
           </div>
         </div>
 
-        <label className="block">
-          <span className="mb-1 block font-display text-xs tracking-widest text-white/70">Bio</span>
-          <textarea value={profile.bio ?? ""}
-            onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-            rows={4} maxLength={500}
-            className="w-full rounded-md border border-white/15 bg-black/50 px-3 py-2 text-white outline-none focus:border-[color:var(--ruby)]" />
-        </label>
+        <div className="space-y-3">
+          <label className="block">
+            <span className="mb-1 block font-display text-xs tracking-widest text-white/70">Bio curta (texto simples)</span>
+            <textarea value={profile.bio ?? ""}
+              onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+              rows={3} maxLength={500}
+              placeholder="Frase de apresentação (opcional)."
+              className="w-full rounded-md border border-white/15 bg-black/50 px-3 py-2 text-white outline-none focus:border-[color:var(--ruby)]" />
+          </label>
+
+          <div>
+            <span className="mb-2 flex items-center gap-2 font-display text-xs tracking-widest text-white/70">
+              <Sparkles className="h-3.5 w-3.5 text-[color:var(--ruby)]" />
+              FICHA COMPLETA (imagens, GIFs, vídeos)
+            </span>
+            <RichBioEditor
+              value={profile.bio_html ?? ""}
+              onChange={(v) => setProfile({ ...profile, bio_html: v })}
+            />
+          </div>
+        </div>
 
         <h2 className="pt-2 font-display text-xl tracking-widest text-[color:var(--chrome)]">▎STATUS AMOROSO</h2>
         <div className="grid gap-4 sm:grid-cols-3">
@@ -278,20 +317,15 @@ function ProfilePage() {
 
         <div className="flex flex-wrap items-center gap-3">
           <button type="submit" disabled={saving}
-            className="rounded-md bg-ruby-gradient px-5 py-2.5 font-display tracking-widest text-white shadow-[0_0_20px_#d9003680] hover:brightness-110 disabled:opacity-50">
-            {saving ? "SALVANDO…" : "SALVAR"}
+            className="inline-flex items-center gap-2 rounded-md bg-ruby-gradient px-5 py-2.5 font-display tracking-widest text-white shadow-[0_0_20px_#d9003680] hover:brightness-110 disabled:opacity-50">
+            <Save className="h-4 w-4" /> {saving ? "SALVANDO…" : "SALVAR"}
           </button>
           {profile.slug && (
             <Link to="/santuario/$slug" params={{ slug: profile.slug }}
-              className="rounded-md border border-white/20 px-4 py-2 text-sm text-white/80 hover:bg-white/5">
-              Ver meu santuário
+              className="inline-flex items-center gap-1.5 rounded-md border border-white/20 px-4 py-2 text-sm text-white/80 hover:bg-white/5">
+              <ExternalLink className="h-3.5 w-3.5" /> Ver meu santuário
             </Link>
           )}
-          <button type="button"
-            onClick={async () => { await signOut(); navigate({ to: "/" }); }}
-            className="ml-auto rounded-md border border-white/20 px-4 py-2 text-sm text-white/80 hover:bg-white/5">
-            Sair
-          </button>
         </div>
       </form>
 
@@ -304,8 +338,8 @@ function ProfilePage() {
               <p className="text-sm text-white/85">Vinculado a <span className="font-display tracking-widest text-[color:var(--ruby)]">{discord.discord_id}</span></p>
               <p className="text-[11px] text-white/40">Suas cartas ganhas no bot caem aqui automaticamente.</p>
             </div>
-            <button onClick={unlinkDiscord} className="rounded border border-red-400/50 px-3 py-1 text-xs text-red-300 hover:bg-red-500/10">
-              Desvincular
+            <button onClick={unlinkDiscord} className="inline-flex items-center gap-1.5 rounded border border-red-400/50 px-3 py-1 text-xs text-red-300 hover:bg-red-500/10">
+              <Trash2 className="h-3.5 w-3.5" /> Desvincular
             </button>
           </div>
         ) : discord?.verify_code && discord.expires_at && new Date(discord.expires_at) > new Date() ? (
@@ -321,8 +355,8 @@ function ProfilePage() {
           <div className="mt-3">
             <p className="text-sm text-white/70">Gere um código e use no bot pra vincular sua conta.</p>
             <button onClick={startDiscordLink}
-              className="mt-3 rounded-md bg-ruby-gradient px-4 py-2 font-display text-xs tracking-widest text-white">
-              GERAR CÓDIGO
+              className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-ruby-gradient px-4 py-2 font-display text-xs tracking-widest text-white">
+              <Link2 className="h-3.5 w-3.5" /> GERAR CÓDIGO
             </button>
           </div>
         )}
@@ -343,8 +377,8 @@ function ProfilePage() {
               <span className="flex-1 text-white">{f.name}</span>
               {f.slug && <span className="text-xs text-white/40">/{f.slug}</span>}
               <button onClick={() => removeFamily(f.id)}
-                className="rounded border border-white/15 px-2 py-1 text-xs text-white/60 hover:border-red-400 hover:text-red-300">
-                Excluir
+                className="inline-flex items-center gap-1 rounded border border-white/15 px-2 py-1 text-xs text-white/60 hover:border-red-400 hover:text-red-300">
+                <Trash2 className="h-3 w-3" /> Excluir
               </button>
             </li>
           ))}
@@ -362,8 +396,8 @@ function ProfilePage() {
             onChange={(e) => setNewSlug(e.target.value)}
             className="rounded-md border border-white/15 bg-black/50 px-3 py-2 text-white" />
           <button type="submit"
-            className="rounded-md bg-ruby-gradient px-4 py-2 font-display text-sm tracking-widest text-white">
-            ADICIONAR
+            className="inline-flex items-center justify-center gap-1.5 rounded-md bg-ruby-gradient px-4 py-2 font-display text-sm tracking-widest text-white">
+            <Plus className="h-4 w-4" /> ADICIONAR
           </button>
         </form>
       </section>

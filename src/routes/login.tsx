@@ -55,12 +55,19 @@ function LoginPage() {
           {busy ? "ENTRANDO…" : "ENTRAR"}
         </button>
 
-        <p className="text-center text-sm text-white/60">
-          Ainda não tem conta?{" "}
-          <Link to="/registro" className="text-[color:var(--ruby)] underline-offset-4 hover:underline">
-            Cadastre-se
-          </Link>
-        </p>
+        <div className="space-y-2 text-center text-sm text-white/60">
+          <p>
+            <Link to="/esqueci-senha" className="text-white/70 underline-offset-4 hover:text-white hover:underline">
+              Esqueci minha senha
+            </Link>
+          </p>
+          <p>
+            Ainda não tem conta?{" "}
+            <Link to="/registro" className="text-[color:var(--ruby)] underline-offset-4 hover:underline">
+              Cadastre-se
+            </Link>
+          </p>
+        </div>
       </form>
     </div>
   );

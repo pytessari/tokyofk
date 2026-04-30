@@ -1,12 +1,15 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
 import { Guestbook } from "@/components/Guestbook";
 import { CardGrid, type CardRow } from "@/components/CardGrid";
 import { IMAGES, img } from "@/lib/images";
 import { ThornHeart, StarSpike } from "@/components/Sticker";
 import { FollowButton, FollowStats } from "@/components/FollowButton";
 import { PostCard, type PostRow, type PostAuthor } from "@/components/PostCard";
+import { LoggedOutGate } from "@/components/LoggedOutGate";
+import { RichBio } from "@/components/RichBio";
 
 export const Route = createFileRoute("/santuario/$slug")({
   head: ({ params }) => ({
@@ -23,6 +26,8 @@ type Profile = {
   display_name: string;
   slug: string;
   bio: string | null;
+  bio_html: string | null;
+  character_key: string | null;
   sign: string | null;
   role: string | null;
   avatar_url: string | null;
@@ -42,6 +47,7 @@ const KIND_LABEL: Record<string, string> = {
 
 function MemberPage() {
   const { slug } = Route.useParams();
+  const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [family, setFamily] = useState<FamilyLink[]>([]);
   const [cards, setCards] = useState<CardRow[]>([]);
@@ -50,14 +56,16 @@ function MemberPage() {
   const [notFoundState, setNotFound] = useState(false);
 
   useEffect(() => {
+    if (authLoading || !user) return;
     (async () => {
       const { data: p } = await supabase.from("profiles").select("*").eq("slug", slug).maybeSingle();
       if (!p) { setNotFound(true); setLoading(false); return; }
       setProfile(p as unknown as Profile);
 
+      const charKey = (p as { character_key?: string | null }).character_key || slug;
       const [{ data: f }, { data: c }, { data: ps }] = await Promise.all([
         supabase.from("family_links").select("id, kind, name, slug").eq("owner_id", p.id).order("created_at"),
-        supabase.from("cards").select("*").eq("character_key", slug).order("card_number"),
+        supabase.from("cards").select("*").eq("character_key", charKey).order("card_number"),
         supabase.from("posts").select("*").eq("author_id", p.id).order("created_at", { ascending: false }).limit(10),
       ]);
       setFamily((f as FamilyLink[]) ?? []);
@@ -68,8 +76,12 @@ function MemberPage() {
       setPosts(((ps as PostRow[]) ?? []).map((x) => ({ ...x, author })));
       setLoading(false);
     })();
-  }, [slug]);
+  }, [slug, user, authLoading]);
 
+  if (authLoading) {
+    return <div className="px-5 py-20 text-center font-display tracking-widest text-white/60">CARREGANDO…</div>;
+  }
+  if (!user) return <LoggedOutGate title="FICHA RESERVADA" message="Entre pra ver as fichas dos membros." />;
   if (loading) {
     return <div className="px-5 py-20 text-center font-display tracking-widest text-white/60">CARREGANDO…</div>;
   }
@@ -150,13 +162,8 @@ function MemberPage() {
           </div>
 
           <div className="relative glass-dark rounded-2xl p-8">
-            <p className="font-display text-2xl leading-tight text-white sm:text-3xl">
-              <span className="text-ruby-gradient">"{profile.display_name.split(" ")[0]}</span> — ficha aberta."
-            </p>
-            <p className="mt-6 whitespace-pre-wrap text-sm leading-relaxed text-white/80">
-              {profile.bio || "Biografia ainda não escrita."}
-            </p>
             <StarSpike className="absolute right-6 top-6 h-8 w-8 sticker-star" />
+            <RichBio html={profile.bio_html} fallback={profile.bio} />
           </div>
         </div>
 

@@ -10,9 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegistroRouteImport } from './routes/registro'
+import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FeedRouteImport } from './routes/feed'
+import { Route as EsqueciSenhaRouteImport } from './routes/esqueci-senha'
 import { Route as BancaRouteImport } from './routes/banca'
 import { Route as AlbumRouteImport } from './routes/album'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -30,6 +32,11 @@ const RegistroRoute = RegistroRouteImport.update({
   path: '/registro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
+  id: '/redefinir-senha',
+  path: '/redefinir-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PerfilRoute = PerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
@@ -43,6 +50,11 @@ const LoginRoute = LoginRouteImport.update({
 const FeedRoute = FeedRouteImport.update({
   id: '/feed',
   path: '/feed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EsqueciSenhaRoute = EsqueciSenhaRouteImport.update({
+  id: '/esqueci-senha',
+  path: '/esqueci-senha',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BancaRoute = BancaRouteImport.update({
@@ -106,9 +118,11 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/album': typeof AlbumRoute
   '/banca': typeof BancaRoute
+  '/esqueci-senha': typeof EsqueciSenhaRoute
   '/feed': typeof FeedRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
   '/revista/$id': typeof RevistaIdRoute
   '/santuario/$slug': typeof SantuarioSlugRoute
@@ -123,9 +137,11 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/album': typeof AlbumRoute
   '/banca': typeof BancaRoute
+  '/esqueci-senha': typeof EsqueciSenhaRoute
   '/feed': typeof FeedRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
   '/revista/$id': typeof RevistaIdRoute
   '/santuario/$slug': typeof SantuarioSlugRoute
@@ -141,9 +157,11 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/album': typeof AlbumRoute
   '/banca': typeof BancaRoute
+  '/esqueci-senha': typeof EsqueciSenhaRoute
   '/feed': typeof FeedRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
   '/revista/$id': typeof RevistaIdRoute
   '/santuario/$slug': typeof SantuarioSlugRoute
@@ -160,9 +178,11 @@ export interface FileRouteTypes {
     | '/admin'
     | '/album'
     | '/banca'
+    | '/esqueci-senha'
     | '/feed'
     | '/login'
     | '/perfil'
+    | '/redefinir-senha'
     | '/registro'
     | '/revista/$id'
     | '/santuario/$slug'
@@ -177,9 +197,11 @@ export interface FileRouteTypes {
     | '/admin'
     | '/album'
     | '/banca'
+    | '/esqueci-senha'
     | '/feed'
     | '/login'
     | '/perfil'
+    | '/redefinir-senha'
     | '/registro'
     | '/revista/$id'
     | '/santuario/$slug'
@@ -194,9 +216,11 @@ export interface FileRouteTypes {
     | '/admin'
     | '/album'
     | '/banca'
+    | '/esqueci-senha'
     | '/feed'
     | '/login'
     | '/perfil'
+    | '/redefinir-senha'
     | '/registro'
     | '/revista/$id'
     | '/santuario/$slug'
@@ -212,9 +236,11 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AlbumRoute: typeof AlbumRoute
   BancaRoute: typeof BancaRoute
+  EsqueciSenhaRoute: typeof EsqueciSenhaRoute
   FeedRoute: typeof FeedRoute
   LoginRoute: typeof LoginRoute
   PerfilRoute: typeof PerfilRoute
+  RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   RegistroRoute: typeof RegistroRoute
   RevistaIdRoute: typeof RevistaIdRoute
   SantuarioSlugRoute: typeof SantuarioSlugRoute
@@ -232,6 +258,13 @@ declare module '@tanstack/react-router' {
       path: '/registro'
       fullPath: '/registro'
       preLoaderRoute: typeof RegistroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/redefinir-senha': {
+      id: '/redefinir-senha'
+      path: '/redefinir-senha'
+      fullPath: '/redefinir-senha'
+      preLoaderRoute: typeof RedefinirSenhaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/perfil': {
@@ -253,6 +286,13 @@ declare module '@tanstack/react-router' {
       path: '/feed'
       fullPath: '/feed'
       preLoaderRoute: typeof FeedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/esqueci-senha': {
+      id: '/esqueci-senha'
+      path: '/esqueci-senha'
+      fullPath: '/esqueci-senha'
+      preLoaderRoute: typeof EsqueciSenhaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/banca': {
@@ -340,9 +380,11 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AlbumRoute: AlbumRoute,
   BancaRoute: BancaRoute,
+  EsqueciSenhaRoute: EsqueciSenhaRoute,
   FeedRoute: FeedRoute,
   LoginRoute: LoginRoute,
   PerfilRoute: PerfilRoute,
+  RedefinirSenhaRoute: RedefinirSenhaRoute,
   RegistroRoute: RegistroRoute,
   RevistaIdRoute: RevistaIdRoute,
   SantuarioSlugRoute: SantuarioSlugRoute,
@@ -355,12 +397,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

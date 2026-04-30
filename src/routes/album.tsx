@@ -1,9 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { CardGrid, type CardRow } from "@/components/CardGrid";
-import { ThornHeart, StarSpike } from "@/components/Sticker";
+import { StarSpike } from "@/components/Sticker";
+import { LoggedOutGate } from "@/components/LoggedOutGate";
 
 export const Route = createFileRoute("/album")({
   head: () => ({ meta: [{ title: "TOKYO · Meu Álbum" }] }),
@@ -17,13 +18,15 @@ function AlbumPage() {
   const [fetching, setFetching] = useState(true);
 
   useEffect(() => {
+    if (loading) return;
+    if (!user) { setFetching(false); return; }
     (async () => {
       const [{ count }, ownedRes] = await Promise.all([
         supabase.from("cards").select("*", { count: "exact", head: true }),
-        user ? supabase
+        supabase
           .from("user_cards")
           .select("card:cards(*)")
-          .eq("user_id", user.id) : Promise.resolve({ data: [] as Array<{ card: CardRow }> }),
+          .eq("user_id", user.id),
       ]);
       setTotal(count ?? 0);
       const rows = ((ownedRes.data ?? []) as Array<{ card: CardRow | null }>)
@@ -32,11 +35,12 @@ function AlbumPage() {
       setCollected(rows);
       setFetching(false);
     })();
-  }, [user]);
+  }, [user, loading]);
 
-  if (loading || fetching) {
+  if (loading || (user && fetching)) {
     return <div className="px-5 py-20 text-center font-display tracking-widest text-white/60">CARREGANDO…</div>;
   }
+  if (!user) return <LoggedOutGate title="ÁLBUM PRIVADO" message="Entre pra ver suas cartas coletadas." />;
 
   const pct = total > 0 ? Math.round((collected.length / total) * 100) : 0;
 
@@ -59,15 +63,7 @@ function AlbumPage() {
         </div>
       </div>
 
-      {!user ? (
-        <div className="glass-dark rounded-xl p-10 text-center">
-          <ThornHeart className="mx-auto h-10 w-10" />
-          <p className="mt-3 text-white/80">Entre para ver suas cartas coletadas.</p>
-          <Link to="/login" className="mt-4 inline-block rounded-md bg-ruby-gradient px-5 py-2 font-display text-xs tracking-widest text-white">ENTRAR</Link>
-        </div>
-      ) : (
-        <CardGrid cards={collected} empty="Você ainda não coletou nenhuma carta. Participe dos drops no Discord." />
-      )}
+      <CardGrid cards={collected} empty="Você ainda não coletou nenhuma carta. Participe dos drops no Discord." />
     </div>
   );
 }

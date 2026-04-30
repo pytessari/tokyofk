@@ -213,3 +213,15 @@
     text-shadow: 0 0 10px #ff2a5c, 0 0 20px #d90036;
   }
 }
+
+@layer components {
+  .rich-bio { word-wrap: break-word; }
+  .rich-bio p { margin: 0.5rem 0; }
+  .rich-bio a { color: var(--ruby); text-decoration: underline; }
+  .rich-bio img { max-width: 100%; height: auto; border-radius: 0.5rem; margin: 0.5rem 0; }
+  .rich-bio iframe { max-width: 100%; border-radius: 0.5rem; margin: 0.5rem 0; }
+  .rich-bio ul, .rich-bio ol { margin: 0.5rem 0 0.5rem 1.25rem; }
+  .rich-bio strong { color: white; }
+  .rich-bio em { color: rgba(255,255,255,0.95); }
+  .rich-bio h1, .rich-bio h2, .rich-bio h3 { font-family: var(--font-display, inherit); color: white; margin: 0.75rem 0 0.25rem; }
+}
