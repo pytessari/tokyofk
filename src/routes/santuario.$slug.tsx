@@ -13,6 +13,7 @@ import { FollowButton, FollowStats } from "@/components/FollowButton";
 import { PostCard, type PostRow, type PostAuthor } from "@/components/PostCard";
 import { LoggedOutGate } from "@/components/LoggedOutGate";
 import { RichBio } from "@/components/RichBio";
+import { BuddyProfileCard } from "@/components/buddy/BuddyProfileCard";
 
 export const Route = createFileRoute("/santuario/$slug")({
   validateSearch: z.object({ guestbook: z.string().optional() }),
@@ -251,6 +252,15 @@ function MemberPage() {
             <StarSpike className="absolute right-5 top-5 h-6 w-6 sticker-star" />
             <RichBio html={profile.bio_html} fallback={profile.bio} />
           </div>
+        </div>
+
+        {/* Tokyo Buddy 3D */}
+        <div className="mt-8">
+          <BuddyProfileCard
+            userId={profile.id}
+            displayName={profile.display_name}
+            isOwn={!!user && user.id === profile.id}
+          />
         </div>
 
         {/* Família — redesign tipo cartões agrupados */}
