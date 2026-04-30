@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { CardGrid, type CardRow } from "@/components/CardGrid";
@@ -17,25 +17,40 @@ function AlbumPage() {
   const [total, setTotal] = useState(0);
   const [fetching, setFetching] = useState(true);
 
+  const loadAlbum = useCallback(async (userId: string) => {
+    setFetching(true);
+    const [{ count }, ownedRes] = await Promise.all([
+      supabase.from("cards").select("*", { count: "exact", head: true }),
+      supabase
+        .from("user_cards")
+        .select("card:cards(*)")
+        .eq("user_id", userId)
+        .order("acquired_at", { ascending: false }),
+    ]);
+    setTotal(count ?? 0);
+    const rows = ((ownedRes.data ?? []) as Array<{ card: CardRow | null }>)
+      .map((r) => r.card)
+      .filter((c): c is CardRow => !!c);
+    setCollected(rows);
+    setFetching(false);
+  }, []);
+
   useEffect(() => {
     if (loading) return;
     if (!user) { setFetching(false); return; }
-    (async () => {
-      const [{ count }, ownedRes] = await Promise.all([
-        supabase.from("cards").select("*", { count: "exact", head: true }),
-        supabase
-          .from("user_cards")
-          .select("card:cards(*)")
-          .eq("user_id", user.id),
-      ]);
-      setTotal(count ?? 0);
-      const rows = ((ownedRes.data ?? []) as Array<{ card: CardRow | null }>)
-        .map((r) => r.card)
-        .filter((c): c is CardRow => !!c);
-      setCollected(rows);
-      setFetching(false);
-    })();
-  }, [user, loading]);
+    void loadAlbum(user.id);
+    const ch = supabase
+      .channel(`album:${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "user_cards", filter: `user_id=eq.${user.id}` },
+        () => void loadAlbum(user.id),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, [user, loading, loadAlbum]);
 
   if (loading || (user && fetching)) {
     return <div className="px-5 py-20 text-center font-display tracking-widest text-white/60">CARREGANDO…</div>;
