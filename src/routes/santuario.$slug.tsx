@@ -47,6 +47,7 @@ const KIND_LABEL: Record<string, string> = {
 
 function MemberPage() {
   const { slug } = Route.useParams();
+  const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [family, setFamily] = useState<FamilyLink[]>([]);
   const [cards, setCards] = useState<CardRow[]>([]);
@@ -55,14 +56,16 @@ function MemberPage() {
   const [notFoundState, setNotFound] = useState(false);
 
   useEffect(() => {
+    if (authLoading || !user) return;
     (async () => {
       const { data: p } = await supabase.from("profiles").select("*").eq("slug", slug).maybeSingle();
       if (!p) { setNotFound(true); setLoading(false); return; }
       setProfile(p as unknown as Profile);
 
+      const charKey = (p as { character_key?: string | null }).character_key || slug;
       const [{ data: f }, { data: c }, { data: ps }] = await Promise.all([
         supabase.from("family_links").select("id, kind, name, slug").eq("owner_id", p.id).order("created_at"),
-        supabase.from("cards").select("*").eq("character_key", slug).order("card_number"),
+        supabase.from("cards").select("*").eq("character_key", charKey).order("card_number"),
         supabase.from("posts").select("*").eq("author_id", p.id).order("created_at", { ascending: false }).limit(10),
       ]);
       setFamily((f as FamilyLink[]) ?? []);
@@ -73,8 +76,12 @@ function MemberPage() {
       setPosts(((ps as PostRow[]) ?? []).map((x) => ({ ...x, author })));
       setLoading(false);
     })();
-  }, [slug]);
+  }, [slug, user, authLoading]);
 
+  if (authLoading) {
+    return <div className="px-5 py-20 text-center font-display tracking-widest text-white/60">CARREGANDO…</div>;
+  }
+  if (!user) return <LoggedOutGate title="FICHA RESERVADA" message="Entre pra ver as fichas dos membros." />;
   if (loading) {
     return <div className="px-5 py-20 text-center font-display tracking-widest text-white/60">CARREGANDO…</div>;
   }
