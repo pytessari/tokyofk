@@ -41,6 +41,10 @@ export function EmojiPickerPopover({
       toast.error("Shortcode inválido (mín. 2 chars, a-z 0-9 _)");
       return;
     }
+    if (pendingFile.size > 10 * 1024 * 1024) {
+      toast.error("Emoji muito grande (máx 10MB)");
+      return;
+    }
     setUploading(true);
     try {
       const ext = (pendingFile.name.split(".").pop() ?? "png").toLowerCase();
