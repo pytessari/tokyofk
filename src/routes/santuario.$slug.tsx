@@ -185,7 +185,7 @@ function MemberPage() {
                   </span>
                 } />
               )}
-              <BioRow k="Cartas" v={`${cards.length} coletadas`} />
+              <BioRow k="Cartas" v={`${allCards.length} coletadas`} />
             </dl>
           </div>
 
