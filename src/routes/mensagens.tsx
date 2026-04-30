@@ -51,7 +51,7 @@ export const Route = createFileRoute("/mensagens")({
 
 function MessagesPage() {
   const { user } = useAuth();
-  const search = Route.useSearch();
+  const routeSearch = Route.useSearch();
   const [convs, setConvs] = useState<ConvRow[]>([]);
   const [parts, setParts] = useState<Participant[]>([]);
   const [profiles, setProfiles] = useState<Map<string, ProfileLite>>(new Map());
