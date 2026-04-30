@@ -1,5 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { PageHeader } from "@/components/kit/PageHeader";
@@ -36,6 +37,7 @@ type ProfileLite = {
 };
 
 export const Route = createFileRoute("/mensagens")({
+  validateSearch: z.object({ conv: z.string().optional() }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
     if (!data.user) throw redirect({ to: "/login" });
@@ -49,6 +51,7 @@ export const Route = createFileRoute("/mensagens")({
 
 function MessagesPage() {
   const { user } = useAuth();
+  const search = Route.useSearch();
   const [convs, setConvs] = useState<ConvRow[]>([]);
   const [parts, setParts] = useState<Participant[]>([]);
   const [profiles, setProfiles] = useState<Map<string, ProfileLite>>(new Map());
