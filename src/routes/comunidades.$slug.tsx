@@ -67,6 +67,10 @@ function CommunityDetail() {
   const [loading, setLoading] = useState(true);
   const [draft, setDraft] = useState({ title: "", content: "" });
   const [posting, setPosting] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [showAllMembers, setShowAllMembers] = useState(false);
+
+  const isOwner = !!user && !!community && community.owner_id === user.id;
 
   async function load() {
     setLoading(true);
