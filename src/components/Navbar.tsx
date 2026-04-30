@@ -55,9 +55,13 @@ const exploreGroups = [
     title: "Coleção & Diversão",
     items: [
       { to: "/album", label: "Álbum", icon: ArchiveIcon, exact: false },
-      { to: "/buddy", label: "Buddy", icon: FaceIcon, exact: false },
     ],
   },
+] as const;
+
+// Itens visíveis somente para admins
+const adminExploreItems = [
+  { to: "/buddy", label: "Buddy (beta)", icon: FaceIcon, exact: false },
 ] as const;
 
 // Para o menu mobile (logged-out)
@@ -180,6 +184,24 @@ export function Navbar() {
                     })}
                   </div>
                 ))}
+                {isAdmin && (
+                  <div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel className="font-display text-[10px] tracking-widest text-yellow-300/70">
+                      ADMIN
+                    </DropdownMenuLabel>
+                    {adminExploreItems.map((l) => {
+                      const Icon = l.icon;
+                      return (
+                        <DropdownMenuItem key={l.to} asChild>
+                          <Link to={l.to} className="flex items-center gap-2 text-yellow-300">
+                            <Icon className="h-4 w-4" aria-hidden="true" /> {l.label}
+                          </Link>
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </div>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           )}
