@@ -52,9 +52,13 @@ export function ImageUpload({
 
     // Persistência imediata (avatar/capa do perfil)
     if (persistField) {
+      const update =
+        persistField === "avatar_url"
+          ? { avatar_url: data.publicUrl }
+          : { banner_url: data.publicUrl };
       const { error: dbErr } = await supabase
         .from("profiles")
-        .update({ [persistField]: data.publicUrl })
+        .update(update)
         .eq("id", userId);
       if (dbErr) {
         setError(dbErr.message);
