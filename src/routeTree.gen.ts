@@ -21,6 +21,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SantuarioIndexRouteImport } from './routes/santuario.index'
 import { Route as RevistaIndexRouteImport } from './routes/revista.index'
+import { Route as ComunidadesIndexRouteImport } from './routes/comunidades.index'
 import { Route as SantuarioSlugRouteImport } from './routes/santuario.$slug'
 import { Route as RevistaIdRouteImport } from './routes/revista.$id'
 import { Route as ApiPublicBotProfileRouteImport } from './routes/api/public/bot.profile'
@@ -87,6 +88,11 @@ const RevistaIndexRoute = RevistaIndexRouteImport.update({
   path: '/revista/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ComunidadesIndexRoute = ComunidadesIndexRouteImport.update({
+  id: '/comunidades/',
+  path: '/comunidades/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SantuarioSlugRoute = SantuarioSlugRouteImport.update({
   id: '/santuario/$slug',
   path: '/santuario/$slug',
@@ -126,6 +132,7 @@ export interface FileRoutesByFullPath {
   '/registro': typeof RegistroRoute
   '/revista/$id': typeof RevistaIdRoute
   '/santuario/$slug': typeof SantuarioSlugRoute
+  '/comunidades/': typeof ComunidadesIndexRoute
   '/revista/': typeof RevistaIndexRoute
   '/santuario/': typeof SantuarioIndexRoute
   '/api/public/bot/cards-grant': typeof ApiPublicBotCardsGrantRoute
@@ -145,6 +152,7 @@ export interface FileRoutesByTo {
   '/registro': typeof RegistroRoute
   '/revista/$id': typeof RevistaIdRoute
   '/santuario/$slug': typeof SantuarioSlugRoute
+  '/comunidades': typeof ComunidadesIndexRoute
   '/revista': typeof RevistaIndexRoute
   '/santuario': typeof SantuarioIndexRoute
   '/api/public/bot/cards-grant': typeof ApiPublicBotCardsGrantRoute
@@ -165,6 +173,7 @@ export interface FileRoutesById {
   '/registro': typeof RegistroRoute
   '/revista/$id': typeof RevistaIdRoute
   '/santuario/$slug': typeof SantuarioSlugRoute
+  '/comunidades/': typeof ComunidadesIndexRoute
   '/revista/': typeof RevistaIndexRoute
   '/santuario/': typeof SantuarioIndexRoute
   '/api/public/bot/cards-grant': typeof ApiPublicBotCardsGrantRoute
@@ -186,6 +195,7 @@ export interface FileRouteTypes {
     | '/registro'
     | '/revista/$id'
     | '/santuario/$slug'
+    | '/comunidades/'
     | '/revista/'
     | '/santuario/'
     | '/api/public/bot/cards-grant'
@@ -205,6 +215,7 @@ export interface FileRouteTypes {
     | '/registro'
     | '/revista/$id'
     | '/santuario/$slug'
+    | '/comunidades'
     | '/revista'
     | '/santuario'
     | '/api/public/bot/cards-grant'
@@ -224,6 +235,7 @@ export interface FileRouteTypes {
     | '/registro'
     | '/revista/$id'
     | '/santuario/$slug'
+    | '/comunidades/'
     | '/revista/'
     | '/santuario/'
     | '/api/public/bot/cards-grant'
@@ -244,6 +256,7 @@ export interface RootRouteChildren {
   RegistroRoute: typeof RegistroRoute
   RevistaIdRoute: typeof RevistaIdRoute
   SantuarioSlugRoute: typeof SantuarioSlugRoute
+  ComunidadesIndexRoute: typeof ComunidadesIndexRoute
   RevistaIndexRoute: typeof RevistaIndexRoute
   SantuarioIndexRoute: typeof SantuarioIndexRoute
   ApiPublicBotCardsGrantRoute: typeof ApiPublicBotCardsGrantRoute
@@ -337,6 +350,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RevistaIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/comunidades/': {
+      id: '/comunidades/'
+      path: '/comunidades'
+      fullPath: '/comunidades/'
+      preLoaderRoute: typeof ComunidadesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/santuario/$slug': {
       id: '/santuario/$slug'
       path: '/santuario/$slug'
@@ -388,6 +408,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegistroRoute: RegistroRoute,
   RevistaIdRoute: RevistaIdRoute,
   SantuarioSlugRoute: SantuarioSlugRoute,
+  ComunidadesIndexRoute: ComunidadesIndexRoute,
   RevistaIndexRoute: RevistaIndexRoute,
   SantuarioIndexRoute: SantuarioIndexRoute,
   ApiPublicBotCardsGrantRoute: ApiPublicBotCardsGrantRoute,
