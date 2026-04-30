@@ -82,15 +82,25 @@ export function Navbar() {
   }
 
   return (
+    <>
     <header className="sticky top-0 z-40 glass-dark border-b border-[color:var(--ruby)]/30">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3">
-        <Link to="/" className="flex items-center gap-3 outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--ruby)] rounded">
-          <img src={IMAGES.logo} alt="TOKYO" className="h-14 w-auto drop-shadow-[0_0_22px_#d90036]" />
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-2 sm:px-5 sm:py-3">
+        <Link
+          to="/"
+          className="flex shrink-0 items-center gap-3 outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--ruby)] rounded"
+        >
+          <img
+            src={IMAGES.logo}
+            alt="TOKYO"
+            className="h-9 w-auto drop-shadow-[0_0_18px_#d90036] sm:h-14"
+          />
           <span className="hidden font-display text-xs tracking-[0.4em] text-[color:var(--chrome)] sm:inline">
             COMUNIDADE OFICIAL · 東京
           </span>
         </Link>
-        <nav className="flex items-center gap-1" aria-label="Principal">
+
+        {/* Desktop nav */}
+        <nav className="hidden items-center gap-1 md:flex" aria-label="Principal">
           {links.map((l) => {
             const Icon = l.icon;
             return (
@@ -104,7 +114,7 @@ export function Navbar() {
                 {({ isActive }) => (
                   <>
                     <Icon className="h-4 w-4" aria-hidden="true" />
-                    <span className="hidden sm:inline">{l.label.toUpperCase()}</span>
+                    <span className="hidden lg:inline">{l.label.toUpperCase()}</span>
                     <span
                       className={`absolute inset-x-2 -bottom-0.5 h-[2px] rounded bg-ruby-gradient transition-all ${
                         isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
@@ -116,14 +126,17 @@ export function Navbar() {
               </Link>
             );
           })}
+        </nav>
 
+        {/* Right cluster: bell + avatar (or login) + mobile menu */}
+        <div className="flex items-center gap-1">
           {!loading &&
             (user ? (
               <>
                 <NotificationsBell />
                 <DropdownMenu>
                   <DropdownMenuTrigger
-                    className="ml-1 inline-flex items-center gap-2 rounded-md border border-[color:var(--ruby)]/60 bg-black/40 px-2 py-1.5 outline-none transition hover:bg-[color:var(--ruby)]/10 focus-visible:ring-2 focus-visible:ring-[color:var(--ruby)]"
+                    className="ml-1 inline-flex items-center gap-1.5 rounded-md border border-[color:var(--ruby)]/60 bg-black/40 px-1.5 py-1 outline-none transition hover:bg-[color:var(--ruby)]/10 focus-visible:ring-2 focus-visible:ring-[color:var(--ruby)]"
                     aria-label="Menu da conta"
                   >
                     {me?.avatar_url ? (
@@ -137,17 +150,14 @@ export function Navbar() {
                         {(me?.display_name ?? user.email ?? "??").slice(0, 2).toUpperCase()}
                       </span>
                     )}
-                    <ChevronDownIcon className="h-3.5 w-3.5 text-white/70" aria-hidden="true" />
+                    <ChevronDownIcon className="hidden h-3.5 w-3.5 text-white/70 sm:block" aria-hidden="true" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-60">
                     <DropdownMenuLabel className="font-display text-[10px] tracking-widest text-white/50">
                       {me?.display_name ?? user.email}
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={goToMyProfile}
-                      className="flex items-center gap-2"
-                    >
+                    <DropdownMenuItem onClick={goToMyProfile} className="flex items-center gap-2">
                       <PersonIcon className="h-4 w-4" aria-hidden="true" /> Meu perfil
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
@@ -178,13 +188,73 @@ export function Navbar() {
             ) : (
               <Link
                 to="/login"
-                className="ml-3 inline-flex items-center gap-1.5 rounded-md bg-ruby-gradient px-4 py-2 font-display text-sm tracking-widest text-white shadow-[0_0_20px_#d9003680] outline-none transition hover:brightness-110 focus-visible:ring-2 focus-visible:ring-white"
+                className="ml-1 inline-flex items-center gap-1.5 rounded-md bg-ruby-gradient px-3 py-1.5 font-display text-xs tracking-widest text-white shadow-[0_0_20px_#d9003680] outline-none transition hover:brightness-110 focus-visible:ring-2 focus-visible:ring-white sm:px-4 sm:py-2 sm:text-sm"
               >
                 <EnterIcon className="h-4 w-4" aria-hidden="true" /> ENTRAR
               </Link>
             ))}
-        </nav>
+
+          {/* Mobile menu (only when logged out — logged-in uses bottom nav) */}
+          {!user && (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                className="ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/10 bg-black/40 outline-none transition hover:bg-[color:var(--ruby)]/10 focus-visible:ring-2 focus-visible:ring-[color:var(--ruby)] md:hidden"
+                aria-label="Abrir menu"
+              >
+                <HamburgerMenuIcon className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {publicLinks.map((l) => {
+                  const Icon = l.icon;
+                  return (
+                    <DropdownMenuItem key={l.to} asChild>
+                      <Link to={l.to} className="flex items-center gap-2">
+                        <Icon className="h-4 w-4" aria-hidden="true" /> {l.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </div>
     </header>
+
+    {/* Mobile bottom nav for logged-in users */}
+    {user && (
+      <nav
+        aria-label="Navegação principal"
+        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[color:var(--ruby)]/30 bg-black/85 backdrop-blur md:hidden"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        {[
+          { to: "/feed", label: "Feed", icon: ChatBubbleIcon, exact: false },
+          { to: "/comunidades", label: "Círculos", icon: GroupIcon, exact: false },
+          { to: "/mensagens", label: "DM", icon: EnvelopeClosedIcon, exact: false },
+          { to: "/santuario", label: "Pessoas", icon: PersonIcon, exact: false },
+          { to: "/album", label: "Álbum", icon: ArchiveIcon, exact: false },
+        ].map((l) => {
+          const Icon = l.icon;
+          return (
+            <Link
+              key={l.to}
+              to={l.to}
+              activeOptions={{ exact: l.exact }}
+              className="flex flex-col items-center justify-center gap-0.5 py-2 text-[10px] tracking-widest text-white/65 outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--ruby)]"
+              activeProps={{ className: "text-white" }}
+            >
+              {({ isActive }) => (
+                <>
+                  <Icon className={`h-5 w-5 ${isActive ? "text-[color:var(--ruby)]" : ""}`} aria-hidden="true" />
+                  <span>{l.label}</span>
+                </>
+              )}
+            </Link>
+          );
+        })}
+      </nav>
+    )}
+    </>
   );
 }
