@@ -50,13 +50,13 @@ function MemberPage() {
   const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [family, setFamily] = useState<FamilyLink[]>([]);
-  const [cards, setCards] = useState<CardRow[]>([]);
+  const [allCards, setAllCards] = useState<CardRow[]>([]);
   const [posts, setPosts] = useState<PostRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFoundState, setNotFound] = useState(false);
+  const [showFullAlbum, setShowFullAlbum] = useState(false);
 
-  const loadMemberAlbum = useCallback(async (profileId: string, characterKey: string | null) => {
-    if (!characterKey) { setCards([]); return; }
+  const loadMemberAlbum = useCallback(async (profileId: string) => {
     const { data } = await supabase
       .from("user_cards")
       .select("card:cards(*)")
@@ -64,28 +64,25 @@ function MemberPage() {
       .order("acquired_at", { ascending: false });
     const rows = ((data ?? []) as Array<{ card: CardRow | null }>)
       .map((r) => r.card)
-      .filter((c): c is CardRow => !!c)
-      .filter((c) => c.character_key === characterKey);
-    setCards(rows);
+      .filter((c): c is CardRow => !!c);
+    setAllCards(rows);
   }, []);
 
   useEffect(() => {
     if (authLoading || !user) return;
     let profileId: string | null = null;
-    let characterKey: string | null = null;
     (async () => {
       const { data: p } = await supabase.from("profiles").select("*").eq("slug", slug).maybeSingle();
       if (!p) { setNotFound(true); setLoading(false); return; }
       setProfile(p as unknown as Profile);
       profileId = p.id;
-      characterKey = (p as { character_key: string | null }).character_key;
 
       const [{ data: f }, { data: ps }] = await Promise.all([
         supabase.from("family_links").select("id, kind, name, slug").eq("owner_id", p.id).order("created_at"),
         supabase.from("posts").select("*").eq("author_id", p.id).order("created_at", { ascending: false }).limit(10),
       ]);
       setFamily((f as FamilyLink[]) ?? []);
-      await loadMemberAlbum(p.id, characterKey);
+      await loadMemberAlbum(p.id);
       const author: PostAuthor = {
         id: p.id, display_name: p.display_name, slug: p.slug, avatar_url: p.avatar_url,
       };
@@ -100,7 +97,7 @@ function MemberPage() {
         { event: "*", schema: "public", table: "user_cards" },
         (payload) => {
           const row = (payload.new ?? payload.old) as { user_id?: string };
-          if (profileId && row.user_id === profileId) void loadMemberAlbum(profileId, characterKey);
+          if (profileId && row.user_id === profileId) void loadMemberAlbum(profileId);
         },
       )
       .subscribe();
@@ -130,6 +127,9 @@ function MemberPage() {
 
   const avatar = img(profile.avatar_url ?? "", IMAGES.fallback.avatar);
   const banner = img(profile.banner_url ?? "", IMAGES.fallback.banner);
+  const characterCards = profile.character_key
+    ? allCards.filter((c) => c.character_key === profile.character_key)
+    : [];
 
   return (
     <div>
@@ -188,7 +188,7 @@ function MemberPage() {
                   </span>
                 } />
               )}
-              <BioRow k="Cartas" v={`${cards.length} coletadas`} />
+              <BioRow k="Cartas" v={`${allCards.length} coletadas`} />
             </dl>
           </div>
 
@@ -237,20 +237,40 @@ function MemberPage() {
           </section>
         )}
 
-        {/* Cartas coletadas */}
+        {/* Cartas */}
         <section className="mt-14">
-          <div className="mb-6 flex items-end justify-between">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="font-display text-xs tracking-[0.5em] text-[color:var(--chrome)]">CARTAS DO PERSONAGEM</p>
               <h2 className="font-display text-4xl text-ruby-gradient">ÁLBUM DE {profile.display_name.split(" ")[0].toUpperCase()}</h2>
+              <p className="mt-1 text-xs text-white/50">
+                {characterCards.length} {profile.character_key ? `de ${profile.character_key}` : ""} · {allCards.length} no total
+              </p>
             </div>
-            <Link to="/album" className="font-display text-xs tracking-widest text-white/70 hover:text-white">
-              VER MEU ÁLBUM →
-            </Link>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setShowFullAlbum(true)}
+                className="rounded border border-[color:var(--ruby)]/40 bg-[color:var(--ruby)]/10 px-3 py-1.5 font-display text-[11px] tracking-widest text-white hover:bg-[color:var(--ruby)]/20"
+              >
+                VER ÁLBUM COMPLETO ({allCards.length})
+              </button>
+              <Link to="/album" className="font-display text-[11px] tracking-widest text-white/70 hover:text-white">
+                MEU ÁLBUM →
+              </Link>
+            </div>
           </div>
-          <CardGrid cards={cards} empty={profile.character_key ? "Esse personagem ainda não tem cartas coletadas." : "Esse membro ainda não escolheu um personagem."} />
+          <CardGrid cards={characterCards} empty={profile.character_key ? "Esse personagem ainda não tem cartas coletadas." : "Esse membro ainda não escolheu um personagem."} />
         </section>
 
+        {/* Modal: álbum completo */}
+        {showFullAlbum && (
+          <FullAlbumModal
+            displayName={profile.display_name}
+            cards={allCards}
+            onClose={() => setShowFullAlbum(false)}
+          />
+        )}
         {/* Mural */}
         <div className="mt-14">
           <Guestbook profileId={profile.id} ownerId={profile.id} />
@@ -267,6 +287,80 @@ function BioRow({ k, v }: { k: string; v: React.ReactNode }) {
         {k.toUpperCase()}
       </dt>
       <dd className="flex-1 text-white/90">{v}</dd>
+    </div>
+  );
+}
+
+function FullAlbumModal({
+  displayName, cards, onClose,
+}: { displayName: string; cards: CardRow[]; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [onClose]);
+
+  // Agrupa por personagem
+  const groups = cards.reduce<Record<string, CardRow[]>>((acc, c) => {
+    const key = c.character_key || "outros";
+    (acc[key] ||= []).push(c);
+    return acc;
+  }, {});
+  const orderedKeys = Object.keys(groups).sort((a, b) => groups[b].length - groups[a].length);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/80 backdrop-blur-sm p-4 sm:p-8"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-6xl rounded-2xl border border-white/10 bg-[#0b0b10] p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-6 flex items-end justify-between gap-4">
+          <div>
+            <p className="font-display text-[11px] tracking-[0.4em] text-[color:var(--chrome)]">ÁLBUM COMPLETO</p>
+            <h2 className="font-display text-3xl text-ruby-gradient sm:text-4xl">
+              {displayName.toUpperCase()}
+            </h2>
+            <p className="mt-1 text-xs text-white/50">
+              {cards.length} {cards.length === 1 ? "carta coletada" : "cartas coletadas"} ·{" "}
+              {orderedKeys.length} {orderedKeys.length === 1 ? "personagem" : "personagens"}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded border border-white/15 px-3 py-1.5 font-display text-[11px] tracking-widest text-white/80 hover:border-white/40 hover:text-white"
+            aria-label="Fechar"
+          >
+            FECHAR ✕
+          </button>
+        </div>
+
+        {cards.length === 0 ? (
+          <p className="py-12 text-center text-sm text-white/50">
+            Esse membro ainda não coletou nenhuma carta.
+          </p>
+        ) : (
+          <div className="space-y-8">
+            {orderedKeys.map((key) => (
+              <div key={key}>
+                <div className="mb-3 flex items-baseline gap-3 border-b border-white/5 pb-2">
+                  <h3 className="font-display text-lg uppercase tracking-widest text-[color:var(--ruby)]">{key}</h3>
+                  <span className="text-xs text-white/40">{groups[key].length}</span>
+                </div>
+                <CardGrid cards={groups[key]} empty="" />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
