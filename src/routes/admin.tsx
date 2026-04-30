@@ -10,6 +10,7 @@ import { CsvCardsImport } from "@/components/CsvCardsImport";
 import { SortableList } from "@/components/SortablePages";
 import { PageHeader } from "@/components/kit/PageHeader";
 import { TabBar } from "@/components/kit/TabBar";
+import { DropsAdmin } from "@/components/admin/DropsAdmin";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin · TOKYO" }] }),
