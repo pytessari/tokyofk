@@ -181,9 +181,8 @@ function MemberPage() {
 
   const avatar = img(profile.avatar_url ?? "", IMAGES.fallback.avatar);
   const banner = img(profile.banner_url ?? "", IMAGES.fallback.banner);
-  const characterCards = profile.character_key
-    ? allCards.filter((c) => c.character_key === profile.character_key)
-    : [];
+  // Cartas exibidas no perfil = catálogo do personagem dele(a), com flag de coletada
+  const characterCards = characterCatalog;
   const grouped = groupFamily(family);
 
   return (
