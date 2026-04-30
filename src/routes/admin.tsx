@@ -11,6 +11,7 @@ import { SortableList } from "@/components/SortablePages";
 import { PageHeader } from "@/components/kit/PageHeader";
 import { TabBar } from "@/components/kit/TabBar";
 import { DropsAdmin } from "@/components/admin/DropsAdmin";
+import { GrantCardsAdmin } from "@/components/admin/GrantCardsAdmin";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin · TOKYO" }] }),
