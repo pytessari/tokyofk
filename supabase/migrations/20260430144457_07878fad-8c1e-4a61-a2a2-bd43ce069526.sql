@@ -1,0 +1,2 @@
+REVOKE EXECUTE ON FUNCTION public.create_conversation_with_participants(uuid[], text, boolean) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.create_conversation_with_participants(uuid[], text, boolean) TO authenticated;
