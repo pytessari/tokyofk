@@ -8,6 +8,8 @@ import { IMAGES, img } from "@/lib/images";
 import { CardEditDialog, type CardRow } from "@/components/CardEditDialog";
 import { CsvCardsImport } from "@/components/CsvCardsImport";
 import { SortableList } from "@/components/SortablePages";
+import { PageHeader } from "@/components/kit/PageHeader";
+import { TabBar } from "@/components/kit/TabBar";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin · TOKYO" }] }),
@@ -43,20 +45,24 @@ function AdminPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-10">
-      <div className="mb-6">
-        <p className="font-display text-xs tracking-[0.5em] text-[color:var(--chrome)]">PAINEL DE CONTROLE</p>
-        <h1 className="mt-1 font-display text-5xl text-ruby-gradient">ADMIN · TOKYO</h1>
-      </div>
+      <PageHeader
+        eyebrow="PAINEL DE CONTROLE"
+        title="Admin · Tokyo"
+        description="Gerencie membros, cartas, revistas e o mural."
+      />
 
-      <div className="mb-6 flex flex-wrap gap-2 border-b border-white/10 pb-3">
-        {(["members","cards","magazines","guestbook"] as Tab[]).map((t) => (
-          <button key={t} onClick={() => setTab(t)}
-            className={`rounded-md px-4 py-2 font-display text-xs tracking-widest transition ${
-              tab === t ? "bg-ruby-gradient text-white shadow-[0_0_14px_#d9003680]" : "border border-white/15 text-white/70 hover:bg-white/5"
-            }`}>
-            {t === "members" ? "MEMBROS" : t === "cards" ? "CARTAS" : t === "magazines" ? "REVISTAS" : "MURAL"}
-          </button>
-        ))}
+      <div className="mb-6">
+        <TabBar
+          ariaLabel="Seções do admin"
+          value={tab}
+          onChange={(v) => setTab(v as Tab)}
+          items={[
+            { value: "members", label: "Membros" },
+            { value: "cards", label: "Cartas" },
+            { value: "magazines", label: "Revistas" },
+            { value: "guestbook", label: "Mural" },
+          ]}
+        />
       </div>
 
       {tab === "members" && <MembersAdmin />}
