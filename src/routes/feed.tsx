@@ -1,9 +1,10 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { PostComposer } from "@/components/PostComposer";
 import { PostCard, type PostRow, type PostAuthor } from "@/components/PostCard";
+import { LoggedOutGate } from "@/components/LoggedOutGate";
 
 export const Route = createFileRoute("/feed")({
   head: () => ({ meta: [{ title: "Feed · TOKYO" }] }),
@@ -14,14 +15,9 @@ type Tab = "all" | "following";
 
 function FeedPage() {
   const { user, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("all");
   const [posts, setPosts] = useState<PostRow[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!authLoading && !user) navigate({ to: "/login" });
-  }, [authLoading, user, navigate]);
 
   async function load() {
     setLoading(true);
@@ -57,9 +53,10 @@ function FeedPage() {
     // eslint-disable-next-line
   }, [user?.id, tab]);
 
-  if (authLoading || !user) {
+  if (authLoading) {
     return <div className="px-5 py-20 text-center font-display tracking-widest text-white/60">CARREGANDO…</div>;
   }
+  if (!user) return <LoggedOutGate title="FEED FECHADO" message="Entre pra ver o feed da comunidade e postar." />;
 
   return (
     <div className="mx-auto max-w-2xl px-5 py-8">
