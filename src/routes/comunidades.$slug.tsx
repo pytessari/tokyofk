@@ -8,6 +8,8 @@ import { EmptyState } from "@/components/kit/EmptyState";
 import { GroupIcon, ChatBubbleIcon, PersonIcon, ExitIcon, EnterIcon, PlusIcon } from "@radix-ui/react-icons";
 import { toast } from "sonner";
 import { timeAgo } from "@/lib/timeAgo";
+import { RichBio } from "@/components/RichBio";
+import { RichCommentEditor } from "@/components/RichCommentEditor";
 
 type Community = {
   id: string;
@@ -302,26 +304,7 @@ function CommunityDetail() {
             ) : (
               <ul className="space-y-4">
                 {posts.map((p) => (
-                  <li key={p.id} className="rounded-md border border-white/10 bg-black/30 p-4">
-                    <div className="mb-2 flex items-center gap-2 text-xs text-[color:var(--text-3)]">
-                      {p.author?.avatar_url ? (
-                        <img src={p.author.avatar_url} alt="" className="h-6 w-6 rounded-full object-cover" />
-                      ) : (
-                        <div className="h-6 w-6 rounded-full bg-[color:var(--surface-3)]" />
-                      )}
-                      {p.author?.slug ? (
-                        <Link to="/santuario/$slug" params={{ slug: p.author.slug }} className="font-medium text-white hover:underline">
-                          {p.author.display_name}
-                        </Link>
-                      ) : (
-                        <span className="text-white">{p.author?.display_name ?? "Anônimo"}</span>
-                      )}
-                      <span>·</span>
-                      <span>{timeAgo(p.created_at)}</span>
-                    </div>
-                    {p.title && <h3 className="mb-1 font-display text-sm">{p.title}</h3>}
-                    <p className="whitespace-pre-wrap text-sm text-white/90">{p.content}</p>
-                  </li>
+                  <CommunityPostItem key={p.id} post={p} canComment={isMember} currentUserId={user?.id ?? null} />
                 ))}
               </ul>
             )}
