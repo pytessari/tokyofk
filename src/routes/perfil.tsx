@@ -224,13 +224,13 @@ function ProfilePage() {
       <div className="panel mb-6 overflow-hidden">
         <div className="relative h-36 w-full sm:h-48">
           <img src={bannerPreview} alt="" className="absolute inset-0 h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--surface-2)] via-[color:var(--surface-2)]/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[color:var(--surface-2)]/40 to-[color:var(--surface-2)]" />
         </div>
-        <div className="-mt-12 flex flex-col items-center gap-3 px-5 pb-5 sm:-mt-14 sm:flex-row sm:items-end sm:gap-5">
+        <div className="relative z-10 -mt-12 flex flex-col items-center gap-3 px-5 pb-5 sm:-mt-14 sm:flex-row sm:items-end sm:gap-5">
           <img
             src={avatarPreview}
             alt={profile.display_name}
-            className="h-24 w-24 shrink-0 rounded-full border-4 border-[color:var(--surface-2)] bg-[color:var(--surface-3)] object-cover sm:h-28 sm:w-28"
+            className="relative z-10 h-24 w-24 shrink-0 rounded-full border-4 border-[color:var(--surface-2)] bg-[color:var(--surface-3)] object-cover sm:h-28 sm:w-28"
             style={{ boxShadow: "0 0 0 2px color-mix(in oklab, var(--ruby) 60%, transparent)" }}
           />
           <div className="min-w-0 flex-1 text-center sm:pb-1 sm:text-left">

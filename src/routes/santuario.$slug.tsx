@@ -278,7 +278,7 @@ function MemberPage() {
 
         {/* Posts */}
         {posts.length > 0 && (
-          <section className="mt-12">
+          <section className="mt-12 mx-auto max-w-2xl">
             <div className="mb-4 flex items-end justify-between">
               <div>
                 <p className="eyebrow">A LINHA DO TEMPO</p>

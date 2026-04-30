@@ -37,10 +37,10 @@ export function CardGrid({
         const interactive = !!onCardClick;
         const inner = (
           <>
-            <div className="relative">
+            <div className="relative aspect-[3/4] w-full bg-black">
               <img src={img(c.image_url ?? "", IMAGES.fallback.card)} alt={c.name}
-                className="aspect-[3/4] w-full object-cover"
-                style={c.image_url ? undefined : { filter: `hue-rotate(${i * 18}deg)` }} />
+                className="absolute inset-0 h-full w-full object-contain"
+                style={c.image_url ? undefined : { filter: `hue-rotate(${i * 18}deg)`, objectFit: "cover" }} />
               <div className="holo-shine" />
             </div>
             <div className="relative bg-black/85 p-2.5">
