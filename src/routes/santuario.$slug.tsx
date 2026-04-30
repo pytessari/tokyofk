@@ -241,14 +241,14 @@ function MemberPage() {
         <section className="mt-14">
           <div className="mb-6 flex items-end justify-between">
             <div>
-              <p className="font-display text-xs tracking-[0.5em] text-[color:var(--chrome)]">A COLEÇÃO</p>
+              <p className="font-display text-xs tracking-[0.5em] text-[color:var(--chrome)]">CARTAS DO PERSONAGEM</p>
               <h2 className="font-display text-4xl text-ruby-gradient">ÁLBUM DE {profile.display_name.split(" ")[0].toUpperCase()}</h2>
             </div>
             <Link to="/album" className="font-display text-xs tracking-widest text-white/70 hover:text-white">
               VER MEU ÁLBUM →
             </Link>
           </div>
-          <CardGrid cards={cards} empty="Esse membro ainda não coletou cartas." />
+          <CardGrid cards={cards} empty={profile.character_key ? "Esse personagem ainda não tem cartas coletadas." : "Esse membro ainda não escolheu um personagem."} />
         </section>
 
         {/* Mural */}
