@@ -397,7 +397,6 @@ export function ConversationView({
       </header>
 
       <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto overflow-x-hidden p-3 sm:p-4">
-        <style>{`.dm-bubble * { max-width: 100%; }`}</style>
         {messages.length === 0 && (
           <p className="py-12 text-center text-xs text-[color:var(--text-3)]">Diga oi 👋</p>
         )}
