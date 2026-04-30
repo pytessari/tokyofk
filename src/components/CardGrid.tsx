@@ -21,28 +21,53 @@ function rarityColor(r: string) {
   return "text-white/60";
 }
 
-export function CardGrid({ cards, empty = "Nenhuma carta." }: { cards: CardRow[]; empty?: string }) {
-  if (cards.length === 0) return <p className="text-sm text-white/50">{empty}</p>;
+export function CardGrid({
+  cards,
+  empty = "Nenhuma carta.",
+  onCardClick,
+}: {
+  cards: CardRow[];
+  empty?: string;
+  onCardClick?: (card: CardRow) => void;
+}) {
+  if (cards.length === 0) return <p className="text-sm text-[color:var(--text-3)]">{empty}</p>;
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-      {cards.map((c, i) => (
-        <div key={c.id} className="tilt-card relative overflow-hidden rounded-xl ruby-border shimmer">
-          <div className="relative">
-            <img src={img(c.image_url ?? "", IMAGES.fallback.card)} alt={c.name}
-              className="aspect-[3/4] w-full object-cover"
-              style={c.image_url ? undefined : { filter: `hue-rotate(${i * 18}deg)` }} />
-            <div className="holo-shine" />
-          </div>
-          <div className="relative bg-black/85 p-3">
-            <p className="font-display text-[11px] tracking-widest text-white">
-              #{c.card_number} · {c.name.toUpperCase()}
-            </p>
-            <p className={`mt-0.5 text-[10px] tracking-widest ${rarityColor(c.rarity)}`}>
-              {c.rarity.toUpperCase()}{c.season ? ` · ${c.season}` : ""}
-            </p>
-          </div>
-        </div>
-      ))}
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+      {cards.map((c, i) => {
+        const interactive = !!onCardClick;
+        const inner = (
+          <>
+            <div className="relative">
+              <img src={img(c.image_url ?? "", IMAGES.fallback.card)} alt={c.name}
+                className="aspect-[3/4] w-full object-cover"
+                style={c.image_url ? undefined : { filter: `hue-rotate(${i * 18}deg)` }} />
+              <div className="holo-shine" />
+            </div>
+            <div className="relative bg-black/85 p-2.5">
+              <p className="font-display text-[11px] tracking-widest text-white truncate">
+                #{c.card_number} · {c.name.toUpperCase()}
+              </p>
+              <p className={`mt-0.5 text-[10px] tracking-widest ${rarityColor(c.rarity)}`}>
+                {c.rarity.toUpperCase()}{c.season ? ` · ${c.season}` : ""}
+              </p>
+            </div>
+          </>
+        );
+        const baseClass = "tilt-card relative overflow-hidden rounded-xl ruby-border shimmer text-left";
+        return interactive ? (
+          <button
+            key={c.id}
+            type="button"
+            onClick={() => onCardClick(c)}
+            className={`${baseClass} cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--ruby)]`}
+            aria-label={`Abrir detalhes de ${c.name}`}
+          >
+            {inner}
+          </button>
+        ) : (
+          <div key={c.id} className={baseClass}>{inner}</div>
+        );
+      })}
     </div>
   );
 }
