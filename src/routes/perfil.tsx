@@ -338,8 +338,8 @@ function ProfilePage() {
               <p className="text-sm text-white/85">Vinculado a <span className="font-display tracking-widest text-[color:var(--ruby)]">{discord.discord_id}</span></p>
               <p className="text-[11px] text-white/40">Suas cartas ganhas no bot caem aqui automaticamente.</p>
             </div>
-            <button onClick={unlinkDiscord} className="rounded border border-red-400/50 px-3 py-1 text-xs text-red-300 hover:bg-red-500/10">
-              Desvincular
+            <button onClick={unlinkDiscord} className="inline-flex items-center gap-1.5 rounded border border-red-400/50 px-3 py-1 text-xs text-red-300 hover:bg-red-500/10">
+              <Trash2 className="h-3.5 w-3.5" /> Desvincular
             </button>
           </div>
         ) : discord?.verify_code && discord.expires_at && new Date(discord.expires_at) > new Date() ? (
@@ -355,8 +355,8 @@ function ProfilePage() {
           <div className="mt-3">
             <p className="text-sm text-white/70">Gere um código e use no bot pra vincular sua conta.</p>
             <button onClick={startDiscordLink}
-              className="mt-3 rounded-md bg-ruby-gradient px-4 py-2 font-display text-xs tracking-widest text-white">
-              GERAR CÓDIGO
+              className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-ruby-gradient px-4 py-2 font-display text-xs tracking-widest text-white">
+              <Link2 className="h-3.5 w-3.5" /> GERAR CÓDIGO
             </button>
           </div>
         )}
@@ -377,8 +377,8 @@ function ProfilePage() {
               <span className="flex-1 text-white">{f.name}</span>
               {f.slug && <span className="text-xs text-white/40">/{f.slug}</span>}
               <button onClick={() => removeFamily(f.id)}
-                className="rounded border border-white/15 px-2 py-1 text-xs text-white/60 hover:border-red-400 hover:text-red-300">
-                Excluir
+                className="inline-flex items-center gap-1 rounded border border-white/15 px-2 py-1 text-xs text-white/60 hover:border-red-400 hover:text-red-300">
+                <Trash2 className="h-3 w-3" /> Excluir
               </button>
             </li>
           ))}
@@ -396,8 +396,8 @@ function ProfilePage() {
             onChange={(e) => setNewSlug(e.target.value)}
             className="rounded-md border border-white/15 bg-black/50 px-3 py-2 text-white" />
           <button type="submit"
-            className="rounded-md bg-ruby-gradient px-4 py-2 font-display text-sm tracking-widest text-white">
-            ADICIONAR
+            className="inline-flex items-center justify-center gap-1.5 rounded-md bg-ruby-gradient px-4 py-2 font-display text-sm tracking-widest text-white">
+            <Plus className="h-4 w-4" /> ADICIONAR
           </button>
         </form>
       </section>
