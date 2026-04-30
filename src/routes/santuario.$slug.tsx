@@ -1,5 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { z } from "zod";
 import { Share1Icon, CheckIcon, HeartIcon } from "@radix-ui/react-icons";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -14,6 +15,7 @@ import { LoggedOutGate } from "@/components/LoggedOutGate";
 import { RichBio } from "@/components/RichBio";
 
 export const Route = createFileRoute("/santuario/$slug")({
+  validateSearch: z.object({ guestbook: z.string().optional() }),
   head: ({ params }) => ({
     meta: [
       { title: `${params.slug} · TOKYO` },
@@ -70,6 +72,7 @@ function groupFamily(family: FamilyLink[]) {
 
 function MemberPage() {
   const { slug } = Route.useParams();
+  const routeSearch = Route.useSearch();
   const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [family, setFamily] = useState<FamilyLink[]>([]);
@@ -357,7 +360,7 @@ function MemberPage() {
 
         {/* Mural */}
         <div className="mt-12">
-          <Guestbook profileId={profile.id} ownerId={profile.id} />
+          <Guestbook profileId={profile.id} ownerId={profile.id} highlightId={routeSearch.guestbook} />
         </div>
       </div>
     </div>

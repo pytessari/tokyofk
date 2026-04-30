@@ -17,6 +17,35 @@ const KIND: Record<string, { icon: React.ComponentType<{ className?: string }>; 
   dm: { icon: EnvelopeClosedIcon, verb: "te mandou uma mensagem", color: "text-[color:var(--ruby)]" },
 };
 
+type LinkTarget =
+  | { to: "/feed"; search?: { post?: string; comment?: string } }
+  | { to: "/mensagens"; search?: { conv?: string } }
+  | { to: "/santuario/$slug"; params: { slug: string }; search?: { guestbook?: string } }
+  | { to: "/santuario/$slug"; params: { slug: string } }
+  | null;
+
+function destination(n: NotificationRow): LinkTarget {
+  const p = (n.payload ?? {}) as Record<string, string | undefined>;
+  switch (n.kind) {
+    case "post_like":
+      return p.post_id ? { to: "/feed", search: { post: p.post_id } } : null;
+    case "post_comment":
+      return p.post_id
+        ? { to: "/feed", search: { post: p.post_id, comment: p.comment_id } }
+        : null;
+    case "guestbook":
+      return n.actor?.slug
+        ? { to: "/santuario/$slug", params: { slug: n.actor.slug }, search: { guestbook: p.guestbook_id } }
+        : null;
+    case "dm":
+      return p.conversation_id ? { to: "/mensagens", search: { conv: p.conversation_id } } : null;
+    case "follow":
+      return n.actor?.slug ? { to: "/santuario/$slug", params: { slug: n.actor.slug } } : null;
+    default:
+      return n.actor?.slug ? { to: "/santuario/$slug", params: { slug: n.actor.slug } } : null;
+  }
+}
+
 export function NotificationItem({ n, onClose }: { n: NotificationRow; onClose: () => void }) {
   const meta = KIND[n.kind] ?? { icon: BellIcon, verb: n.kind, color: "text-white/70" };
   const Icon = meta.icon;
@@ -69,17 +98,14 @@ export function NotificationItem({ n, onClose }: { n: NotificationRow; onClose: 
     </div>
   );
 
-  if (actor?.slug) {
-    return (
-      <Link
-        to="/santuario/$slug"
-        params={{ slug: actor.slug }}
-        onClick={onClose}
-        className="block rounded-md outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--ruby)]"
-      >
-        {inner}
-      </Link>
-    );
+  const dest = destination(n);
+  if (dest) {
+    // O Link do TanStack é tipado, mas aqui montamos dinamicamente; cast pra any controlado.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const props: any = { to: dest.to, onClick: onClose, className: "block rounded-md outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--ruby)]" };
+    if ("params" in dest && dest.params) props.params = dest.params;
+    if ("search" in dest && dest.search) props.search = dest.search;
+    return <Link {...props}>{inner}</Link>;
   }
   return <div>{inner}</div>;
 }

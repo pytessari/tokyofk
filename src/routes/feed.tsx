@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { z } from "zod";
 import { Pencil2Icon, PersonIcon, ChatBubbleIcon } from "@radix-ui/react-icons";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,8 +11,14 @@ import { PageHeader } from "@/components/kit/PageHeader";
 import { TabBar } from "@/components/kit/TabBar";
 import { EmptyState } from "@/components/kit/EmptyState";
 
+const feedSearchSchema = z.object({
+  post: z.string().optional(),
+  comment: z.string().optional(),
+});
+
 export const Route = createFileRoute("/feed")({
   head: () => ({ meta: [{ title: "Feed · TOKYO" }] }),
+  validateSearch: feedSearchSchema,
   component: FeedPage,
 });
 
@@ -19,9 +26,24 @@ type Tab = "all" | "following";
 
 function FeedPage() {
   const { user, loading: authLoading } = useAuth();
+  const search = Route.useSearch();
   const [tab, setTab] = useState<Tab>("all");
   const [posts, setPosts] = useState<PostRow[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Scroll/destaque ao chegar via notificação (?post=…)
+  useEffect(() => {
+    if (!search.post || loading) return;
+    const el = document.getElementById(`post-${search.post}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.add("ring-2", "ring-[color:var(--ruby)]", "ring-offset-2", "ring-offset-black");
+      const t = window.setTimeout(() => {
+        el.classList.remove("ring-2", "ring-[color:var(--ruby)]", "ring-offset-2", "ring-offset-black");
+      }, 2400);
+      return () => window.clearTimeout(t);
+    }
+  }, [search.post, loading, posts.length]);
 
   async function load() {
     setLoading(true);
@@ -129,7 +151,12 @@ function FeedPage() {
       ) : (
         <div className="space-y-4">
           {posts.map((p) => (
-            <PostCard key={p.id} post={p} onDeleted={(id) => setPosts((prev) => prev.filter((x) => x.id !== id))} />
+            <PostCard
+              key={p.id}
+              post={p}
+              autoOpenComments={search.post === p.id && !!search.comment}
+              onDeleted={(id) => setPosts((prev) => prev.filter((x) => x.id !== id))}
+            />
           ))}
         </div>
       )}
