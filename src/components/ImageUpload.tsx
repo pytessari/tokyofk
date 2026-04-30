@@ -17,7 +17,7 @@ export function ImageUpload({ bucket, userId, currentUrl, onUploaded, label = "E
 
   async function handle(file: File) {
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { setError("Máx 5MB"); return; }
+    if (file.size > 15 * 1024 * 1024) { setError("Máx 15MB"); return; }
     setUploading(true); setError(null);
     const ext = file.name.split(".").pop() || "jpg";
     const path = `${userId}/${crypto.randomUUID()}.${ext}`;
