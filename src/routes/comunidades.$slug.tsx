@@ -8,6 +8,8 @@ import { EmptyState } from "@/components/kit/EmptyState";
 import { GroupIcon, ChatBubbleIcon, PersonIcon, ExitIcon, EnterIcon, PlusIcon } from "@radix-ui/react-icons";
 import { toast } from "sonner";
 import { timeAgo } from "@/lib/timeAgo";
+import { RichBio } from "@/components/RichBio";
+import { RichCommentEditor } from "@/components/RichCommentEditor";
 
 type Community = {
   id: string;
@@ -302,26 +304,7 @@ function CommunityDetail() {
             ) : (
               <ul className="space-y-4">
                 {posts.map((p) => (
-                  <li key={p.id} className="rounded-md border border-white/10 bg-black/30 p-4">
-                    <div className="mb-2 flex items-center gap-2 text-xs text-[color:var(--text-3)]">
-                      {p.author?.avatar_url ? (
-                        <img src={p.author.avatar_url} alt="" className="h-6 w-6 rounded-full object-cover" />
-                      ) : (
-                        <div className="h-6 w-6 rounded-full bg-[color:var(--surface-3)]" />
-                      )}
-                      {p.author?.slug ? (
-                        <Link to="/santuario/$slug" params={{ slug: p.author.slug }} className="font-medium text-white hover:underline">
-                          {p.author.display_name}
-                        </Link>
-                      ) : (
-                        <span className="text-white">{p.author?.display_name ?? "Anônimo"}</span>
-                      )}
-                      <span>·</span>
-                      <span>{timeAgo(p.created_at)}</span>
-                    </div>
-                    {p.title && <h3 className="mb-1 font-display text-sm">{p.title}</h3>}
-                    <p className="whitespace-pre-wrap text-sm text-white/90">{p.content}</p>
-                  </li>
+                  <CommunityPostItem key={p.id} post={p} canComment={isMember} currentUserId={user?.id ?? null} />
                 ))}
               </ul>
             )}
@@ -369,5 +352,154 @@ function CommunityDetail() {
         </aside>
       </div>
     </div>
+  );
+}
+
+type CommentRow = {
+  id: string;
+  author_id: string;
+  content: string;
+  created_at: string;
+  author?: { display_name: string; slug: string | null; avatar_url: string | null };
+};
+
+function CommunityPostItem({
+  post,
+  canComment,
+  currentUserId,
+}: {
+  post: Post;
+  canComment: boolean;
+  currentUserId: string | null;
+}) {
+  const [open, setOpen] = useState(false);
+  const [comments, setComments] = useState<CommentRow[]>([]);
+  const [draft, setDraft] = useState("");
+  const [sending, setSending] = useState(false);
+  const [count, setCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const { count: c } = await supabase
+        .from("community_post_comments")
+        .select("*", { count: "exact", head: true })
+        .eq("post_id", post.id);
+      setCount(c ?? 0);
+    })();
+  }, [post.id]);
+
+  async function loadComments() {
+    const { data } = await supabase
+      .from("community_post_comments")
+      .select("id,author_id,content,created_at")
+      .eq("post_id", post.id)
+      .order("created_at");
+    if (!data) return;
+    const ids = Array.from(new Set(data.map((c) => c.author_id)));
+    const { data: profs } = await supabase
+      .from("profiles")
+      .select("id,display_name,slug,avatar_url")
+      .in("id", ids);
+    const map = new Map((profs ?? []).map((p) => [p.id, p]));
+    setComments(
+      data.map((c) => ({ ...c, author: map.get(c.author_id) ?? undefined })),
+    );
+    setCount(data.length);
+  }
+
+  async function toggle() {
+    if (!open) await loadComments();
+    setOpen((s) => !s);
+  }
+
+  async function send() {
+    if (!currentUserId || !draft.trim()) return;
+    setSending(true);
+    const { error } = await supabase.from("community_post_comments").insert({
+      post_id: post.id,
+      author_id: currentUserId,
+      content: draft.trim().slice(0, 2000),
+    });
+    setSending(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setDraft("");
+    loadComments();
+  }
+
+  return (
+    <li className="rounded-md border border-white/10 bg-black/30 p-4">
+      <div className="mb-2 flex items-center gap-2 text-xs text-[color:var(--text-3)]">
+        {post.author?.avatar_url ? (
+          <img src={post.author.avatar_url} alt="" className="h-6 w-6 rounded-full object-cover" />
+        ) : (
+          <div className="h-6 w-6 rounded-full bg-[color:var(--surface-3)]" />
+        )}
+        {post.author?.slug ? (
+          <Link to="/santuario/$slug" params={{ slug: post.author.slug }} className="font-medium text-white hover:underline">
+            {post.author.display_name}
+          </Link>
+        ) : (
+          <span className="text-white">{post.author?.display_name ?? "Anônimo"}</span>
+        )}
+        <span>·</span>
+        <span>{timeAgo(post.created_at)}</span>
+      </div>
+      {post.title && <h3 className="mb-1 font-display text-sm">{post.title}</h3>}
+      <p className="whitespace-pre-wrap text-sm text-white/90">{post.content}</p>
+
+      <div className="mt-3 border-t border-white/10 pt-2">
+        <button
+          onClick={toggle}
+          className="flex items-center gap-1.5 font-display text-[10px] tracking-widest text-white/60 hover:text-white"
+        >
+          <ChatBubbleIcon className="h-3 w-3" />
+          {count ?? "—"} COMENTÁRIO{(count ?? 0) === 1 ? "" : "S"}
+        </button>
+
+        {open && (
+          <div className="mt-3 space-y-3">
+            {comments.map((c) => (
+              <div key={c.id} className="flex gap-2 text-sm">
+                {c.author?.avatar_url ? (
+                  <img src={c.author.avatar_url} alt="" className="h-7 w-7 rounded-full border border-white/15 object-cover" />
+                ) : (
+                  <div className="h-7 w-7 rounded-full bg-[color:var(--surface-3)]" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] tracking-widest text-white/50">
+                    {c.author?.slug ? (
+                      <Link to="/santuario/$slug" params={{ slug: c.author.slug }} className="hover:underline">
+                        {c.author.display_name}
+                      </Link>
+                    ) : (
+                      c.author?.display_name ?? "anônimo"
+                    )}
+                    <span className="ml-2 text-white/30">{timeAgo(c.created_at)}</span>
+                  </p>
+                  <RichBio html={c.content} fallback="" />
+                </div>
+              </div>
+            ))}
+            {currentUserId && canComment ? (
+              <RichCommentEditor
+                value={draft}
+                onChange={setDraft}
+                onSubmit={send}
+                submitting={sending}
+                placeholder="comentar com texto, imagem ou GIF…"
+                compact
+              />
+            ) : (
+              <p className="text-[11px] text-white/40">
+                {currentUserId ? "Entre na comunidade pra comentar." : "Faça login pra comentar."}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+    </li>
   );
 }
