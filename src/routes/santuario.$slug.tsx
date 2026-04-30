@@ -74,6 +74,8 @@ function MemberPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [family, setFamily] = useState<FamilyLink[]>([]);
   const [allCards, setAllCards] = useState<CardRow[]>([]);
+  const [characterCatalog, setCharacterCatalog] = useState<CardRow[]>([]);
+  const [collectedKeys, setCollectedKeys] = useState<Set<string>>(new Set());
   const [posts, setPosts] = useState<PostRow[]>([]);
   const [t1Totals, setT1Totals] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
