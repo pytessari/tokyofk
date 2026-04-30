@@ -72,6 +72,7 @@ function groupFamily(family: FamilyLink[]) {
 
 function MemberPage() {
   const { slug } = Route.useParams();
+  const routeSearch = Route.useSearch();
   const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [family, setFamily] = useState<FamilyLink[]>([]);
