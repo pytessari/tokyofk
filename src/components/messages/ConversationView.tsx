@@ -151,8 +151,9 @@ export function ConversationView({
       }
     })();
 
+    const channelKey = `conv:${conversationId}:${Math.random().toString(36).slice(2, 8)}`;
     const ch = supabase
-      .channel(`conv:${conversationId}`)
+      .channel(channelKey)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },

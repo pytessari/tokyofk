@@ -302,24 +302,6 @@ function MemberPage() {
           </section>
         )}
 
-        {/* Posts */}
-        {posts.length > 0 && (
-          <section className="mt-12 mx-auto max-w-2xl">
-            <div className="mb-4 flex items-end justify-between">
-              <div>
-                <p className="eyebrow">A LINHA DO TEMPO</p>
-                <h2 className="font-display text-2xl text-ruby-gradient sm:text-3xl">ÚLTIMOS POSTS</h2>
-              </div>
-              <Link to="/feed" className="font-display text-[11px] tracking-widest text-[color:var(--text-3)] hover:text-[color:var(--text-1)]">
-                ABRIR FEED →
-              </Link>
-            </div>
-            <div className="space-y-4">
-              {posts.map((p) => <PostCard key={p.id} post={p} />)}
-            </div>
-          </section>
-        )}
-
         {/* Cartas */}
         <section className="mt-12">
           <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
@@ -353,6 +335,24 @@ function MemberPage() {
             onCardClick={(c) => setOpenCard(c)}
           />
         </section>
+
+        {/* Posts */}
+        {posts.length > 0 && (
+          <section className="mt-12 mx-auto max-w-2xl">
+            <div className="mb-4 flex items-end justify-between">
+              <div>
+                <p className="eyebrow">A LINHA DO TEMPO</p>
+                <h2 className="font-display text-2xl text-ruby-gradient sm:text-3xl">ÚLTIMOS POSTS</h2>
+              </div>
+              <Link to="/feed" className="font-display text-[11px] tracking-widest text-[color:var(--text-3)] hover:text-[color:var(--text-1)]">
+                ABRIR FEED →
+              </Link>
+            </div>
+            <div className="space-y-4">
+              {posts.map((p) => <PostCard key={p.id} post={p} />)}
+            </div>
+          </section>
+        )}
 
         {/* Modal: álbum completo */}
         {showFullAlbum && (

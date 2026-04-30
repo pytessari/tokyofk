@@ -31,18 +31,39 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 
+// Links principais (sempre visíveis na barra)
+const primaryPublic = [
+  { to: "/", label: "Início", icon: HomeIcon, exact: true },
+] as const;
+
+const primaryMember = [
+  { to: "/feed", label: "Feed", icon: ChatBubbleIcon, exact: false },
+  { to: "/mensagens", label: "DM", icon: EnvelopeClosedIcon, exact: false },
+  { to: "/santuario", label: "Santuário", icon: PersonIcon, exact: false },
+] as const;
+
+// Agrupados em "Explorar"
+const exploreGroups = [
+  {
+    title: "Conteúdo",
+    items: [
+      { to: "/revista", label: "Revista", icon: ReaderIcon, exact: false },
+      { to: "/comunidades", label: "Comunidades", icon: GroupIcon, exact: false },
+    ],
+  },
+  {
+    title: "Coleção & Diversão",
+    items: [
+      { to: "/album", label: "Álbum", icon: ArchiveIcon, exact: false },
+      { to: "/buddy", label: "Buddy", icon: FaceIcon, exact: false },
+    ],
+  },
+] as const;
+
+// Para o menu mobile (logged-out)
 const publicLinks = [
   { to: "/", label: "Início", icon: HomeIcon, exact: true },
   { to: "/revista", label: "Revista", icon: ReaderIcon, exact: false },
-] as const;
-
-const memberLinks = [
-  { to: "/feed", label: "Feed", icon: ChatBubbleIcon, exact: false },
-  { to: "/comunidades", label: "Comunidades", icon: GroupIcon, exact: false },
-  { to: "/mensagens", label: "DM", icon: EnvelopeClosedIcon, exact: false },
-  { to: "/santuario", label: "Santuário", icon: PersonIcon, exact: false },
-  { to: "/album", label: "Álbum", icon: ArchiveIcon, exact: false },
-  { to: "/buddy", label: "Buddy", icon: FaceIcon, exact: false },
 ] as const;
 
 export function Navbar() {
@@ -72,7 +93,7 @@ export function Navbar() {
     };
   }, [user]);
 
-  const links = user ? [...publicLinks, ...memberLinks] : publicLinks;
+  const links = user ? [...primaryPublic, ...primaryMember] : primaryPublic;
 
   function goToMyProfile() {
     if (me?.slug) {
@@ -96,7 +117,7 @@ export function Navbar() {
             alt="TOKYO"
             className="h-9 w-auto drop-shadow-[0_0_18px_#d90036] sm:h-14"
           />
-          <span className="hidden font-display text-xs tracking-[0.4em] text-[color:var(--chrome)] sm:inline">
+          <span className="hidden font-display text-xs tracking-[0.4em] text-[color:var(--chrome)] xl:inline">
             COMUNIDADE OFICIAL · 東京
           </span>
         </Link>
@@ -128,6 +149,40 @@ export function Navbar() {
               </Link>
             );
           })}
+
+          {/* Dropdown "Explorar" — só pra logados */}
+          {user && (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                className="group relative inline-flex items-center gap-1.5 rounded-md px-3 py-2 font-display text-sm tracking-widest text-white/85 outline-none transition hover:text-white focus-visible:ring-2 focus-visible:ring-[color:var(--ruby)]"
+                aria-label="Mais seções"
+              >
+                <HamburgerMenuIcon className="h-4 w-4" aria-hidden="true" />
+                <span className="hidden lg:inline">EXPLORAR</span>
+                <ChevronDownIcon className="h-3.5 w-3.5 text-white/60" aria-hidden="true" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-60">
+                {exploreGroups.map((group, gi) => (
+                  <div key={group.title}>
+                    {gi > 0 && <DropdownMenuSeparator />}
+                    <DropdownMenuLabel className="font-display text-[10px] tracking-widest text-white/50">
+                      {group.title.toUpperCase()}
+                    </DropdownMenuLabel>
+                    {group.items.map((l) => {
+                      const Icon = l.icon;
+                      return (
+                        <DropdownMenuItem key={l.to} asChild>
+                          <Link to={l.to} className="flex items-center gap-2">
+                            <Icon className="h-4 w-4" aria-hidden="true" /> {l.label}
+                          </Link>
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </div>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </nav>
 
         {/* Right cluster: bell + avatar (or login) + mobile menu */}
