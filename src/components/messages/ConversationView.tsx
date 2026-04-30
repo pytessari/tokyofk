@@ -475,7 +475,11 @@ export function ConversationView({
         </div>
       )}
 
-      <form onSubmit={send} className="flex items-end gap-2 border-t border-white/10 bg-black/30 p-3">
+      <form
+        onSubmit={send}
+        className="flex items-end gap-1.5 border-t border-white/10 bg-black/30 p-2 sm:gap-2 sm:p-3"
+        style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0.5rem)" }}
+      >
         <input
           ref={fileRef}
           type="file"
@@ -512,13 +516,19 @@ export function ConversationView({
             }
           }}
           rows={1}
-          placeholder="Mensagem… (markdown: **negrito** *itálico* `code` ||spoiler||)"
-          className="flex-1 resize-none rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--ruby)]"
+          placeholder="Mensagem…"
+          className="min-w-0 flex-1 resize-none rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--ruby)]"
           style={{ maxHeight: 160 }}
           aria-label="Mensagem"
         />
         <EmojiPickerPopover onPick={insertAtCaret} />
-        <Button type="submit" variant="primary" loading={sending} disabled={!draft.trim() && pendingFiles.length === 0}>
+        <Button
+          type="submit"
+          variant="primary"
+          loading={sending}
+          disabled={!draft.trim() && pendingFiles.length === 0}
+          className="!h-9 !w-9 !p-0"
+        >
           <PaperPlaneIcon className="h-4 w-4" />
         </Button>
       </form>
