@@ -50,13 +50,13 @@ function MemberPage() {
   const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [family, setFamily] = useState<FamilyLink[]>([]);
-  const [cards, setCards] = useState<CardRow[]>([]);
+  const [allCards, setAllCards] = useState<CardRow[]>([]);
   const [posts, setPosts] = useState<PostRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFoundState, setNotFound] = useState(false);
+  const [showFullAlbum, setShowFullAlbum] = useState(false);
 
-  const loadMemberAlbum = useCallback(async (profileId: string, characterKey: string | null) => {
-    if (!characterKey) { setCards([]); return; }
+  const loadMemberAlbum = useCallback(async (profileId: string) => {
     const { data } = await supabase
       .from("user_cards")
       .select("card:cards(*)")
@@ -64,28 +64,25 @@ function MemberPage() {
       .order("acquired_at", { ascending: false });
     const rows = ((data ?? []) as Array<{ card: CardRow | null }>)
       .map((r) => r.card)
-      .filter((c): c is CardRow => !!c)
-      .filter((c) => c.character_key === characterKey);
-    setCards(rows);
+      .filter((c): c is CardRow => !!c);
+    setAllCards(rows);
   }, []);
 
   useEffect(() => {
     if (authLoading || !user) return;
     let profileId: string | null = null;
-    let characterKey: string | null = null;
     (async () => {
       const { data: p } = await supabase.from("profiles").select("*").eq("slug", slug).maybeSingle();
       if (!p) { setNotFound(true); setLoading(false); return; }
       setProfile(p as unknown as Profile);
       profileId = p.id;
-      characterKey = (p as { character_key: string | null }).character_key;
 
       const [{ data: f }, { data: ps }] = await Promise.all([
         supabase.from("family_links").select("id, kind, name, slug").eq("owner_id", p.id).order("created_at"),
         supabase.from("posts").select("*").eq("author_id", p.id).order("created_at", { ascending: false }).limit(10),
       ]);
       setFamily((f as FamilyLink[]) ?? []);
-      await loadMemberAlbum(p.id, characterKey);
+      await loadMemberAlbum(p.id);
       const author: PostAuthor = {
         id: p.id, display_name: p.display_name, slug: p.slug, avatar_url: p.avatar_url,
       };
@@ -100,7 +97,7 @@ function MemberPage() {
         { event: "*", schema: "public", table: "user_cards" },
         (payload) => {
           const row = (payload.new ?? payload.old) as { user_id?: string };
-          if (profileId && row.user_id === profileId) void loadMemberAlbum(profileId, characterKey);
+          if (profileId && row.user_id === profileId) void loadMemberAlbum(profileId);
         },
       )
       .subscribe();
