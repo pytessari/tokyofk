@@ -205,11 +205,6 @@ function ProfilePage() {
             )}
           </div>
           <div className="flex gap-2 sm:pb-2">
-            {isAdmin && (
-              <Link to="/admin" className="rounded-md border border-yellow-400/60 px-3 py-1.5 font-display text-xs tracking-widest text-yellow-300 hover:bg-yellow-400/10">
-                ADMIN
-              </Link>
-            )}
             <Link to="/feed" className="rounded-md border border-white/20 px-3 py-1.5 font-display text-xs tracking-widest text-white/80 hover:bg-white/5">
               FEED
             </Link>
@@ -238,6 +233,27 @@ function ProfilePage() {
               {SIGNS.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
           </label>
+
+          <label className="block sm:col-span-2">
+            <span className="mb-1 block font-display text-xs tracking-widest text-white/70">
+              Personagem (chave das cartas)
+            </span>
+            <input
+              type="text"
+              list="character-keys"
+              value={profile.character_key ?? ""}
+              onChange={(e) => setProfile({ ...profile, character_key: e.target.value })}
+              placeholder="ex: jerk"
+              className="w-full rounded-md border border-white/15 bg-black/50 px-3 py-2 text-white outline-none focus:border-[color:var(--ruby)]"
+            />
+            <datalist id="character-keys">
+              {characterKeys.map((k) => <option key={k} value={k} />)}
+            </datalist>
+            <p className="mt-1 text-[11px] text-white/40">
+              Use a mesma chave usada no álbum de cartas (ex: <code className="text-[color:var(--ruby)]">jerk</code>).
+              Sem isso, suas cartas não aparecem na sua ficha.
+            </p>
+          </label>
         </div>
 
         <h2 className="pt-2 font-display text-xl tracking-widest text-[color:var(--chrome)]">▎IMAGENS</h2>
@@ -256,13 +272,27 @@ function ProfilePage() {
           </div>
         </div>
 
-        <label className="block">
-          <span className="mb-1 block font-display text-xs tracking-widest text-white/70">Bio</span>
-          <textarea value={profile.bio ?? ""}
-            onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-            rows={4} maxLength={500}
-            className="w-full rounded-md border border-white/15 bg-black/50 px-3 py-2 text-white outline-none focus:border-[color:var(--ruby)]" />
-        </label>
+        <div className="space-y-3">
+          <label className="block">
+            <span className="mb-1 block font-display text-xs tracking-widest text-white/70">Bio curta (texto simples)</span>
+            <textarea value={profile.bio ?? ""}
+              onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+              rows={3} maxLength={500}
+              placeholder="Frase de apresentação (opcional)."
+              className="w-full rounded-md border border-white/15 bg-black/50 px-3 py-2 text-white outline-none focus:border-[color:var(--ruby)]" />
+          </label>
+
+          <div>
+            <span className="mb-2 flex items-center gap-2 font-display text-xs tracking-widest text-white/70">
+              <Sparkles className="h-3.5 w-3.5 text-[color:var(--ruby)]" />
+              FICHA COMPLETA (imagens, GIFs, vídeos)
+            </span>
+            <RichBioEditor
+              value={profile.bio_html ?? ""}
+              onChange={(v) => setProfile({ ...profile, bio_html: v })}
+            />
+          </div>
+        </div>
 
         <h2 className="pt-2 font-display text-xl tracking-widest text-[color:var(--chrome)]">▎STATUS AMOROSO</h2>
         <div className="grid gap-4 sm:grid-cols-3">
@@ -287,20 +317,15 @@ function ProfilePage() {
 
         <div className="flex flex-wrap items-center gap-3">
           <button type="submit" disabled={saving}
-            className="rounded-md bg-ruby-gradient px-5 py-2.5 font-display tracking-widest text-white shadow-[0_0_20px_#d9003680] hover:brightness-110 disabled:opacity-50">
-            {saving ? "SALVANDO…" : "SALVAR"}
+            className="inline-flex items-center gap-2 rounded-md bg-ruby-gradient px-5 py-2.5 font-display tracking-widest text-white shadow-[0_0_20px_#d9003680] hover:brightness-110 disabled:opacity-50">
+            <Save className="h-4 w-4" /> {saving ? "SALVANDO…" : "SALVAR"}
           </button>
           {profile.slug && (
             <Link to="/santuario/$slug" params={{ slug: profile.slug }}
-              className="rounded-md border border-white/20 px-4 py-2 text-sm text-white/80 hover:bg-white/5">
-              Ver meu santuário
+              className="inline-flex items-center gap-1.5 rounded-md border border-white/20 px-4 py-2 text-sm text-white/80 hover:bg-white/5">
+              <ExternalLink className="h-3.5 w-3.5" /> Ver meu santuário
             </Link>
           )}
-          <button type="button"
-            onClick={async () => { await signOut(); navigate({ to: "/" }); }}
-            className="ml-auto rounded-md border border-white/20 px-4 py-2 text-sm text-white/80 hover:bg-white/5">
-            Sair
-          </button>
         </div>
       </form>
 
