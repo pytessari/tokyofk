@@ -24,13 +24,30 @@ export type PostRow = {
 
 type Comment = { id: string; author_id: string; content: string; created_at: string; author?: PostAuthor | null };
 
-export function PostCard({ post, onDeleted }: { post: PostRow; onDeleted?: (id: string) => void }) {
+export function PostCard({
+  post,
+  onDeleted,
+  autoOpenComments = false,
+}: {
+  post: PostRow;
+  onDeleted?: (id: string) => void;
+  autoOpenComments?: boolean;
+}) {
   const { user } = useAuth();
   const [likes, setLikes] = useState(0);
   const [liked, setLiked] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(autoOpenComments);
   const [draft, setDraft] = useState("");
+
+  // Carrega comentários automaticamente quando vier de notificação
+  useEffect(() => {
+    if (autoOpenComments) {
+      setShowComments(true);
+      loadComments();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoOpenComments]);
 
   useEffect(() => {
     let active = true;
@@ -104,7 +121,7 @@ export function PostCard({ post, onDeleted }: { post: PostRow; onDeleted?: (id: 
   }
 
   return (
-    <article className="glass-dark rounded-xl p-5">
+    <article id={`post-${post.id}`} className="glass-dark rounded-xl p-5 transition-shadow">
       <header className="flex items-center gap-3">
         {a?.slug ? (
           <Link to="/santuario/$slug" params={{ slug: a.slug }} className="flex items-center gap-3">
