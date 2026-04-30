@@ -60,6 +60,7 @@ function AdminPage() {
           items={[
             { value: "members", label: "Membros" },
             { value: "cards", label: "Cartas" },
+            { value: "drops", label: "Drops" },
             { value: "magazines", label: "Revistas" },
             { value: "guestbook", label: "Mural" },
           ]}
@@ -68,6 +69,7 @@ function AdminPage() {
 
       {tab === "members" && <MembersAdmin />}
       {tab === "cards" && <CardsAdmin userId={user.id} />}
+      {tab === "drops" && <DropsAdmin />}
       {tab === "magazines" && <MagazinesAdmin userId={user.id} />}
       {tab === "guestbook" && <GuestbookAdmin />}
     </div>
