@@ -93,6 +93,16 @@ function MemberPage() {
       .map((r) => r.card)
       .filter((c): c is CardRow => !!c);
     setAllCards(rows);
+    setCollectedKeys(new Set(rows.map((c) => c.id)));
+  }, []);
+
+  const loadCharacterCatalog = useCallback(async (characterKey: string) => {
+    const { data } = await supabase
+      .from("cards")
+      .select("*")
+      .eq("character_key", characterKey)
+      .order("card_number");
+    setCharacterCatalog(((data ?? []) as CardRow[]));
   }, []);
 
   // Totais por personagem na Temporada 1
