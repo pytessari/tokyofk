@@ -408,12 +408,13 @@ function FullAlbumModal({
     const url = `${window.location.origin}/santuario/${slug}`;
     const title = `${displayName} · Álbum TOKYO`;
     const text = `Confira o álbum de ${displayName} em TOKYO — ${cards.length} carta${cards.length === 1 ? "" : "s"} coletada${cards.length === 1 ? "" : "s"}.`;
+    const nav = navigator as Navigator & { share?: (d: ShareData) => Promise<void> };
     try {
-      if (typeof navigator !== "undefined" && "share" in navigator) {
-        await (navigator as Navigator & { share: (d: ShareData) => Promise<void> }).share({ title, text, url });
+      if (typeof nav.share === "function") {
+        await nav.share({ title, text, url });
         setShareDone("shared");
       } else {
-        await navigator.clipboard.writeText(url);
+        await nav.clipboard.writeText(url);
         setShareDone("copied");
       }
     } catch {
