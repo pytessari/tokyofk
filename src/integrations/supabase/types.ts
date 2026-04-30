@@ -703,6 +703,27 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_conversation_with_participants: {
+        Args: {
+          _is_group?: boolean
+          _participant_ids: string[]
+          _title?: string
+        }
+        Returns: {
+          created_at: string
+          created_by: string
+          id: string
+          is_group: boolean
+          last_message_at: string
+          title: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "conversations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
