@@ -142,13 +142,20 @@
     border-color: var(--color-border);
   }
   html, body {
-    background-color: #000;
-    color: var(--color-foreground);
+    background-color: var(--surface-1);
+    color: var(--text-2);
     font-family: var(--font-sans);
   }
   h1, h2, h3, h4, .font-display {
     font-family: var(--font-display);
     letter-spacing: 0.02em;
+    color: var(--text-1);
+  }
+  /* Foco padrão acessível em todos os elementos interativos */
+  :where(a, button, [role="button"], input, select, textarea):focus-visible {
+    outline: 2px solid var(--ruby);
+    outline-offset: 2px;
+    border-radius: 4px;
   }
 }
 
