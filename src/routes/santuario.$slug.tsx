@@ -4,6 +4,7 @@ import { z } from "zod";
 import { Share1Icon, CheckIcon, HeartIcon } from "@radix-ui/react-icons";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { useRole } from "@/lib/useRole";
 import { Guestbook } from "@/components/Guestbook";
 import { CardGrid, type CardRow } from "@/components/CardGrid";
 import { CardDetailDialog } from "@/components/CardDetailDialog";
@@ -75,6 +76,7 @@ function MemberPage() {
   const { slug } = Route.useParams();
   const routeSearch = Route.useSearch();
   const { user, loading: authLoading } = useAuth();
+  const { isAdmin } = useRole();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [family, setFamily] = useState<FamilyLink[]>([]);
   const [allCards, setAllCards] = useState<CardRow[]>([]);
@@ -254,14 +256,16 @@ function MemberPage() {
           </div>
         </div>
 
-        {/* Tokyo Buddy 3D */}
-        <div className="mt-8">
-          <BuddyProfileCard
-            userId={profile.id}
-            displayName={profile.display_name}
-            isOwn={!!user && user.id === profile.id}
-          />
-        </div>
+        {/* Tokyo Buddy 3D — visível só para admins enquanto está em testes */}
+        {isAdmin && (
+          <div className="mt-8">
+            <BuddyProfileCard
+              userId={profile.id}
+              displayName={profile.display_name}
+              isOwn={!!user && user.id === profile.id}
+            />
+          </div>
+        )}
 
         {/* Família — redesign tipo cartões agrupados */}
         {family.length > 0 && (
