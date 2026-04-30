@@ -21,8 +21,10 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SantuarioIndexRouteImport } from './routes/santuario.index'
 import { Route as RevistaIndexRouteImport } from './routes/revista.index'
+import { Route as ComunidadesIndexRouteImport } from './routes/comunidades.index'
 import { Route as SantuarioSlugRouteImport } from './routes/santuario.$slug'
 import { Route as RevistaIdRouteImport } from './routes/revista.$id'
+import { Route as ComunidadesSlugRouteImport } from './routes/comunidades.$slug'
 import { Route as ApiPublicBotProfileRouteImport } from './routes/api/public/bot.profile'
 import { Route as ApiPublicBotDiscordLinkRouteImport } from './routes/api/public/bot.discord-link'
 import { Route as ApiPublicBotCardsGrantRouteImport } from './routes/api/public/bot.cards-grant'
@@ -87,6 +89,11 @@ const RevistaIndexRoute = RevistaIndexRouteImport.update({
   path: '/revista/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ComunidadesIndexRoute = ComunidadesIndexRouteImport.update({
+  id: '/comunidades/',
+  path: '/comunidades/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SantuarioSlugRoute = SantuarioSlugRouteImport.update({
   id: '/santuario/$slug',
   path: '/santuario/$slug',
@@ -95,6 +102,11 @@ const SantuarioSlugRoute = SantuarioSlugRouteImport.update({
 const RevistaIdRoute = RevistaIdRouteImport.update({
   id: '/revista/$id',
   path: '/revista/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComunidadesSlugRoute = ComunidadesSlugRouteImport.update({
+  id: '/comunidades/$slug',
+  path: '/comunidades/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicBotProfileRoute = ApiPublicBotProfileRouteImport.update({
@@ -124,8 +136,10 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof PerfilRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
+  '/comunidades/$slug': typeof ComunidadesSlugRoute
   '/revista/$id': typeof RevistaIdRoute
   '/santuario/$slug': typeof SantuarioSlugRoute
+  '/comunidades/': typeof ComunidadesIndexRoute
   '/revista/': typeof RevistaIndexRoute
   '/santuario/': typeof SantuarioIndexRoute
   '/api/public/bot/cards-grant': typeof ApiPublicBotCardsGrantRoute
@@ -143,8 +157,10 @@ export interface FileRoutesByTo {
   '/perfil': typeof PerfilRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
+  '/comunidades/$slug': typeof ComunidadesSlugRoute
   '/revista/$id': typeof RevistaIdRoute
   '/santuario/$slug': typeof SantuarioSlugRoute
+  '/comunidades': typeof ComunidadesIndexRoute
   '/revista': typeof RevistaIndexRoute
   '/santuario': typeof SantuarioIndexRoute
   '/api/public/bot/cards-grant': typeof ApiPublicBotCardsGrantRoute
@@ -163,8 +179,10 @@ export interface FileRoutesById {
   '/perfil': typeof PerfilRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
+  '/comunidades/$slug': typeof ComunidadesSlugRoute
   '/revista/$id': typeof RevistaIdRoute
   '/santuario/$slug': typeof SantuarioSlugRoute
+  '/comunidades/': typeof ComunidadesIndexRoute
   '/revista/': typeof RevistaIndexRoute
   '/santuario/': typeof SantuarioIndexRoute
   '/api/public/bot/cards-grant': typeof ApiPublicBotCardsGrantRoute
@@ -184,8 +202,10 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/redefinir-senha'
     | '/registro'
+    | '/comunidades/$slug'
     | '/revista/$id'
     | '/santuario/$slug'
+    | '/comunidades/'
     | '/revista/'
     | '/santuario/'
     | '/api/public/bot/cards-grant'
@@ -203,8 +223,10 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/redefinir-senha'
     | '/registro'
+    | '/comunidades/$slug'
     | '/revista/$id'
     | '/santuario/$slug'
+    | '/comunidades'
     | '/revista'
     | '/santuario'
     | '/api/public/bot/cards-grant'
@@ -222,8 +244,10 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/redefinir-senha'
     | '/registro'
+    | '/comunidades/$slug'
     | '/revista/$id'
     | '/santuario/$slug'
+    | '/comunidades/'
     | '/revista/'
     | '/santuario/'
     | '/api/public/bot/cards-grant'
@@ -242,8 +266,10 @@ export interface RootRouteChildren {
   PerfilRoute: typeof PerfilRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   RegistroRoute: typeof RegistroRoute
+  ComunidadesSlugRoute: typeof ComunidadesSlugRoute
   RevistaIdRoute: typeof RevistaIdRoute
   SantuarioSlugRoute: typeof SantuarioSlugRoute
+  ComunidadesIndexRoute: typeof ComunidadesIndexRoute
   RevistaIndexRoute: typeof RevistaIndexRoute
   SantuarioIndexRoute: typeof SantuarioIndexRoute
   ApiPublicBotCardsGrantRoute: typeof ApiPublicBotCardsGrantRoute
@@ -337,6 +363,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RevistaIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/comunidades/': {
+      id: '/comunidades/'
+      path: '/comunidades'
+      fullPath: '/comunidades/'
+      preLoaderRoute: typeof ComunidadesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/santuario/$slug': {
       id: '/santuario/$slug'
       path: '/santuario/$slug'
@@ -349,6 +382,13 @@ declare module '@tanstack/react-router' {
       path: '/revista/$id'
       fullPath: '/revista/$id'
       preLoaderRoute: typeof RevistaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/comunidades/$slug': {
+      id: '/comunidades/$slug'
+      path: '/comunidades/$slug'
+      fullPath: '/comunidades/$slug'
+      preLoaderRoute: typeof ComunidadesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/bot/profile': {
@@ -386,8 +426,10 @@ const rootRouteChildren: RootRouteChildren = {
   PerfilRoute: PerfilRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   RegistroRoute: RegistroRoute,
+  ComunidadesSlugRoute: ComunidadesSlugRoute,
   RevistaIdRoute: RevistaIdRoute,
   SantuarioSlugRoute: SantuarioSlugRoute,
+  ComunidadesIndexRoute: ComunidadesIndexRoute,
   RevistaIndexRoute: RevistaIndexRoute,
   SantuarioIndexRoute: SantuarioIndexRoute,
   ApiPublicBotCardsGrantRoute: ApiPublicBotCardsGrantRoute,
