@@ -12,7 +12,7 @@ const IFRAME_HOST_ALLOWLIST = [
   "bandcamp.com",
 ];
 
-const CONFIG: DOMPurify.Config = {
+const CONFIG = {
   ADD_TAGS: ["iframe", "marquee"],
   ADD_ATTR: [
     "allow",
@@ -75,5 +75,5 @@ function ensureHooks() {
 export function sanitizeRichHtml(html: string): string {
   if (typeof window === "undefined") return ""; // server: render nothing for safety
   ensureHooks();
-  return DOMPurify.sanitize(html, CONFIG) as string;
+  return DOMPurify.sanitize(html, CONFIG) as unknown as string;
 }
