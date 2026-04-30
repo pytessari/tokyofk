@@ -339,9 +339,9 @@ function CommunityDetail() {
               <p className="whitespace-pre-wrap text-sm text-[color:var(--text-2)]">{community.rules}</p>
             </SectionCard>
           )}
-          <SectionCard title={`Membros (${members.length})`}>
+          <SectionCard title={`Membros (${community.members_count})`}>
             <ul className="space-y-2">
-              {members.slice(0, 12).map((m) => (
+              {(showAllMembers ? members : members.slice(0, 12)).map((m) => (
                 <li key={m.user_id} className="flex items-center gap-2 text-sm">
                   {m.profile?.avatar_url ? (
                     <img src={m.profile.avatar_url} alt="" className="h-7 w-7 rounded-full object-cover" />
@@ -363,9 +363,25 @@ function CommunityDetail() {
                 </li>
               ))}
             </ul>
+            {members.length > 12 && (
+              <button
+                onClick={() => setShowAllMembers((s) => !s)}
+                className="mt-3 w-full rounded border border-white/10 py-1.5 text-[10px] uppercase tracking-widest text-[color:var(--text-3)] hover:bg-white/5 hover:text-white"
+              >
+                {showAllMembers ? "Ver menos" : `Ver todos (${members.length})`}
+              </button>
+            )}
           </SectionCard>
         </aside>
       </div>
+
+      {editing && community && (
+        <CommunityEditDialog
+          community={community}
+          onClose={() => setEditing(false)}
+          onSaved={load}
+        />
+      )}
     </div>
   );
 }
