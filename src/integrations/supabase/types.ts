@@ -352,6 +352,8 @@ export type Database = {
           avatar_url: string | null
           banner_url: string | null
           bio: string | null
+          bio_html: string | null
+          character_key: string | null
           created_at: string
           discord_id: string | null
           display_name: string
@@ -368,6 +370,8 @@ export type Database = {
           avatar_url?: string | null
           banner_url?: string | null
           bio?: string | null
+          bio_html?: string | null
+          character_key?: string | null
           created_at?: string
           discord_id?: string | null
           display_name: string
@@ -384,6 +388,8 @@ export type Database = {
           avatar_url?: string | null
           banner_url?: string | null
           bio?: string | null
+          bio_html?: string | null
+          character_key?: string | null
           created_at?: string
           discord_id?: string | null
           display_name?: string
