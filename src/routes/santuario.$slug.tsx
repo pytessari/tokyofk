@@ -162,13 +162,8 @@ function MemberPage() {
           </div>
 
           <div className="relative glass-dark rounded-2xl p-8">
-            <p className="font-display text-2xl leading-tight text-white sm:text-3xl">
-              <span className="text-ruby-gradient">"{profile.display_name.split(" ")[0]}</span> — ficha aberta."
-            </p>
-            <p className="mt-6 whitespace-pre-wrap text-sm leading-relaxed text-white/80">
-              {profile.bio || "Biografia ainda não escrita."}
-            </p>
             <StarSpike className="absolute right-6 top-6 h-8 w-8 sticker-star" />
+            <RichBio html={profile.bio_html} fallback={profile.bio} />
           </div>
         </div>
 
