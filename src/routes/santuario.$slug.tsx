@@ -55,7 +55,8 @@ function MemberPage() {
   const [loading, setLoading] = useState(true);
   const [notFoundState, setNotFound] = useState(false);
 
-  const loadMemberAlbum = useCallback(async (profileId: string) => {
+  const loadMemberAlbum = useCallback(async (profileId: string, characterKey: string | null) => {
+    if (!characterKey) { setCards([]); return; }
     const { data } = await supabase
       .from("user_cards")
       .select("card:cards(*)")
@@ -63,25 +64,28 @@ function MemberPage() {
       .order("acquired_at", { ascending: false });
     const rows = ((data ?? []) as Array<{ card: CardRow | null }>)
       .map((r) => r.card)
-      .filter((c): c is CardRow => !!c);
+      .filter((c): c is CardRow => !!c)
+      .filter((c) => c.character_key === characterKey);
     setCards(rows);
   }, []);
 
   useEffect(() => {
     if (authLoading || !user) return;
     let profileId: string | null = null;
+    let characterKey: string | null = null;
     (async () => {
       const { data: p } = await supabase.from("profiles").select("*").eq("slug", slug).maybeSingle();
       if (!p) { setNotFound(true); setLoading(false); return; }
       setProfile(p as unknown as Profile);
       profileId = p.id;
+      characterKey = (p as { character_key: string | null }).character_key;
 
       const [{ data: f }, { data: ps }] = await Promise.all([
         supabase.from("family_links").select("id, kind, name, slug").eq("owner_id", p.id).order("created_at"),
         supabase.from("posts").select("*").eq("author_id", p.id).order("created_at", { ascending: false }).limit(10),
       ]);
       setFamily((f as FamilyLink[]) ?? []);
-      await loadMemberAlbum(p.id);
+      await loadMemberAlbum(p.id, characterKey);
       const author: PostAuthor = {
         id: p.id, display_name: p.display_name, slug: p.slug, avatar_url: p.avatar_url,
       };
@@ -96,7 +100,7 @@ function MemberPage() {
         { event: "*", schema: "public", table: "user_cards" },
         (payload) => {
           const row = (payload.new ?? payload.old) as { user_id?: string };
-          if (profileId && row.user_id === profileId) void loadMemberAlbum(profileId);
+          if (profileId && row.user_id === profileId) void loadMemberAlbum(profileId, characterKey);
         },
       )
       .subscribe();
@@ -237,14 +241,14 @@ function MemberPage() {
         <section className="mt-14">
           <div className="mb-6 flex items-end justify-between">
             <div>
-              <p className="font-display text-xs tracking-[0.5em] text-[color:var(--chrome)]">A COLEÇÃO</p>
+              <p className="font-display text-xs tracking-[0.5em] text-[color:var(--chrome)]">CARTAS DO PERSONAGEM</p>
               <h2 className="font-display text-4xl text-ruby-gradient">ÁLBUM DE {profile.display_name.split(" ")[0].toUpperCase()}</h2>
             </div>
             <Link to="/album" className="font-display text-xs tracking-widest text-white/70 hover:text-white">
               VER MEU ÁLBUM →
             </Link>
           </div>
-          <CardGrid cards={cards} empty="Esse membro ainda não coletou cartas." />
+          <CardGrid cards={cards} empty={profile.character_key ? "Esse personagem ainda não tem cartas coletadas." : "Esse membro ainda não escolheu um personagem."} />
         </section>
 
         {/* Mural */}
