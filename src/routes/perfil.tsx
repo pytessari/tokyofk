@@ -6,6 +6,7 @@ import { ImageUpload } from "@/components/ImageUpload";
 import { RichBioEditor } from "@/components/RichBioEditor";
 import { IMAGES, img } from "@/lib/images";
 import { Save, Trash2, Plus, Link2, ExternalLink, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/perfil")({
   head: () => ({ meta: [{ title: "Meu Perfil · TOKYO" }] }),
@@ -316,10 +317,9 @@ function ProfilePage() {
         )}
 
         <div className="flex flex-wrap items-center gap-3">
-          <button type="submit" disabled={saving}
-            className="inline-flex items-center gap-2 rounded-md bg-ruby-gradient px-5 py-2.5 font-display tracking-widest text-white shadow-[0_0_20px_#d9003680] hover:brightness-110 disabled:opacity-50">
-            <Save className="h-4 w-4" /> {saving ? "SALVANDO…" : "SALVAR"}
-          </button>
+          <Button type="submit" variant="primary" size="lg" loading={saving} loadingText="SALVANDO…">
+            <Save className="h-4 w-4" /> SALVAR
+          </Button>
           {profile.slug && (
             <Link to="/santuario/$slug" params={{ slug: profile.slug }}
               className="inline-flex items-center gap-1.5 rounded-md border border-white/20 px-4 py-2 text-sm text-white/80 hover:bg-white/5">
