@@ -73,10 +73,10 @@ function RootComponent() {
         }}
       />
       <Navbar />
-      <main className="relative z-10">
+      <main className="relative z-10 pb-20 md:pb-0">
         <Outlet />
       </main>
-      <footer className="relative z-10 mt-20 border-t border-[color:var(--ruby)]/30 bg-black/60 py-8 text-center text-xs tracking-widest text-white/60">
+      <footer className="relative z-10 mt-20 border-t border-[color:var(--ruby)]/30 bg-black/60 py-8 pb-24 text-center text-xs tracking-widest text-white/60 md:pb-8">
         <p className="font-display">© TOKYO · TUDO O QUE BRILHA, CORTA.</p>
       </footer>
       <Toaster richColors position="top-right" />
