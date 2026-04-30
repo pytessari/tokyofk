@@ -13,13 +13,24 @@ type Entry = {
   author?: { display_name: string; slug: string | null; avatar_url: string | null } | null;
 };
 
-export function Guestbook({ profileId, ownerId }: { profileId: string; ownerId: string }) {
+export function Guestbook({ profileId, ownerId, highlightId }: { profileId: string; ownerId: string; highlightId?: string }) {
   const { user } = useAuth();
   const { isAdmin } = useRole();
   const [entries, setEntries] = useState<Entry[]>([]);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(true);
   const [posting, setPosting] = useState(false);
+
+  useEffect(() => {
+    if (!highlightId || loading) return;
+    const el = document.getElementById(`guestbook-${highlightId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.add("ring-2", "ring-[color:var(--ruby)]");
+      const t = window.setTimeout(() => el.classList.remove("ring-2", "ring-[color:var(--ruby)]"), 2400);
+      return () => window.clearTimeout(t);
+    }
+  }, [highlightId, loading, entries.length]);
 
   async function load() {
     const { data } = await supabase
@@ -95,7 +106,7 @@ export function Guestbook({ profileId, ownerId }: { profileId: string; ownerId: 
           {entries.map((e) => {
             const canDelete = user && (user.id === e.author_id || user.id === ownerId || isAdmin);
             return (
-              <li key={e.id} className="flex gap-3 rounded-lg border border-white/10 bg-black/40 p-3">
+              <li key={e.id} id={`guestbook-${e.id}`} className="flex gap-3 rounded-lg border border-white/10 bg-black/40 p-3 transition-shadow">
                 <img src={e.author?.avatar_url || "https://api.dicebear.com/9.x/shapes/svg?seed=tokyo"}
                   alt="" className="h-9 w-9 shrink-0 rounded-full object-cover" />
                 <div className="flex-1 min-w-0">
