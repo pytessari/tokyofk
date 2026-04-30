@@ -182,30 +182,21 @@ function MessagesPage() {
         return;
       }
     }
-    const { data: conv, error } = await supabase
-      .from("conversations")
-      .insert({
-        is_group: isGroup,
-        title: isGroup ? groupTitle.trim() || null : null,
-        created_by: user.id,
-      })
-      .select("*")
-      .maybeSingle();
+    const createConversation = supabase.rpc as unknown as (
+      fn: "create_conversation_with_participants",
+      args: { _participant_ids: string[]; _title: string | null; _is_group: boolean },
+    ) => Promise<{ data: ConvRow | null; error: { message: string } | null }>;
+    const { data: conv, error } = await createConversation("create_conversation_with_participants", {
+      _participant_ids: picked.map((p) => p.id),
+      _title: isGroup ? groupTitle.trim() || null : null,
+      _is_group: isGroup,
+    });
     if (error || !conv) {
       setCreating(false);
       toast.error(error?.message ?? "Erro");
       return;
     }
-    const rows = [
-      { conversation_id: conv.id, user_id: user.id },
-      ...picked.map((p) => ({ conversation_id: conv.id, user_id: p.id })),
-    ];
-    const { error: e2 } = await supabase.from("conversation_participants").insert(rows);
     setCreating(false);
-    if (e2) {
-      toast.error(e2.message);
-      return;
-    }
     setShowNew(false);
     setPicked([]);
     setSearch("");
