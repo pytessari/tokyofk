@@ -14,6 +14,7 @@ const KIND: Record<string, { icon: React.ComponentType<{ className?: string }>; 
   post_comment: { icon: ChatBubbleIcon, verb: "comentou no seu post", color: "text-sky-400" },
   follow: { icon: PersonIcon, verb: "começou a te seguir", color: "text-emerald-400" },
   guestbook: { icon: EnvelopeClosedIcon, verb: "deixou um recado no seu mural", color: "text-amber-400" },
+  dm: { icon: EnvelopeClosedIcon, verb: "te mandou uma mensagem", color: "text-[color:var(--ruby)]" },
 };
 
 export function NotificationItem({ n, onClose }: { n: NotificationRow; onClose: () => void }) {
