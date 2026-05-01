@@ -31,7 +31,7 @@ function ForgotPasswordPage() {
       <Link to="/login" className="inline-flex items-center gap-1.5 font-display text-xs tracking-widest text-white/60 hover:text-white">
         <ArrowLeft className="h-3.5 w-3.5" /> VOLTAR PRO LOGIN
       </Link>
-      <h1 className="mt-4 font-display text-5xl tracking-widest text-ruby-gradient">ESQUECI</h1>
+      <h1 className="mt-4 font-display text-5xl tracking-widest text-[color:var(--ruby)]">ESQUECI</h1>
       <p className="mt-2 text-sm text-white/60">A gente manda um link pro seu email pra você criar uma senha nova.</p>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4 glass-dark rounded-xl border border-[color:var(--ruby)]/30 p-6">

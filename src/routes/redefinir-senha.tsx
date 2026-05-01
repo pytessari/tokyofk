@@ -44,7 +44,7 @@ function ResetPasswordPage() {
 
   return (
     <div className="mx-auto max-w-md px-5 py-16">
-      <h1 className="font-display text-5xl tracking-widest text-ruby-gradient">NOVA SENHA</h1>
+      <h1 className="font-display text-5xl tracking-widest text-[color:var(--ruby)]">NOVA SENHA</h1>
       <p className="mt-2 text-sm text-white/60">Defina uma senha nova pra sua conta TOKYO.</p>
 
       {!ready ? (

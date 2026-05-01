@@ -32,7 +32,7 @@ function LoginPage() {
 
   return (
     <div className="mx-auto max-w-md px-5 py-16">
-      <h1 className="font-display text-5xl tracking-widest text-ruby-gradient">ENTRAR</h1>
+      <h1 className="font-display text-5xl tracking-widest text-[color:var(--ruby)]">ENTRAR</h1>
       <p className="mt-2 text-sm text-white/60">
         Bem-vindo de volta ao Santuário.
       </p>

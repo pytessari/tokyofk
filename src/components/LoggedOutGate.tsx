@@ -5,7 +5,7 @@ export function LoggedOutGate({ title = "ÁREA RESTRITA", message }: { title?: s
   return (
     <div className="mx-auto max-w-md px-5 py-20 text-center">
       <Lock className="mx-auto h-12 w-12 text-[color:var(--ruby)]" />
-      <h1 className="mt-4 font-display text-4xl text-ruby-gradient">{title}</h1>
+      <h1 className="mt-4 font-display text-4xl text-[color:var(--ruby)]">{title}</h1>
       <p className="mt-3 text-sm text-white/70">
         {message ?? "Entre ou crie sua conta pra acessar essa parte da comunidade."}
       </p>
