@@ -382,19 +382,25 @@ export function ConversationView({
   const messagesById = useMemo(() => new Map(messages.map((m) => [m.id, m])), [messages]);
 
   return (
-    <div className="flex h-full flex-col">
-      <header className="flex items-center gap-2 border-b border-white/10 bg-black/30 px-3 py-3 sm:px-4">
+    <div className="flex h-full flex-col bg-[color:var(--surface-1)]">
+      <header
+        className="sticky top-0 z-10 flex items-center gap-2 border-b border-[color:var(--line)] bg-[color:var(--surface-2)]/95 px-2 py-2.5 backdrop-blur sm:px-4"
+        style={{ paddingTop: "max(env(safe-area-inset-top), 0.625rem)" }}
+      >
         {onBack && (
           <button
             type="button"
             onClick={onBack}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-white/80 hover:bg-white/10 lg:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md text-[color:var(--text-1)] hover:bg-[color:var(--surface-3)] lg:hidden"
             aria-label="Voltar"
           >
-            ←
+            <span className="text-xl leading-none">←</span>
           </button>
         )}
-        <p className="truncate font-display text-sm tracking-widest text-white">{title.toUpperCase()}</p>
+        <p className="truncate text-base font-semibold text-[color:var(--text-1)] sm:font-display sm:text-sm sm:font-normal sm:tracking-widest">
+          <span className="sm:hidden">{title}</span>
+          <span className="hidden sm:inline">{title.toUpperCase()}</span>
+        </p>
       </header>
 
       <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto overflow-x-hidden p-3 sm:p-4">
