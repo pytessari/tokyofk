@@ -622,36 +622,39 @@ function MessageBubble({
 
       <div className={`flex max-w-[85%] flex-col sm:max-w-[75%] ${isMe ? "items-end" : "items-start"}`}>
         {!groupWithPrev && !isMe && (
-          <span className="mb-0.5 text-[10px] tracking-wide text-[color:var(--text-3)]">
+          <span className="mb-0.5 text-[11px] text-[color:var(--text-3)]">
             {author?.display_name ?? "—"}
           </span>
         )}
 
         {replyMsg && (
-          <div className={`mb-0.5 max-w-full rounded-md border-l-2 border-[color:var(--ruby)] bg-black/30 px-2 py-1 text-[11px] text-white/60 ${isMe ? "text-right" : ""}`}>
+          <div className={`mb-0.5 max-w-full rounded-md border-l-2 border-[color:var(--ruby)] bg-[color:var(--surface-3)] px-2 py-1 text-[11px] text-[color:var(--text-2)] ${isMe ? "text-right" : ""}`}>
             <span className="text-[color:var(--ruby)]">↩ {replyAuthor?.display_name ?? "—"}</span>{" "}
-            <span className="text-white/50">{(replyMsg.content || "[anexo]").slice(0, 80)}</span>
+            <span className="text-[color:var(--text-3)]">{(replyMsg.content || "[anexo]").slice(0, 80)}</span>
           </div>
         )}
 
-        <div
-          className={`rounded-2xl px-3 py-2 text-sm ${
-            isMe
-              ? "bg-[color:var(--ruby)] text-white rounded-br-sm"
-              : "bg-[color:var(--surface-3)] text-white/90 rounded-bl-sm"
-          }`}
-        >
-          {msg.content && <MessageContent text={msg.content} emojis={emojis} />}
+        <div className="relative">
+          <div
+            onClick={() => setHovered((v) => !v)}
+            className={`rounded-2xl px-3 py-2 text-sm cursor-pointer ${
+              isMe
+                ? "bg-[color:var(--ruby)] text-white rounded-br-sm"
+                : "bg-[color:var(--surface-3)] text-[color:var(--text-1)] rounded-bl-sm"
+            }`}
+          >
+            {msg.content && <MessageContent text={msg.content} emojis={emojis} />}
 
-          {attachments.length > 0 && (
-            <div className={`flex flex-col gap-2 ${msg.content ? "mt-2" : ""}`}>
-              {attachments.map((a) => <AttachmentView key={a.id} att={a} />)}
-            </div>
-          )}
+            {attachments.length > 0 && (
+              <div className={`flex flex-col gap-2 ${msg.content ? "mt-2" : ""}`}>
+                {attachments.map((a) => <AttachmentView key={a.id} att={a} />)}
+              </div>
+            )}
 
-          {msg.edited_at && (
-            <span className="ml-1 text-[9px] italic opacity-60">(editada)</span>
-          )}
+            {msg.edited_at && (
+              <span className="ml-1 text-[9px] italic opacity-60">(editada)</span>
+            )}
+          </div>
         </div>
 
         {grouped.length > 0 && (
@@ -666,10 +669,10 @@ function MessageBubble({
                   key={emoji}
                   type="button"
                   onClick={() => onReact(emoji)}
-                  className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[11px] transition ${
+                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition ${
                     mine
-                      ? "border-[color:var(--ruby)] bg-[color:var(--ruby)]/15 text-white"
-                      : "border-white/10 bg-black/30 text-white/70 hover:bg-white/5"
+                      ? "border-[color:var(--ruby)] bg-[color:var(--ruby)]/15 text-[color:var(--text-1)]"
+                      : "border-[color:var(--line)] bg-[color:var(--surface-3)] text-[color:var(--text-2)] hover:bg-[color:var(--surface-4)]"
                   }`}
                 >
                   {customUrl ? <img src={customUrl} alt={emoji} className="h-4 w-4 object-contain" /> : <span>{emoji}</span>}
@@ -683,15 +686,18 @@ function MessageBubble({
         <span className="mt-0.5 text-[10px] text-[color:var(--text-3)]">{timeAgo(msg.created_at)}</span>
       </div>
 
-      {/* Hover actions */}
+      {/* Action toolbar — abre via hover (desktop) ou tap (mobile) */}
       {hovered && (
-        <div className={`absolute -top-3 ${isMe ? "left-2" : "right-2"} z-10 flex items-center gap-0.5 rounded-md border border-white/10 bg-black/90 px-1 py-0.5 shadow-lg`}>
-          <ReactionShortcuts onPick={onReact} open={reactOpen} setOpen={setReactOpen} emojis={emojis} />
-          <ActionBtn label="Responder" onClick={onReply}><ChatBubbleIcon className="h-3.5 w-3.5" /></ActionBtn>
+        <div
+          className={`absolute -top-3 ${isMe ? "left-2" : "right-2"} z-10 flex items-center gap-0.5 rounded-md border border-[color:var(--line)] bg-[color:var(--surface-2)] px-1 py-0.5 shadow-lg`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <ReactionShortcuts onPick={(emoji) => { onReact(emoji); setHovered(false); }} open={reactOpen} setOpen={setReactOpen} emojis={emojis} />
+          <ActionBtn label="Responder" onClick={() => { onReply(); setHovered(false); }}><ChatBubbleIcon className="h-4 w-4" /></ActionBtn>
           {isMe && (
             <>
-              <ActionBtn label="Editar" onClick={onEdit}><Pencil1Icon className="h-3.5 w-3.5" /></ActionBtn>
-              <ActionBtn label="Apagar" onClick={onDelete}><TrashIcon className="h-3.5 w-3.5" /></ActionBtn>
+              <ActionBtn label="Editar" onClick={() => { onEdit(); setHovered(false); }}><Pencil1Icon className="h-4 w-4" /></ActionBtn>
+              <ActionBtn label="Apagar" onClick={() => { onDelete(); setHovered(false); }}><TrashIcon className="h-4 w-4" /></ActionBtn>
             </>
           )}
         </div>
