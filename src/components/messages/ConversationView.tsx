@@ -484,7 +484,7 @@ export function ConversationView({
 
       <form
         onSubmit={send}
-        className="flex items-end gap-1.5 border-t border-white/10 bg-black/30 p-2 sm:gap-2 sm:p-3"
+        className="flex items-end gap-1.5 border-t border-[color:var(--line)] bg-[color:var(--surface-2)] p-2 sm:gap-2 sm:p-3"
         style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0.5rem)" }}
       >
         <input
@@ -497,20 +497,24 @@ export function ConversationView({
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 bg-black/30 text-white/70 hover:text-white"
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-[color:var(--text-2)] hover:bg-[color:var(--surface-3)] hover:text-[color:var(--text-1)] sm:h-9 sm:w-9 sm:border sm:border-[color:var(--line)] sm:bg-[color:var(--surface-3)]"
           aria-label="Anexar arquivo"
           title="Anexar"
         >
-          <PlusIcon className="h-4 w-4" />
+          <PlusIcon className="h-5 w-5 sm:h-4 sm:w-4" />
         </button>
         <button
           type="button"
           onClick={toggleRecord}
-          className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 ${recording ? "bg-red-600 text-white animate-pulse" : "bg-black/30 text-white/70 hover:text-white"}`}
+          className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md sm:h-9 sm:w-9 sm:border sm:border-[color:var(--line)] ${
+            recording
+              ? "bg-[color:var(--danger)] text-white animate-pulse"
+              : "text-[color:var(--text-2)] hover:bg-[color:var(--surface-3)] hover:text-[color:var(--text-1)] sm:bg-[color:var(--surface-3)]"
+          }`}
           aria-label={recording ? "Parar gravação" : "Gravar áudio"}
           title={recording ? "Parar" : "Gravar áudio"}
         >
-          <SpeakerLoudIcon className="h-4 w-4" />
+          <SpeakerLoudIcon className="h-5 w-5 sm:h-4 sm:w-4" />
         </button>
         <textarea
           ref={inputRef}
@@ -524,19 +528,21 @@ export function ConversationView({
           }}
           rows={1}
           placeholder="Mensagem…"
-          className="min-w-0 flex-1 resize-none rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--ruby)]"
+          className="min-h-[44px] min-w-0 flex-1 resize-none rounded-xl border border-[color:var(--line)] bg-[color:var(--surface-3)] px-3 py-2.5 text-base text-[color:var(--text-1)] placeholder:text-[color:var(--text-3)] focus:outline-none focus:ring-2 focus:ring-[color:var(--ruby)] sm:min-h-0 sm:rounded-md sm:py-2 sm:text-sm"
           style={{ maxHeight: 160 }}
           aria-label="Mensagem"
         />
-        <EmojiPickerPopover onPick={insertAtCaret} />
+        <div className="hidden sm:block">
+          <EmojiPickerPopover onPick={insertAtCaret} />
+        </div>
         <Button
           type="submit"
           variant="primary"
           loading={sending}
           disabled={!draft.trim() && pendingFiles.length === 0}
-          className="!h-9 !w-9 !p-0"
+          className="!h-11 !w-11 !p-0 sm:!h-9 sm:!w-9"
         >
-          <PaperPlaneIcon className="h-4 w-4" />
+          <PaperPlaneIcon className="h-5 w-5 sm:h-4 sm:w-4" />
         </Button>
       </form>
     </div>
