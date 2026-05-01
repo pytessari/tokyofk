@@ -713,7 +713,7 @@ function ActionBtn({ label, onClick, children }: { label: string; onClick: () =>
       onClick={onClick}
       title={label}
       aria-label={label}
-      className="inline-flex h-6 w-6 items-center justify-center rounded text-white/60 hover:bg-white/10 hover:text-white"
+      className="inline-flex h-9 w-9 items-center justify-center rounded text-[color:var(--text-2)] hover:bg-[color:var(--surface-3)] hover:text-[color:var(--text-1)] sm:h-7 sm:w-7"
     >
       {children}
     </button>
