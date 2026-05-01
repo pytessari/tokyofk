@@ -78,20 +78,20 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   return (
     <AuthProvider>
-    <div className="grain relative min-h-screen bg-black">
-      {/* Ambient ruby glow background */}
+    <div className="grain relative min-h-screen bg-[color:var(--surface-1)]">
+      {/* Ambient ruby glow background — bem sutil */}
       <div
-        className="pointer-events-none fixed inset-0 -z-10 opacity-70"
+        className="pointer-events-none fixed inset-0 -z-10 opacity-30"
         style={{
           background:
-            "radial-gradient(60% 40% at 20% 0%, #4a000f 0%, transparent 60%), radial-gradient(50% 40% at 90% 30%, #2d000a 0%, transparent 60%), radial-gradient(80% 60% at 50% 100%, #1a0006 0%, transparent 70%)",
+            "radial-gradient(60% 40% at 15% 0%, #2a000a 0%, transparent 55%), radial-gradient(45% 35% at 95% 25%, #1a0006 0%, transparent 60%)",
         }}
       />
       <Navbar />
       <main className="relative z-10 pb-20 md:pb-0">
         <Outlet />
       </main>
-      <footer className="relative z-10 mt-20 border-t border-[color:var(--ruby)]/30 bg-black/60 py-8 pb-24 text-center text-xs tracking-widest text-white/60 md:pb-8">
+      <footer className="relative z-10 mt-20 border-t border-[color:var(--line)] bg-[color:var(--surface-1)]/80 py-8 pb-24 text-center text-xs tracking-widest text-[color:var(--text-3)] md:pb-8">
         <p className="font-display">© TOKYO · TUDO O QUE BRILHA, CORTA.</p>
       </footer>
       <Toaster richColors position="top-right" />
