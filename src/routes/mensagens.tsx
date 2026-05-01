@@ -233,17 +233,25 @@ function MessagesPage() {
         </div>
       )}
 
-      <div className="mx-auto max-w-6xl px-3 py-5 sm:px-5 sm:py-8">
-        <PageHeader
-          eyebrow="DM · 文"
-          title="Mensagens"
-          description="Conversas privadas, 1:1 ou em grupinho. Em tempo real."
-          actions={
-            <Button variant="primary" onClick={() => setShowNew((v) => !v)}>
-              <PlusIcon className="mr-1 h-4 w-4" /> Nova conversa
-            </Button>
-          }
-        />
+      <div className="mx-auto max-w-6xl px-3 py-4 sm:px-5 sm:py-8">
+        <div className="sm:hidden mb-4 flex items-center justify-between gap-2">
+          <h1 className="font-display text-xl text-[color:var(--text-1)]">Mensagens</h1>
+          <Button variant="primary" size="sm" onClick={() => setShowNew((v) => !v)}>
+            <PlusIcon className="mr-1 h-4 w-4" /> Nova
+          </Button>
+        </div>
+        <div className="hidden sm:block">
+          <PageHeader
+            eyebrow="DM · 文"
+            title="Mensagens"
+            description="Conversas privadas, 1:1 ou em grupinho. Em tempo real."
+            actions={
+              <Button variant="primary" onClick={() => setShowNew((v) => !v)}>
+                <PlusIcon className="mr-1 h-4 w-4" /> Nova conversa
+              </Button>
+            }
+          />
+        </div>
 
         {showNew && (
           <div className="panel mb-6 p-4 sm:p-5">
