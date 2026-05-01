@@ -738,32 +738,32 @@ function ReactionShortcuts({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="inline-flex h-6 w-6 items-center justify-center rounded text-white/60 hover:bg-white/10 hover:text-white"
+        className="inline-flex h-9 w-9 items-center justify-center rounded text-[color:var(--text-2)] hover:bg-[color:var(--surface-3)] hover:text-[color:var(--text-1)] sm:h-7 sm:w-7"
         title="Reagir"
         aria-label="Reagir"
       >
-        <span className="text-xs">😊</span>
+        <span className="text-base sm:text-xs">😊</span>
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-1 flex flex-col gap-1 rounded-md border border-white/10 bg-black/95 p-1.5 shadow-xl">
+        <div className="absolute right-0 top-full mt-1 flex flex-col gap-1 rounded-md border border-[color:var(--line)] bg-[color:var(--surface-2)] p-1.5 shadow-xl">
           <div className="flex gap-1">
             {quick.map((e) => (
-              <button key={e} type="button" onClick={() => { onPick(e); setOpen(false); }} className="rounded px-1.5 py-0.5 text-base hover:bg-white/10">
+              <button key={e} type="button" onClick={() => { onPick(e); setOpen(false); }} className="rounded px-2 py-1 text-lg hover:bg-[color:var(--surface-3)] sm:px-1.5 sm:py-0.5 sm:text-base">
                 {e}
               </button>
             ))}
           </div>
           {customList.length > 0 && (
-            <div className="flex gap-1 border-t border-white/10 pt-1">
+            <div className="flex gap-1 border-t border-[color:var(--line)] pt-1">
               {customList.map(([code, e]) => (
                 <button
                   key={code}
                   type="button"
                   onClick={() => { onPick(`:${code}:`); setOpen(false); }}
-                  className="rounded p-0.5 hover:bg-white/10"
+                  className="rounded p-1 hover:bg-[color:var(--surface-3)] sm:p-0.5"
                   title={`:${code}:`}
                 >
-                  <img src={e.url} alt={code} className="h-5 w-5 object-contain" />
+                  <img src={e.url} alt={code} className="h-6 w-6 object-contain sm:h-5 sm:w-5" />
                 </button>
               ))}
             </div>
