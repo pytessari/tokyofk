@@ -67,7 +67,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className="dark">
       <head><HeadContent /></head>
-      <body className="bg-black text-white antialiased">
+      <body className="bg-[color:var(--surface-1)] text-[color:var(--text-2)] antialiased">
         {children}
         <Scripts />
       </body>
