@@ -10,16 +10,16 @@ const OG_IMAGE = `${SITE_URL}${ogCover}`;
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black px-4">
+    <div className="flex min-h-screen items-center justify-center bg-[color:var(--surface-1)] px-4">
       <div className="max-w-md text-center">
-        <h1 className="font-display text-8xl text-ruby-gradient">404</h1>
-        <h2 className="mt-2 font-display text-2xl tracking-widest text-white">PÁGINA PERDIDA NO BECO</h2>
-        <p className="mt-3 text-sm text-white/60">
+        <h1 className="font-display text-8xl text-[color:var(--ruby)]">404</h1>
+        <h2 className="mt-2 font-display text-2xl tracking-widest text-[color:var(--text-1)]">PÁGINA PERDIDA NO BECO</h2>
+        <p className="mt-3 text-sm text-[color:var(--text-3)]">
           Essa rua não existe no mapa de TOKYO.
         </p>
         <Link
           to="/"
-          className="mt-6 inline-flex items-center justify-center rounded-md bg-ruby-gradient px-5 py-2.5 font-display tracking-widest text-white"
+          className="mt-6 inline-flex items-center justify-center rounded-md bg-[color:var(--ruby)] px-5 py-2.5 font-display tracking-widest text-white hover:bg-[oklch(from_var(--ruby)_calc(l+0.04)_c_h)]"
         >
           VOLTAR PRO INÍCIO
         </Link>
