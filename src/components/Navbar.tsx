@@ -304,7 +304,7 @@ export function Navbar() {
     {user && (
       <nav
         aria-label="Navegação principal"
-        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[color:var(--ruby)]/30 bg-black/85 backdrop-blur md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[color:var(--line)] bg-[color:var(--surface-1)]/95 backdrop-blur md:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         {[
