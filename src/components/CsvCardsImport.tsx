@@ -100,7 +100,7 @@ export function CsvCardsImport({ onDone }: { onDone: () => void }) {
             {rows.length > 10 && <li className="text-white/40">+{rows.length - 10}…</li>}
           </ul>
           <button onClick={importAll} disabled={busy}
-            className="w-full rounded bg-ruby-gradient px-4 py-2 font-display text-sm tracking-widest text-white disabled:opacity-50">
+            className="w-full rounded bg-[color:var(--ruby)] hover:bg-[oklch(from_var(--ruby)_calc(l+0.04)_c_h)] px-4 py-2 font-display text-sm tracking-widest text-white disabled:opacity-50">
             {busy ? "IMPORTANDO…" : `IMPORTAR ${rows.length} CARTAS`}
           </button>
         </>

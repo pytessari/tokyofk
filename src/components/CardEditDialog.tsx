@@ -75,7 +75,7 @@ export function CardEditDialog({
             Cancelar
           </button>
           <button onClick={save} disabled={saving}
-            className="rounded bg-ruby-gradient px-5 py-2 font-display text-sm tracking-widest text-white disabled:opacity-50">
+            className="rounded bg-[color:var(--ruby)] hover:bg-[oklch(from_var(--ruby)_calc(l+0.04)_c_h)] px-5 py-2 font-display text-sm tracking-widest text-white disabled:opacity-50">
             {saving ? "SALVANDO…" : "SALVAR"}
           </button>
         </div>

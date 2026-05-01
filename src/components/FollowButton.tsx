@@ -51,7 +51,7 @@ export function FollowButton({ targetId }: { targetId: string }) {
       className={`rounded-md px-4 py-2 font-display text-xs tracking-widest outline-none transition focus-visible:ring-2 focus-visible:ring-[color:var(--ruby)] disabled:opacity-50 ${
         following
           ? "border border-white/30 text-white/85 hover:border-red-400 hover:text-red-300"
-          : "bg-ruby-gradient text-white shadow-[0_0_18px_#d9003680] hover:brightness-110"
+          : "bg-[color:var(--ruby)] hover:bg-[oklch(from_var(--ruby)_calc(l+0.04)_c_h)] text-white  hover:brightness-110"
       }`}
     >
       {following ? "SEGUINDO" : "+ SEGUIR"}

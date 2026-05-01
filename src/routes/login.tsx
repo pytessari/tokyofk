@@ -50,7 +50,7 @@ function LoginPage() {
         <button
           type="submit"
           disabled={busy}
-          className="w-full rounded-md bg-ruby-gradient px-4 py-2.5 font-display tracking-widest text-white shadow-[0_0_20px_#d9003680] transition hover:brightness-110 disabled:opacity-50"
+          className="w-full rounded-md bg-[color:var(--ruby)] hover:bg-[oklch(from_var(--ruby)_calc(l+0.04)_c_h)] px-4 py-2.5 font-display tracking-widest text-white  transition hover:brightness-110 disabled:opacity-50"
         >
           {busy ? "ENTRANDO…" : "ENTRAR"}
         </button>
