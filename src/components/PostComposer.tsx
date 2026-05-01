@@ -108,7 +108,7 @@ export function PostComposer({ onPosted }: { onPosted?: () => void }) {
             type="button"
             onClick={submit}
             disabled={posting || !content.trim()}
-            className="rounded-md bg-ruby-gradient px-4 py-1.5 font-display text-xs tracking-widest text-white shadow-[0_4px_14px_-4px_rgba(217,0,54,0.6)] transition disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-md bg-[color:var(--ruby)] hover:bg-[oklch(from_var(--ruby)_calc(l+0.04)_c_h)] px-4 py-1.5 font-display text-xs tracking-widest text-white  transition disabled:cursor-not-allowed disabled:opacity-50"
           >
             {posting ? "…" : "POSTAR"}
           </button>

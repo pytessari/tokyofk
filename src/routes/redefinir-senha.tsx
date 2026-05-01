@@ -44,7 +44,7 @@ function ResetPasswordPage() {
 
   return (
     <div className="mx-auto max-w-md px-5 py-16">
-      <h1 className="font-display text-5xl tracking-widest text-ruby-gradient">NOVA SENHA</h1>
+      <h1 className="font-display text-5xl tracking-widest text-[color:var(--ruby)]">NOVA SENHA</h1>
       <p className="mt-2 text-sm text-white/60">Defina uma senha nova pra sua conta TOKYO.</p>
 
       {!ready ? (
@@ -71,7 +71,7 @@ function ResetPasswordPage() {
           {error && <p className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>}
 
           <button type="submit" disabled={busy}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-ruby-gradient px-4 py-2.5 font-display tracking-widest text-white shadow-[0_0_20px_#d9003680] hover:brightness-110 disabled:opacity-50">
+            className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-[color:var(--ruby)] hover:bg-[oklch(from_var(--ruby)_calc(l+0.04)_c_h)] px-4 py-2.5 font-display tracking-widest text-white  hover:brightness-110 disabled:opacity-50">
             <KeyRound className="h-4 w-4" /> {busy ? "SALVANDO…" : "SALVAR SENHA"}
           </button>
         </form>

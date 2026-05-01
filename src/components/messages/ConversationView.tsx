@@ -382,24 +382,30 @@ export function ConversationView({
   const messagesById = useMemo(() => new Map(messages.map((m) => [m.id, m])), [messages]);
 
   return (
-    <div className="flex h-full flex-col">
-      <header className="flex items-center gap-2 border-b border-white/10 bg-black/30 px-3 py-3 sm:px-4">
+    <div className="flex h-full flex-col bg-[color:var(--surface-1)]">
+      <header
+        className="sticky top-0 z-10 flex items-center gap-2 border-b border-[color:var(--line)] bg-[color:var(--surface-2)]/95 px-2 py-2.5 backdrop-blur sm:px-4"
+        style={{ paddingTop: "max(env(safe-area-inset-top), 0.625rem)" }}
+      >
         {onBack && (
           <button
             type="button"
             onClick={onBack}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-white/80 hover:bg-white/10 lg:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md text-[color:var(--text-1)] hover:bg-[color:var(--surface-3)] lg:hidden"
             aria-label="Voltar"
           >
-            ←
+            <span className="text-xl leading-none">←</span>
           </button>
         )}
-        <p className="truncate font-display text-sm tracking-widest text-white">{title.toUpperCase()}</p>
+        <p className="truncate text-base font-semibold text-[color:var(--text-1)] sm:font-display sm:text-sm sm:font-normal sm:tracking-widest">
+          <span className="sm:hidden">{title}</span>
+          <span className="hidden sm:inline">{title.toUpperCase()}</span>
+        </p>
       </header>
 
       <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto overflow-x-hidden p-3 sm:p-4">
         {messages.length === 0 && (
-          <p className="py-12 text-center text-xs text-[color:var(--text-3)]">Diga oi 👋</p>
+          <p className="py-12 text-center text-xs text-[color:var(--text-3)]">Comece a conversa.</p>
         )}
         {messages.map((m, idx) => {
           const isMe = m.sender_id === user?.id;
@@ -478,7 +484,7 @@ export function ConversationView({
 
       <form
         onSubmit={send}
-        className="flex items-end gap-1.5 border-t border-white/10 bg-black/30 p-2 sm:gap-2 sm:p-3"
+        className="flex items-end gap-1.5 border-t border-[color:var(--line)] bg-[color:var(--surface-2)] p-2 sm:gap-2 sm:p-3"
         style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0.5rem)" }}
       >
         <input
@@ -491,20 +497,24 @@ export function ConversationView({
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 bg-black/30 text-white/70 hover:text-white"
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-[color:var(--text-2)] hover:bg-[color:var(--surface-3)] hover:text-[color:var(--text-1)] sm:h-9 sm:w-9 sm:border sm:border-[color:var(--line)] sm:bg-[color:var(--surface-3)]"
           aria-label="Anexar arquivo"
           title="Anexar"
         >
-          <PlusIcon className="h-4 w-4" />
+          <PlusIcon className="h-5 w-5 sm:h-4 sm:w-4" />
         </button>
         <button
           type="button"
           onClick={toggleRecord}
-          className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 ${recording ? "bg-red-600 text-white animate-pulse" : "bg-black/30 text-white/70 hover:text-white"}`}
+          className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md sm:h-9 sm:w-9 sm:border sm:border-[color:var(--line)] ${
+            recording
+              ? "bg-[color:var(--danger)] text-white animate-pulse"
+              : "text-[color:var(--text-2)] hover:bg-[color:var(--surface-3)] hover:text-[color:var(--text-1)] sm:bg-[color:var(--surface-3)]"
+          }`}
           aria-label={recording ? "Parar gravação" : "Gravar áudio"}
           title={recording ? "Parar" : "Gravar áudio"}
         >
-          <SpeakerLoudIcon className="h-4 w-4" />
+          <SpeakerLoudIcon className="h-5 w-5 sm:h-4 sm:w-4" />
         </button>
         <textarea
           ref={inputRef}
@@ -518,19 +528,21 @@ export function ConversationView({
           }}
           rows={1}
           placeholder="Mensagem…"
-          className="min-w-0 flex-1 resize-none rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--ruby)]"
+          className="min-h-[44px] min-w-0 flex-1 resize-none rounded-xl border border-[color:var(--line)] bg-[color:var(--surface-3)] px-3 py-2.5 text-base text-[color:var(--text-1)] placeholder:text-[color:var(--text-3)] focus:outline-none focus:ring-2 focus:ring-[color:var(--ruby)] sm:min-h-0 sm:rounded-md sm:py-2 sm:text-sm"
           style={{ maxHeight: 160 }}
           aria-label="Mensagem"
         />
-        <EmojiPickerPopover onPick={insertAtCaret} />
+        <div className="hidden sm:block">
+          <EmojiPickerPopover onPick={insertAtCaret} />
+        </div>
         <Button
           type="submit"
           variant="primary"
           loading={sending}
           disabled={!draft.trim() && pendingFiles.length === 0}
-          className="!h-9 !w-9 !p-0"
+          className="!h-11 !w-11 !p-0 sm:!h-9 sm:!w-9"
         >
-          <PaperPlaneIcon className="h-4 w-4" />
+          <PaperPlaneIcon className="h-5 w-5 sm:h-4 sm:w-4" />
         </Button>
       </form>
     </div>
@@ -610,36 +622,39 @@ function MessageBubble({
 
       <div className={`flex max-w-[85%] flex-col sm:max-w-[75%] ${isMe ? "items-end" : "items-start"}`}>
         {!groupWithPrev && !isMe && (
-          <span className="mb-0.5 text-[10px] tracking-wide text-[color:var(--text-3)]">
+          <span className="mb-0.5 text-[11px] text-[color:var(--text-3)]">
             {author?.display_name ?? "—"}
           </span>
         )}
 
         {replyMsg && (
-          <div className={`mb-0.5 max-w-full rounded-md border-l-2 border-[color:var(--ruby)] bg-black/30 px-2 py-1 text-[11px] text-white/60 ${isMe ? "text-right" : ""}`}>
+          <div className={`mb-0.5 max-w-full rounded-md border-l-2 border-[color:var(--ruby)] bg-[color:var(--surface-3)] px-2 py-1 text-[11px] text-[color:var(--text-2)] ${isMe ? "text-right" : ""}`}>
             <span className="text-[color:var(--ruby)]">↩ {replyAuthor?.display_name ?? "—"}</span>{" "}
-            <span className="text-white/50">{(replyMsg.content || "[anexo]").slice(0, 80)}</span>
+            <span className="text-[color:var(--text-3)]">{(replyMsg.content || "[anexo]").slice(0, 80)}</span>
           </div>
         )}
 
-        <div
-          className={`rounded-2xl px-3 py-2 text-sm ${
-            isMe
-              ? "bg-[color:var(--ruby)] text-white rounded-br-sm"
-              : "bg-[color:var(--surface-3)] text-white/90 rounded-bl-sm"
-          }`}
-        >
-          {msg.content && <MessageContent text={msg.content} emojis={emojis} />}
+        <div className="relative">
+          <div
+            onClick={() => setHovered((v) => !v)}
+            className={`rounded-2xl px-3 py-2 text-sm cursor-pointer ${
+              isMe
+                ? "bg-[color:var(--ruby)] text-white rounded-br-sm"
+                : "bg-[color:var(--surface-3)] text-[color:var(--text-1)] rounded-bl-sm"
+            }`}
+          >
+            {msg.content && <MessageContent text={msg.content} emojis={emojis} />}
 
-          {attachments.length > 0 && (
-            <div className={`flex flex-col gap-2 ${msg.content ? "mt-2" : ""}`}>
-              {attachments.map((a) => <AttachmentView key={a.id} att={a} />)}
-            </div>
-          )}
+            {attachments.length > 0 && (
+              <div className={`flex flex-col gap-2 ${msg.content ? "mt-2" : ""}`}>
+                {attachments.map((a) => <AttachmentView key={a.id} att={a} />)}
+              </div>
+            )}
 
-          {msg.edited_at && (
-            <span className="ml-1 text-[9px] italic opacity-60">(editada)</span>
-          )}
+            {msg.edited_at && (
+              <span className="ml-1 text-[9px] italic opacity-60">(editada)</span>
+            )}
+          </div>
         </div>
 
         {grouped.length > 0 && (
@@ -654,10 +669,10 @@ function MessageBubble({
                   key={emoji}
                   type="button"
                   onClick={() => onReact(emoji)}
-                  className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[11px] transition ${
+                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition ${
                     mine
-                      ? "border-[color:var(--ruby)] bg-[color:var(--ruby)]/15 text-white"
-                      : "border-white/10 bg-black/30 text-white/70 hover:bg-white/5"
+                      ? "border-[color:var(--ruby)] bg-[color:var(--ruby)]/15 text-[color:var(--text-1)]"
+                      : "border-[color:var(--line)] bg-[color:var(--surface-3)] text-[color:var(--text-2)] hover:bg-[color:var(--surface-4)]"
                   }`}
                 >
                   {customUrl ? <img src={customUrl} alt={emoji} className="h-4 w-4 object-contain" /> : <span>{emoji}</span>}
@@ -671,15 +686,18 @@ function MessageBubble({
         <span className="mt-0.5 text-[10px] text-[color:var(--text-3)]">{timeAgo(msg.created_at)}</span>
       </div>
 
-      {/* Hover actions */}
+      {/* Action toolbar — abre via hover (desktop) ou tap (mobile) */}
       {hovered && (
-        <div className={`absolute -top-3 ${isMe ? "left-2" : "right-2"} z-10 flex items-center gap-0.5 rounded-md border border-white/10 bg-black/90 px-1 py-0.5 shadow-lg`}>
-          <ReactionShortcuts onPick={onReact} open={reactOpen} setOpen={setReactOpen} emojis={emojis} />
-          <ActionBtn label="Responder" onClick={onReply}><ChatBubbleIcon className="h-3.5 w-3.5" /></ActionBtn>
+        <div
+          className={`absolute -top-3 ${isMe ? "left-2" : "right-2"} z-10 flex items-center gap-0.5 rounded-md border border-[color:var(--line)] bg-[color:var(--surface-2)] px-1 py-0.5 shadow-lg`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <ReactionShortcuts onPick={(emoji) => { onReact(emoji); setHovered(false); }} open={reactOpen} setOpen={setReactOpen} emojis={emojis} />
+          <ActionBtn label="Responder" onClick={() => { onReply(); setHovered(false); }}><ChatBubbleIcon className="h-4 w-4" /></ActionBtn>
           {isMe && (
             <>
-              <ActionBtn label="Editar" onClick={onEdit}><Pencil1Icon className="h-3.5 w-3.5" /></ActionBtn>
-              <ActionBtn label="Apagar" onClick={onDelete}><TrashIcon className="h-3.5 w-3.5" /></ActionBtn>
+              <ActionBtn label="Editar" onClick={() => { onEdit(); setHovered(false); }}><Pencil1Icon className="h-4 w-4" /></ActionBtn>
+              <ActionBtn label="Apagar" onClick={() => { onDelete(); setHovered(false); }}><TrashIcon className="h-4 w-4" /></ActionBtn>
             </>
           )}
         </div>
@@ -695,7 +713,7 @@ function ActionBtn({ label, onClick, children }: { label: string; onClick: () =>
       onClick={onClick}
       title={label}
       aria-label={label}
-      className="inline-flex h-6 w-6 items-center justify-center rounded text-white/60 hover:bg-white/10 hover:text-white"
+      className="inline-flex h-9 w-9 items-center justify-center rounded text-[color:var(--text-2)] hover:bg-[color:var(--surface-3)] hover:text-[color:var(--text-1)] sm:h-7 sm:w-7"
     >
       {children}
     </button>
@@ -720,32 +738,32 @@ function ReactionShortcuts({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="inline-flex h-6 w-6 items-center justify-center rounded text-white/60 hover:bg-white/10 hover:text-white"
+        className="inline-flex h-9 w-9 items-center justify-center rounded text-[color:var(--text-2)] hover:bg-[color:var(--surface-3)] hover:text-[color:var(--text-1)] sm:h-7 sm:w-7"
         title="Reagir"
         aria-label="Reagir"
       >
-        <span className="text-xs">😊</span>
+        <span className="text-base sm:text-xs">😊</span>
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-1 flex flex-col gap-1 rounded-md border border-white/10 bg-black/95 p-1.5 shadow-xl">
+        <div className="absolute right-0 top-full mt-1 flex flex-col gap-1 rounded-md border border-[color:var(--line)] bg-[color:var(--surface-2)] p-1.5 shadow-xl">
           <div className="flex gap-1">
             {quick.map((e) => (
-              <button key={e} type="button" onClick={() => { onPick(e); setOpen(false); }} className="rounded px-1.5 py-0.5 text-base hover:bg-white/10">
+              <button key={e} type="button" onClick={() => { onPick(e); setOpen(false); }} className="rounded px-2 py-1 text-lg hover:bg-[color:var(--surface-3)] sm:px-1.5 sm:py-0.5 sm:text-base">
                 {e}
               </button>
             ))}
           </div>
           {customList.length > 0 && (
-            <div className="flex gap-1 border-t border-white/10 pt-1">
+            <div className="flex gap-1 border-t border-[color:var(--line)] pt-1">
               {customList.map(([code, e]) => (
                 <button
                   key={code}
                   type="button"
                   onClick={() => { onPick(`:${code}:`); setOpen(false); }}
-                  className="rounded p-0.5 hover:bg-white/10"
+                  className="rounded p-1 hover:bg-[color:var(--surface-3)] sm:p-0.5"
                   title={`:${code}:`}
                 >
-                  <img src={e.url} alt={code} className="h-5 w-5 object-contain" />
+                  <img src={e.url} alt={code} className="h-6 w-6 object-contain sm:h-5 sm:w-5" />
                 </button>
               ))}
             </div>

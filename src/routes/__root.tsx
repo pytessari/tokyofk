@@ -10,16 +10,16 @@ const OG_IMAGE = `${SITE_URL}${ogCover}`;
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black px-4">
+    <div className="flex min-h-screen items-center justify-center bg-[color:var(--surface-1)] px-4">
       <div className="max-w-md text-center">
-        <h1 className="font-display text-8xl text-ruby-gradient">404</h1>
-        <h2 className="mt-2 font-display text-2xl tracking-widest text-white">PÁGINA PERDIDA NO BECO</h2>
-        <p className="mt-3 text-sm text-white/60">
+        <h1 className="font-display text-8xl text-[color:var(--ruby)]">404</h1>
+        <h2 className="mt-2 font-display text-2xl tracking-widest text-[color:var(--text-1)]">PÁGINA PERDIDA NO BECO</h2>
+        <p className="mt-3 text-sm text-[color:var(--text-3)]">
           Essa rua não existe no mapa de TOKYO.
         </p>
         <Link
           to="/"
-          className="mt-6 inline-flex items-center justify-center rounded-md bg-ruby-gradient px-5 py-2.5 font-display tracking-widest text-white"
+          className="mt-6 inline-flex items-center justify-center rounded-md bg-[color:var(--ruby)] px-5 py-2.5 font-display tracking-widest text-white hover:bg-[oklch(from_var(--ruby)_calc(l+0.04)_c_h)]"
         >
           VOLTAR PRO INÍCIO
         </Link>
@@ -67,7 +67,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className="dark">
       <head><HeadContent /></head>
-      <body className="bg-black text-white antialiased">
+      <body className="bg-[color:var(--surface-1)] text-[color:var(--text-2)] antialiased">
         {children}
         <Scripts />
       </body>
@@ -78,20 +78,20 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   return (
     <AuthProvider>
-    <div className="grain relative min-h-screen bg-black">
-      {/* Ambient ruby glow background */}
+    <div className="grain relative min-h-screen bg-[color:var(--surface-1)]">
+      {/* Ambient ruby glow background — bem sutil */}
       <div
-        className="pointer-events-none fixed inset-0 -z-10 opacity-70"
+        className="pointer-events-none fixed inset-0 -z-10 opacity-30"
         style={{
           background:
-            "radial-gradient(60% 40% at 20% 0%, #4a000f 0%, transparent 60%), radial-gradient(50% 40% at 90% 30%, #2d000a 0%, transparent 60%), radial-gradient(80% 60% at 50% 100%, #1a0006 0%, transparent 70%)",
+            "radial-gradient(60% 40% at 15% 0%, #2a000a 0%, transparent 55%), radial-gradient(45% 35% at 95% 25%, #1a0006 0%, transparent 60%)",
         }}
       />
       <Navbar />
       <main className="relative z-10 pb-20 md:pb-0">
         <Outlet />
       </main>
-      <footer className="relative z-10 mt-20 border-t border-[color:var(--ruby)]/30 bg-black/60 py-8 pb-24 text-center text-xs tracking-widest text-white/60 md:pb-8">
+      <footer className="relative z-10 mt-20 border-t border-[color:var(--line)] bg-[color:var(--surface-1)]/80 py-8 pb-24 text-center text-xs tracking-widest text-[color:var(--text-3)] md:pb-8">
         <p className="font-display">© TOKYO · TUDO O QUE BRILHA, CORTA.</p>
       </footer>
       <Toaster richColors position="top-right" />

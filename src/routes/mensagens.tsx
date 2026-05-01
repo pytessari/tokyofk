@@ -233,17 +233,25 @@ function MessagesPage() {
         </div>
       )}
 
-      <div className="mx-auto max-w-6xl px-3 py-5 sm:px-5 sm:py-8">
-        <PageHeader
-          eyebrow="DM · 文"
-          title="Mensagens"
-          description="Conversas privadas, 1:1 ou em grupinho. Em tempo real."
-          actions={
-            <Button variant="primary" onClick={() => setShowNew((v) => !v)}>
-              <PlusIcon className="mr-1 h-4 w-4" /> Nova conversa
-            </Button>
-          }
-        />
+      <div className="mx-auto max-w-6xl px-3 py-4 sm:px-5 sm:py-8">
+        <div className="sm:hidden mb-4 flex items-center justify-between gap-2">
+          <h1 className="font-display text-xl text-[color:var(--text-1)]">Mensagens</h1>
+          <Button variant="primary" size="sm" onClick={() => setShowNew((v) => !v)}>
+            <PlusIcon className="mr-1 h-4 w-4" /> Nova
+          </Button>
+        </div>
+        <div className="hidden sm:block">
+          <PageHeader
+            eyebrow="DM · 文"
+            title="Mensagens"
+            description="Conversas privadas, 1:1 ou em grupinho. Em tempo real."
+            actions={
+              <Button variant="primary" onClick={() => setShowNew((v) => !v)}>
+                <PlusIcon className="mr-1 h-4 w-4" /> Nova conversa
+              </Button>
+            }
+          />
+        </div>
 
         {showNew && (
           <div className="panel mb-6 p-4 sm:p-5">
@@ -326,7 +334,7 @@ function MessagesPage() {
           </div>
         )}
 
-        <div className="grid gap-0 overflow-hidden rounded-lg border border-white/10 bg-black/20 lg:grid-cols-[300px_1fr]" style={{ minHeight: 560 }}>
+        <div className="grid gap-0 overflow-hidden rounded-lg border border-[color:var(--line)] bg-[color:var(--surface-2)] lg:grid-cols-[300px_1fr]" style={{ minHeight: 560 }}>
           <aside className="border-b border-white/10 lg:border-b-0 lg:border-r">
             {convs.length === 0 ? (
               <div className="p-6 text-center text-xs text-[color:var(--text-3)]">
@@ -334,7 +342,7 @@ function MessagesPage() {
                 Nenhuma conversa ainda.
               </div>
             ) : (
-              <ul className="divide-y divide-white/5">
+              <ul className="divide-y divide-[color:var(--line)]">
                 {convs.map((c) => {
                   const me = myParticipant(c.id);
                   const unread = me ? new Date(c.last_message_at) > new Date(me.last_read_at) : false;
@@ -345,26 +353,26 @@ function MessagesPage() {
                       <button
                         type="button"
                         onClick={() => setActiveId(c.id)}
-                        className={`flex w-full items-center gap-3 px-3 py-3 text-left transition hover:bg-white/5 ${
+                        className={`flex w-full items-center gap-3 px-3 py-3.5 text-left transition hover:bg-[color:var(--surface-3)] sm:py-3 ${
                           active ? "bg-[color:var(--ruby)]/10" : ""
                         }`}
                       >
-                        <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-[color:var(--surface-3)]">
+                        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[color:var(--surface-3)] sm:h-9 sm:w-9">
                           {av ? (
                             <img src={av} alt="" className="h-full w-full object-cover" />
                           ) : (
-                            <PersonIcon className="m-2.5 h-4 w-4 text-[color:var(--text-3)]" />
+                            <PersonIcon className="m-3 h-4 w-4 text-[color:var(--text-3)] sm:m-2.5" />
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm text-white">{convTitle(c)}</p>
-                          <p className="truncate text-[10px] tracking-widest text-[color:var(--text-3)]">
+                          <p className="truncate text-sm font-medium text-[color:var(--text-1)]">{convTitle(c)}</p>
+                          <p className="truncate text-[11px] text-[color:var(--text-3)]">
                             {timeAgo(c.last_message_at)}
                             {c.is_group && " · grupo"}
                           </p>
                         </div>
                         {unread && (
-                          <span className="h-2 w-2 shrink-0 rounded-full bg-[color:var(--ruby)]" aria-label="Não lida" />
+                          <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[color:var(--ruby)]" aria-label="Não lida" />
                         )}
                       </button>
                     </li>

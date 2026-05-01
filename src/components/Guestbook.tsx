@@ -86,7 +86,7 @@ export function Guestbook({ profileId, ownerId, highlightId }: { profileId: stri
           <div className="flex items-center justify-between">
             <span className="text-[10px] tracking-widest text-white/40">{text.length}/500</span>
             <button disabled={posting || !text.trim()}
-              className="rounded-md bg-ruby-gradient px-4 py-1.5 font-display text-xs tracking-widest text-white disabled:opacity-50">
+              className="rounded-md bg-[color:var(--ruby)] hover:bg-[oklch(from_var(--ruby)_calc(l+0.04)_c_h)] px-4 py-1.5 font-display text-xs tracking-widest text-white disabled:opacity-50">
               {posting ? "ENVIANDO…" : "DEIXAR RECADO"}
             </button>
           </div>

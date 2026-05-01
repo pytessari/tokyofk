@@ -49,7 +49,7 @@ export function RichCommentEditor({
             type="button"
             onClick={onSubmit}
             disabled={submitting || !value.trim()}
-            className="rounded-md bg-ruby-gradient px-3 py-1.5 font-display text-xs tracking-widest text-white shadow-[0_4px_14px_-4px_rgba(217,0,54,0.6)] disabled:opacity-50"
+            className="rounded-md bg-[color:var(--ruby)] hover:bg-[oklch(from_var(--ruby)_calc(l+0.04)_c_h)] px-3 py-1.5 font-display text-xs tracking-widest text-white  disabled:opacity-50"
           >
             {submitting ? "ENVIANDO…" : "ENVIAR"}
           </button>

@@ -110,8 +110,8 @@ export function Navbar() {
 
   return (
     <>
-    <header className="sticky top-0 z-40 glass-dark border-b border-[color:var(--ruby)]/30">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-2 sm:px-5 sm:py-3">
+    <header className="sticky top-0 z-40 border-b border-[color:var(--line)] bg-[color:var(--surface-1)]/85 backdrop-blur-md">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-2 sm:px-5 sm:py-2.5">
         <Link
           to="/"
           className="flex shrink-0 items-center gap-3 outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--ruby)] rounded"
@@ -119,9 +119,9 @@ export function Navbar() {
           <img
             src={IMAGES.logo}
             alt="TOKYO"
-            className="h-9 w-auto drop-shadow-[0_0_18px_#d90036] sm:h-14"
+            className="h-8 w-auto sm:h-10"
           />
-          <span className="hidden font-display text-xs tracking-[0.4em] text-[color:var(--chrome)] xl:inline">
+          <span className="hidden font-display text-[10px] tracking-[0.4em] text-[color:var(--text-3)] xl:inline">
             COMUNIDADE OFICIAL · 東京
           </span>
         </Link>
@@ -267,7 +267,7 @@ export function Navbar() {
             ) : (
               <Link
                 to="/login"
-                className="ml-1 inline-flex items-center gap-1.5 rounded-md bg-ruby-gradient px-3 py-1.5 font-display text-xs tracking-widest text-white shadow-[0_0_20px_#d9003680] outline-none transition hover:brightness-110 focus-visible:ring-2 focus-visible:ring-white sm:px-4 sm:py-2 sm:text-sm"
+                className="ml-1 inline-flex items-center gap-1.5 rounded-md bg-[color:var(--ruby)] px-3 py-1.5 font-display text-xs tracking-widest text-white outline-none transition hover:bg-[oklch(from_var(--ruby)_calc(l+0.04)_c_h)] focus-visible:ring-2 focus-visible:ring-white sm:px-4 sm:py-2 sm:text-sm"
               >
                 <EnterIcon className="h-4 w-4" aria-hidden="true" /> ENTRAR
               </Link>
@@ -304,7 +304,7 @@ export function Navbar() {
     {user && (
       <nav
         aria-label="Navegação principal"
-        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[color:var(--ruby)]/30 bg-black/85 backdrop-blur md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[color:var(--line)] bg-[color:var(--surface-1)]/95 backdrop-blur md:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         {[

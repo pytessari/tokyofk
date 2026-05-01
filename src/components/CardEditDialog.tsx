@@ -39,7 +39,7 @@ export function CardEditDialog({
         className="relative w-full max-w-2xl rounded-xl border border-[color:var(--ruby)]/40 bg-black p-6 shadow-2xl">
         <button onClick={onClose} className="absolute right-3 top-3 text-white/60 hover:text-white">×</button>
         <p className="font-display text-xs tracking-[0.4em] text-[color:var(--chrome)]">▎EDITAR CARTA</p>
-        <h2 className="mt-1 font-display text-2xl text-ruby-gradient">#{draft.card_number} {draft.name}</h2>
+        <h2 className="mt-1 font-display text-2xl text-[color:var(--ruby)]">#{draft.card_number} {draft.name}</h2>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-[200px_1fr]">
           <ImageUpload bucket="cards" userId={userId} currentUrl={draft.image_url} aspect="card"
@@ -75,7 +75,7 @@ export function CardEditDialog({
             Cancelar
           </button>
           <button onClick={save} disabled={saving}
-            className="rounded bg-ruby-gradient px-5 py-2 font-display text-sm tracking-widest text-white disabled:opacity-50">
+            className="rounded bg-[color:var(--ruby)] hover:bg-[oklch(from_var(--ruby)_calc(l+0.04)_c_h)] px-5 py-2 font-display text-sm tracking-widest text-white disabled:opacity-50">
             {saving ? "SALVANDO…" : "SALVAR"}
           </button>
         </div>

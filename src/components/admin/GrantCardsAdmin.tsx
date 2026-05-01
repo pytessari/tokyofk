@@ -125,7 +125,7 @@ export function GrantCardsAdmin() {
                 className="w-full rounded border border-white/15 bg-black/60 px-2 py-2 text-sm text-white" />
             </label>
             <button type="button" onClick={grant} disabled={!userId || !cardId || busy}
-              className="self-end rounded bg-ruby-gradient px-4 py-2 font-display text-sm tracking-widest text-white disabled:opacity-50">
+              className="self-end rounded bg-[color:var(--ruby)] hover:bg-[oklch(from_var(--ruby)_calc(l+0.04)_c_h)] px-4 py-2 font-display text-sm tracking-widest text-white disabled:opacity-50">
               {busy ? "ENVIANDO…" : "CONCEDER"}
             </button>
           </div>

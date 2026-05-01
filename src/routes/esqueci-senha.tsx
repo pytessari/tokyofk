@@ -31,7 +31,7 @@ function ForgotPasswordPage() {
       <Link to="/login" className="inline-flex items-center gap-1.5 font-display text-xs tracking-widest text-white/60 hover:text-white">
         <ArrowLeft className="h-3.5 w-3.5" /> VOLTAR PRO LOGIN
       </Link>
-      <h1 className="mt-4 font-display text-5xl tracking-widest text-ruby-gradient">ESQUECI</h1>
+      <h1 className="mt-4 font-display text-5xl tracking-widest text-[color:var(--ruby)]">ESQUECI</h1>
       <p className="mt-2 text-sm text-white/60">A gente manda um link pro seu email pra você criar uma senha nova.</p>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4 glass-dark rounded-xl border border-[color:var(--ruby)]/30 p-6">
@@ -45,7 +45,7 @@ function ForgotPasswordPage() {
         {msg && <p className="rounded-md border border-[color:var(--ruby)]/40 bg-[color:var(--ruby)]/10 px-3 py-2 text-sm text-white">{msg}</p>}
 
         <button type="submit" disabled={busy}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-ruby-gradient px-4 py-2.5 font-display tracking-widest text-white shadow-[0_0_20px_#d9003680] hover:brightness-110 disabled:opacity-50">
+          className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-[color:var(--ruby)] hover:bg-[oklch(from_var(--ruby)_calc(l+0.04)_c_h)] px-4 py-2.5 font-display tracking-widest text-white  hover:brightness-110 disabled:opacity-50">
           <Mail className="h-4 w-4" /> {busy ? "ENVIANDO…" : "ENVIAR LINK"}
         </button>
       </form>
