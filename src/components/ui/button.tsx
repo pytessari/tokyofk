@@ -12,7 +12,7 @@ const buttonVariants = cva(
         default:
           "bg-[color:var(--ruby)] text-white shadow-[0_0_0_1px_oklch(from_var(--ruby)_l_c_h/0.6)] hover:bg-[oklch(from_var(--ruby)_calc(l+0.04)_c_h)] active:bg-[oklch(from_var(--ruby)_calc(l-0.04)_c_h)]",
         primary:
-          "bg-ruby-gradient text-white shadow-[0_0_20px_oklch(from_var(--ruby)_l_c_h/0.4)] hover:brightness-110 active:brightness-95",
+          "bg-[color:var(--ruby)] text-white shadow-[0_1px_0_rgba(255,255,255,0.08)_inset,0_1px_2px_rgba(0,0,0,0.4)] hover:bg-[oklch(from_var(--ruby)_calc(l+0.04)_c_h)] active:bg-[oklch(from_var(--ruby)_calc(l-0.04)_c_h)]",
         secondary:
           "bg-[color:var(--surface-3)] text-[color:var(--text-1)] border border-[color:var(--line)] hover:bg-[color:var(--surface-4)] hover:border-[color:var(--line-strong)]",
         outline:
