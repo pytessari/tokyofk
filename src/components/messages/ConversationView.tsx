@@ -405,7 +405,7 @@ export function ConversationView({
 
       <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto overflow-x-hidden p-3 sm:p-4">
         {messages.length === 0 && (
-          <p className="py-12 text-center text-xs text-[color:var(--text-3)]">Diga oi 👋</p>
+          <p className="py-12 text-center text-xs text-[color:var(--text-3)]">Comece a conversa.</p>
         )}
         {messages.map((m, idx) => {
           const isMe = m.sender_id === user?.id;
