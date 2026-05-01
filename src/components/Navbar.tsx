@@ -267,7 +267,7 @@ export function Navbar() {
             ) : (
               <Link
                 to="/login"
-                className="ml-1 inline-flex items-center gap-1.5 rounded-md bg-ruby-gradient px-3 py-1.5 font-display text-xs tracking-widest text-white shadow-[0_0_20px_#d9003680] outline-none transition hover:brightness-110 focus-visible:ring-2 focus-visible:ring-white sm:px-4 sm:py-2 sm:text-sm"
+                className="ml-1 inline-flex items-center gap-1.5 rounded-md bg-[color:var(--ruby)] px-3 py-1.5 font-display text-xs tracking-widest text-white outline-none transition hover:bg-[oklch(from_var(--ruby)_calc(l+0.04)_c_h)] focus-visible:ring-2 focus-visible:ring-white sm:px-4 sm:py-2 sm:text-sm"
               >
                 <EnterIcon className="h-4 w-4" aria-hidden="true" /> ENTRAR
               </Link>
