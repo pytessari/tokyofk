@@ -78,6 +78,8 @@ export function ConversationView({
   const fileRef = useRef<HTMLInputElement>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const [recording, setRecording] = useState(false);
+  const [composerFocused, setComposerFocused] = useState(false);
+  const [keyboardInset, setKeyboardInset] = useState(0);
 
   async function loadProfiles(ids: string[]) {
     if (!ids.length) return;
@@ -216,6 +218,30 @@ export function ConversationView({
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages.length]);
+
+  useEffect(() => {
+    if (!composerFocused || typeof window === "undefined" || !window.visualViewport) {
+      setKeyboardInset(0);
+      return;
+    }
+
+    const viewport = window.visualViewport;
+    const updateInset = () => {
+      const inset = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
+      setKeyboardInset(inset > 80 ? inset : 0);
+      requestAnimationFrame(() => {
+        scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+      });
+    };
+
+    updateInset();
+    viewport.addEventListener("resize", updateInset);
+    viewport.addEventListener("scroll", updateInset);
+    return () => {
+      viewport.removeEventListener("resize", updateInset);
+      viewport.removeEventListener("scroll", updateInset);
+    };
+  }, [composerFocused]);
 
   // -------- Send / Edit --------
   async function send(e?: React.FormEvent) {
@@ -382,9 +408,9 @@ export function ConversationView({
   const messagesById = useMemo(() => new Map(messages.map((m) => [m.id, m])), [messages]);
 
   return (
-    <div className="flex h-full flex-col bg-[color:var(--surface-1)]">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[color:var(--surface-1)]">
       <header
-        className="sticky top-0 z-10 flex items-center gap-2 border-b border-[color:var(--line)] bg-[color:var(--surface-2)]/95 px-2 py-2.5 backdrop-blur sm:px-4"
+        className="shrink-0 sticky top-0 z-10 flex items-center gap-2 border-b border-[color:var(--line)] bg-[color:var(--surface-2)]/95 px-2 py-2.5 backdrop-blur sm:px-4"
         style={{ paddingTop: "max(env(safe-area-inset-top), 0.625rem)" }}
       >
         {onBack && (
@@ -403,7 +429,7 @@ export function ConversationView({
         </p>
       </header>
 
-      <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto overflow-x-hidden p-3 sm:p-4">
+      <div ref={scrollRef} className="min-h-0 flex-1 space-y-2 overflow-y-auto overflow-x-hidden p-3 sm:p-4">
         {messages.length === 0 && (
           <p className="py-12 text-center text-xs text-[color:var(--text-3)]">Comece a conversa.</p>
         )}
@@ -439,16 +465,20 @@ export function ConversationView({
         })}
       </div>
 
+      <div
+        className="shrink-0 border-t border-[color:var(--line)] bg-[color:var(--surface-2)]"
+        style={{ paddingBottom: keyboardInset ? `${keyboardInset}px` : undefined }}
+      >
       {/* Reply preview */}
       {replyTo && (
-        <div className="flex items-center gap-2 border-t border-white/10 bg-black/40 px-3 py-2 text-xs">
+        <div className="flex items-center gap-2 bg-[color:var(--surface-3)] px-3 py-2 text-xs">
           <ReaderIcon className="h-3.5 w-3.5 text-[color:var(--ruby)]" />
-          <span className="text-white/60">
+          <span className="min-w-0 flex-1 truncate text-[color:var(--text-3)]">
             Respondendo a{" "}
-            <span className="text-white">{profiles.get(replyTo.sender_id)?.display_name ?? "—"}</span>
-            : <span className="text-white/50">"{replyTo.content.slice(0, 60)}"</span>
+            <span className="text-[color:var(--text-1)]">{profiles.get(replyTo.sender_id)?.display_name ?? "—"}</span>
+            : <span>"{replyTo.content.slice(0, 60)}"</span>
           </span>
-          <button onClick={() => setReplyTo(null)} className="ml-auto text-white/50 hover:text-white" aria-label="Cancelar reply">
+          <button onClick={() => setReplyTo(null)} className="ml-auto text-[color:var(--text-3)] hover:text-[color:var(--text-1)]" aria-label="Cancelar reply">
             <Cross2Icon className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -471,7 +501,7 @@ export function ConversationView({
 
       {/* Pending files */}
       {pendingFiles.length > 0 && (
-        <div className="flex flex-wrap gap-2 border-t border-white/10 bg-black/40 px-3 py-2">
+        <div className="flex flex-wrap gap-2 border-t border-[color:var(--line)] bg-[color:var(--surface-3)] px-3 py-2">
           {pendingFiles.map((f, i) => (
             <PendingFileChip
               key={i}
@@ -484,7 +514,7 @@ export function ConversationView({
 
       <form
         onSubmit={send}
-        className="flex items-end gap-1.5 border-t border-[color:var(--line)] bg-[color:var(--surface-2)] p-2 sm:gap-2 sm:p-3"
+        className="flex items-end gap-1.5 p-2 sm:gap-2 sm:p-3"
         style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0.5rem)" }}
       >
         <input
@@ -520,6 +550,8 @@ export function ConversationView({
           ref={inputRef}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
+          onFocus={() => setComposerFocused(true)}
+          onBlur={() => setComposerFocused(false)}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
@@ -528,6 +560,7 @@ export function ConversationView({
           }}
           rows={1}
           placeholder="Mensagem…"
+          enterKeyHint="send"
           className="min-h-[44px] min-w-0 flex-1 resize-none rounded-xl border border-[color:var(--line)] bg-[color:var(--surface-3)] px-3 py-2.5 text-base text-[color:var(--text-1)] placeholder:text-[color:var(--text-3)] focus:outline-none focus:ring-2 focus:ring-[color:var(--ruby)] sm:min-h-0 sm:rounded-md sm:py-2 sm:text-sm"
           style={{ maxHeight: 160 }}
           aria-label="Mensagem"
@@ -545,6 +578,7 @@ export function ConversationView({
           <PaperPlaneIcon className="h-5 w-5 sm:h-4 sm:w-4" />
         </Button>
       </form>
+      </div>
     </div>
   );
 }
