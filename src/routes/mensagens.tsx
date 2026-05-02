@@ -224,7 +224,7 @@ function MessagesPage() {
     <>
       {/* Mobile fullscreen quando uma conversa está aberta */}
       {activeConv && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-[color:var(--surface-1)] lg:hidden">
+        <div className="fixed inset-0 z-50 flex h-[100dvh] flex-col overflow-hidden bg-[color:var(--surface-1)] lg:hidden">
           <ConversationView
             conversationId={activeConv.id}
             title={convTitle(activeConv)}
@@ -334,7 +334,7 @@ function MessagesPage() {
           </div>
         )}
 
-        <div className="grid gap-0 overflow-hidden rounded-lg border border-[color:var(--line)] bg-[color:var(--surface-2)] lg:grid-cols-[300px_1fr]" style={{ minHeight: 560 }}>
+        <div className="grid gap-0 overflow-hidden rounded-lg border border-[color:var(--line)] bg-[color:var(--surface-2)] lg:grid-cols-[300px_minmax(0,1fr)]" style={{ minHeight: 560 }}>
           <aside className="border-b border-white/10 lg:border-b-0 lg:border-r">
             {convs.length === 0 ? (
               <div className="p-6 text-center text-xs text-[color:var(--text-3)]">
@@ -382,7 +382,7 @@ function MessagesPage() {
             )}
           </aside>
 
-          <section className="hidden min-h-[560px] lg:block">
+          <section className="hidden h-[min(720px,calc(100vh-190px))] min-h-[560px] lg:block">
             {activeConv ? (
               <ConversationView
                 conversationId={activeConv.id}
