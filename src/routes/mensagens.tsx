@@ -1,5 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -224,13 +225,13 @@ function MessagesPage() {
     <>
       {/* Mobile fullscreen quando uma conversa está aberta */}
       {activeConv && (
-        <div className="fixed inset-0 z-50 flex h-[100dvh] flex-col overflow-hidden bg-[color:var(--surface-1)] lg:hidden">
+        <MobileConversationOverlay>
           <ConversationView
             conversationId={activeConv.id}
             title={convTitle(activeConv)}
             onBack={() => setActiveId(null)}
           />
-        </div>
+        </MobileConversationOverlay>
       )}
 
       <div className="mx-auto max-w-6xl px-3 py-4 sm:px-5 sm:py-8">
@@ -398,5 +399,22 @@ function MessagesPage() {
         </div>
       </div>
     </>
+  );
+}
+
+function MobileConversationOverlay({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[80] flex h-[100dvh] flex-col overflow-hidden bg-[color:var(--surface-1)] lg:hidden">
+      {children}
+    </div>,
+    document.body,
   );
 }
